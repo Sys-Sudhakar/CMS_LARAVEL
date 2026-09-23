@@ -50,6 +50,27 @@ class CmsPurgeService
         User $user
     ): CmsDeletionBatch {
 
+    
+        /*
+        |--------------------------------------------------------------------------
+        | Tenant Safety
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            ! $batch->team_id ||
+            ! $user->current_team_id ||
+            (int) $batch->team_id !==
+                (int) $user->current_team_id ||
+            ! $user->belongsToTeam(
+                $user->currentTeam()->first()
+            )
+        ) {
+            throw new RuntimeException(
+                'This deletion batch is not available in the active team.'
+            );
+        }
+
         /*
         |--------------------------------------------------------------------------
         | Physical Media File

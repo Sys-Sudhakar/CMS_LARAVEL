@@ -7,7 +7,7 @@ import AuthLayout from '@/layouts/auth-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import PublicLayout from './layouts/PublicLayout';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || 'SYSNET';
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),

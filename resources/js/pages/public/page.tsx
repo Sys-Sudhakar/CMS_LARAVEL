@@ -124,11 +124,9 @@ export default function PageView({ page }: PublicPageProps) {
         <PublicWebsiteLayout>
             <Head title={page.title} />
 
-            <div className="public-theme">
-                <main className="public-main">
-                    {sections.map((section) => {
-                        const content = section.content ?? {};
-                        const imageUrl = getImageUrl(section.image);
+            {sections.map((section) => {
+                const content = section.content ?? {};
+                const imageUrl = getImageUrl(section.image);
 
                         /*
                         * =========================================================
@@ -136,16 +134,16 @@ export default function PageView({ page }: PublicPageProps) {
                         * =========================================================
                         */
 
-                        if (section.video_url) {
-                            const youtubeEmbedUrl = getYouTubeEmbedUrl(
-                                section.video_url,
-                            );
+                    if (section.video_url) {
+                        const youtubeEmbedUrl = getYouTubeEmbedUrl(
+                            section.video_url,
+                        );
 
-                            return (
-                                <section
-                                    key={section.id}
-                                    className="public-section public-video-section"
-                                >
+                        return (
+                            <section
+                                key={section.id}
+                                className="public-section public-video-section"
+                            >
                                     <div className="public-container">
                                         {section.title && (
                                             <div className="public-section-header">
@@ -497,9 +495,7 @@ export default function PageView({ page }: PublicPageProps) {
                             default:
                                 return null;
                         }
-                    })}
-                </main>
-            </div>
+            })}
         </PublicWebsiteLayout>
     );
 }

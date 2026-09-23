@@ -4,19 +4,19 @@ namespace App\Notifications\Teams;
 
 use App\Models\TeamInvitation as TeamInvitationModel;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class TeamInvitation extends Notification implements ShouldQueue
+class TeamInvitation extends Notification
 {
     use Queueable;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct(public TeamInvitationModel $invitation)
-    {
+    public function __construct(
+        public TeamInvitationModel $invitation
+    ) {
         //
     }
 
@@ -25,29 +25,128 @@ class TeamInvitation extends Notification implements ShouldQueue
      *
      * @return array<int, string>
      */
-    public function via(object $notifiable): array
-    {
-        return ['mail'];
+    public function via(
+        object $notifiable
+    ): array {
+        return [
+            'mail',
+        ];
     }
 
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail(object $notifiable): MailMessage
-    {
-        $team = $this->invitation->team;
-        $inviter = $this->invitation->inviter;
+    public function toMail(
+        object $notifiable
+    ): MailMessage {
+        $team =
+            $this->invitation
+                ->team;
+
+        $inviter =
+            $this->invitation
+                ->inviter;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Invitation Review URL
+        |--------------------------------------------------------------------------
+        |
+        | Send the user directly to the invitation review page.
+        |
+        | If the user is already logged in, they can immediately review
+        | and accept/decline the invitation.
+        |
+        */
+
+        $invitationUrl =
+            route(
+                'invitations.show',
+                [
+                    'invitation' =>
+                        $this->invitation->code,
+                ]
+            );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Invitation Email
+        |--------------------------------------------------------------------------
+        */
 
         return (new MailMessage)
-            ->subject(__("You've been invited to join :teamName", ['teamName' => $team->name]))
-            ->line(__(':inviterName has invited you to join the :teamName team.', [
-                'inviterName' => $inviter->name,
-                'teamName' => $team->name,
-            ]))
-            ->line(__('Log in and visit your dashboard to accept or decline this invitation.'))
+
+            ->subject(
+                __(
+                    'You have been invited to join :teamName',
+                    [
+                        'teamName' =>
+                            $team->name,
+                    ]
+                )
+            )
+
+            ->greeting(
+                __('Hello!')
+            )
+
+            ->line(
+                __(
+                    ':inviterName has invited you to join the :teamName team.',
+                    [
+                        'inviterName' =>
+                            $inviter->name,
+
+                        'teamName' =>
+                            $team->name,
+                    ]
+                )
+            )
+
+            ->line(
+                __(
+                    'A CMS user account has already been created for this email address.'
+                )
+            )
+
+            ->line(
+                __(
+                    'Use the password provided to you by your administrator to sign in.'
+                )
+            )
+
+            ->line(
+                __(
+                    'Click the button below to review and respond to the team invitation.'
+                )
+            )
+
             ->action(
-                __('Log in'),
-                route('login', ['invitation' => $this->invitation->code]),
+                __('View Team Invitation'),
+                $invitationUrl
+            )
+
+            ->line(
+                __(
+                    'This invitation will expire on :date.',
+                    [
+                        'date' =>
+                            optional(
+                                $this->invitation->expires_at
+                            )->format(
+                                'd M Y, h:i A'
+                            )
+                            ?? __('the configured expiry date'),
+                    ]
+                )
+            )
+
+            ->line(
+                __(
+                    'If you were not expecting this invitation, you can safely ignore this email.'
+                )
             );
     }
 
@@ -56,13 +155,30 @@ class TeamInvitation extends Notification implements ShouldQueue
      *
      * @return array<string, mixed>
      */
-    public function toArray(object $notifiable): array
-    {
+    public function toArray(
+        object $notifiable
+    ): array {
         return [
-            'invitation_id' => $this->invitation->id,
-            'team_id' => $this->invitation->team_id,
-            'team_name' => $this->invitation->team->name,
-            'role' => $this->invitation->role->value,
+            'invitation_id' =>
+                $this->invitation->id,
+
+            'team_id' =>
+                $this->invitation->team_id,
+
+            'team_name' =>
+                $this->invitation
+                    ->team
+                    ->name,
+
+            'role' =>
+                $this->invitation
+                    ->role
+                    ->value,
+
+            'expires_at' =>
+                $this->invitation
+                    ->expires_at
+                    ?->toISOString(),
         ];
     }
 }

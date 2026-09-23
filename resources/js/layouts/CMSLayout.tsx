@@ -239,7 +239,6 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
         notification: CmsNotification
     ) => {
         if (
-            !can('notifications.manage') ||
             notification.read_at
         ) {
             return;
@@ -249,11 +248,8 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
             `/admin/notifications/${notification.id}/read`,
             {},
             {
-                preserveScroll:
-                    true,
-
-                preserveState:
-                    true,
+                preserveScroll: true,
+                preserveState: true,
             }
         );
     };
@@ -261,10 +257,9 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
 
     const markAllNotificationsAsRead =
         () => {
+
             if (
-                !can('notifications.manage') ||
-                unreadNotificationCount ===
-                    0
+                unreadNotificationCount === 0
             ) {
                 return;
             }
@@ -273,11 +268,8 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
                 '/admin/notifications/read-all',
                 {},
                 {
-                    preserveScroll:
-                        true,
-
-                    preserveState:
-                        true,
+                    preserveScroll: true,
+                    preserveState: true,
                 }
             );
         };
@@ -640,8 +632,8 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
                                                 </p>
                                             </div>
 
-                                            {can('notifications.manage') &&
-                                                unreadNotificationCount > 0 && (
+        
+                                            {unreadNotificationCount > 0 && (
                                                     <button
                                                         type="button"
                                                         onClick={markAllNotificationsAsRead}
@@ -672,15 +664,9 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
                                                             key={notification.id}
                                                             type="button"
                                                             onClick={() => {
-                                                                if (
-                                                                    can(
-                                                                        'notifications.manage'
-                                                                    )
-                                                                ) {
-                                                                    markNotificationAsRead(
-                                                                        notification
-                                                                    );
-                                                                }
+                                                                markNotificationAsRead(
+                                                                    notification
+                                                                );
                                                             }}
                                                             className={`
                                                                 block

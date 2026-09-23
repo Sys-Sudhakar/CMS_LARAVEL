@@ -18,6 +18,16 @@ class ContactSubmission extends Model
     */
 
     protected $fillable = [
+        /*
+         * Tenant ownership
+         */
+        'team_id',
+        'website_id',
+        'page_section_id',
+
+        /*
+         * Contact details
+         */
         'name',
         'email',
         'company',
@@ -26,20 +36,95 @@ class ContactSubmission extends Model
         'message',
         'status',
 
+        /*
+         * Deletion tracking
+         */
         'deleted_by',
         'deletion_batch_id',
     ];
 
 
+    protected $casts = [
+        'deleted_at' =>
+            'datetime',
+    ];
+
+
     /*
     |--------------------------------------------------------------------------
-    | Casts
+    | Team
     |--------------------------------------------------------------------------
     */
 
-    protected $casts = [
-        'deleted_at' => 'datetime',
-    ];
+    public function team(): BelongsTo
+    {
+        return $this->belongsTo(
+            Team::class
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Website
+    |--------------------------------------------------------------------------
+    */
+
+    public function website(): BelongsTo
+    {
+        return $this->belongsTo(
+            Website::class
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Website Including Trash
+    |--------------------------------------------------------------------------
+    */
+
+    public function websiteWithTrashed(): BelongsTo
+    {
+        return $this
+            ->belongsTo(
+                Website::class,
+                'website_id'
+            )
+            ->withTrashed();
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Source Page Section
+    |--------------------------------------------------------------------------
+    */
+
+    public function pageSection(): BelongsTo
+    {
+        return $this->belongsTo(
+            PageSection::class,
+            'page_section_id'
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Source Page Section Including Trash
+    |--------------------------------------------------------------------------
+    */
+
+    public function pageSectionWithTrashed(): BelongsTo
+    {
+        return $this
+            ->belongsTo(
+                PageSection::class,
+                'page_section_id'
+            )
+            ->withTrashed();
+    }
 
 
     /*

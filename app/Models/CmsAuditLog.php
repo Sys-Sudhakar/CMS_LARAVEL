@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class CmsAuditLog extends Model
 {
     protected $fillable = [
+        'team_id',
         'user_id',
         'action',
         'entity_type',
@@ -17,13 +18,21 @@ class CmsAuditLog extends Model
         'metadata',
     ];
 
+
     protected $casts = [
-        'metadata' => 'array',
+        'metadata' =>
+            'array',
     ];
 
-    /**
-     * User who performed the action.
-     */
+
+    public function team(): BelongsTo
+    {
+        return $this->belongsTo(
+            Team::class
+        );
+    }
+
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(
@@ -31,9 +40,7 @@ class CmsAuditLog extends Model
         );
     }
 
-    /**
-     * Related deletion batch.
-     */
+
     public function deletionBatch(): BelongsTo
     {
         return $this->belongsTo(

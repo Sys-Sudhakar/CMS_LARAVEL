@@ -26,21 +26,21 @@ class CmsDeletionNotification extends Notification
     | Notification Channels
     |--------------------------------------------------------------------------
     |
-    | Soft Delete
-    |     -> Database only
+    | deleted
+    |     -> database
     |
-    | Restore
-    |     -> Database only
+    | restored
+    |     -> database
     |
-    | Permanent Delete
-    |     -> Database + Email
+    | permanently_deleted
+    |     -> database
+    |     -> email only for Super Admin of THIS TEAM
     |
     */
 
     public function via(
         object $notifiable
     ): array {
-
         $channels = [
             'database',
         ];
@@ -72,7 +72,6 @@ class CmsDeletionNotification extends Notification
     public function toDatabase(
         object $notifiable
     ): array {
-
         $entityType =
             class_basename(
                 $this->batch->root_type
@@ -80,6 +79,22 @@ class CmsDeletionNotification extends Notification
 
 
         return [
+            /*
+            |--------------------------------------------------------------------------
+            | Tenant Ownership
+            |--------------------------------------------------------------------------
+            |
+            | This is the most important addition.
+            |
+            | Notifications are permanently associated with the team where
+            | the deletion / restore / purge operation occurred.
+            |
+            */
+
+            'team_id' =>
+                $this->batch->team_id,
+
+
             /*
             |--------------------------------------------------------------------------
             | Action
@@ -189,25 +204,11 @@ class CmsDeletionNotification extends Notification
     |--------------------------------------------------------------------------
     | Permanent Delete Email
     |--------------------------------------------------------------------------
-    |
-    | Email is only used when:
-    |
-    | action = permanently_deleted
-    |
-    | We intentionally do NOT include:
-    |
-    | - contact form message
-    | - candidate cover letter
-    | - resume content
-    | - passwords
-    | - sensitive personal data
-    |
     */
 
     public function toMail(
         object $notifiable
     ): MailMessage {
-
         $entityType =
             class_basename(
                 $this->batch->root_type
@@ -234,9 +235,11 @@ class CmsDeletionNotification extends Notification
 
 
         return (new MailMessage)
+
             ->subject(
                 'CRITICAL CMS Alert - Permanent Deletion'
             )
+
             ->view(
                 'emails.cms-critical-deletion',
                 [
@@ -284,35 +287,81 @@ class CmsDeletionNotification extends Notification
 
     /*
     |--------------------------------------------------------------------------
-    | Super Admin Email Recipient Check
+    | Super Admin Check For Batch Team
     |--------------------------------------------------------------------------
     |
-    | notifications.receive controls who gets the CMS database notification.
+    | IMPORTANT:
     |
-    | Critical permanent-delete email alerts are additionally restricted to
-    | users who belong to the Super Admin role.
+    | Do not use:
+    |
+    |     $user->roles()
+    |
+    | because roles() depends on current_team_id.
+    |
+    | The user may currently be viewing another team.
     |
     */
 
     private function isSuperAdmin(
         object $notifiable
     ): bool {
-
         if (
             ! $notifiable instanceof
                 User
         ) {
-
             return false;
         }
 
 
+        if (
+            ! $this->batch->team_id
+        ) {
+            return false;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | User Must Actually Belong To This Team
+        |--------------------------------------------------------------------------
+        */
+
+        $belongsToTeam =
+            $notifiable
+                ->teams()
+
+                ->where(
+                    'teams.id',
+                    $this->batch->team_id
+                )
+
+                ->exists();
+
+
+        if (
+            ! $belongsToTeam
+        ) {
+            return false;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Check Team-Specific CMS Role
+        |--------------------------------------------------------------------------
+        */
+
         return $notifiable
-            ->roles()
+
+            ->rolesForTeam(
+                (int) $this->batch->team_id
+            )
+
             ->where(
                 'name',
                 'Super Admin'
             )
+
             ->exists();
     }
 
@@ -352,7 +401,6 @@ class CmsDeletionNotification extends Notification
     private function getTitle(
         string $entityType
     ): string {
-
         $friendlyType =
             $this->friendlyEntityType(
                 $entityType
@@ -389,7 +437,6 @@ class CmsDeletionNotification extends Notification
     private function getMessage(
         string $entityType
     ): string {
-
         $friendlyType =
             $this->friendlyEntityType(
                 $entityType
@@ -448,7 +495,6 @@ class CmsDeletionNotification extends Notification
     private function friendlyEntityType(
         string $entityType
     ): string {
-
         return match (
             $entityType
         ) {
@@ -482,9 +528,6 @@ class CmsDeletionNotification extends Notification
     |--------------------------------------------------------------------------
     | Affected Record Count
     |--------------------------------------------------------------------------
-    |
-    | Different deletion types use slightly different metadata fields.
-    |
     */
 
     private function getAffectedRecordCount(): ?int
@@ -505,8 +548,8 @@ class CmsDeletionNotification extends Notification
 
 
         foreach (
-            $possibleKeys as
-            $key
+            $possibleKeys
+            as $key
         ) {
 
             if (
@@ -524,15 +567,6 @@ class CmsDeletionNotification extends Notification
             }
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Root record itself
-        |--------------------------------------------------------------------------
-        |
-        | If no aggregate count exists, the purge at minimum affected one record.
-        |
-        */
 
         return 1;
     }

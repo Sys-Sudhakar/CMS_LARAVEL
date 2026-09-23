@@ -15,7 +15,9 @@ class Website extends Model
     use HasFactory;
     use SoftDeletes;
 
+
     protected $fillable = [
+        'team_id',
         'name',
         'slug',
         'url',
@@ -26,13 +28,36 @@ class Website extends Model
         'created_by',
     ];
 
+
     protected $casts = [
-        'deleted_at' => 'datetime',
+        'deleted_at' =>
+            'datetime',
     ];
 
-    /**
-     * User who created the website.
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | Team
+    |--------------------------------------------------------------------------
+    |
+    | Every website belongs to one team.
+    |
+    */
+
+    public function team(): BelongsTo
+    {
+        return $this->belongsTo(
+            Team::class
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Creator
+    |--------------------------------------------------------------------------
+    */
+
     public function creator(): BelongsTo
     {
         return $this->belongsTo(
@@ -41,9 +66,13 @@ class Website extends Model
         );
     }
 
-    /**
-     * User who deleted the website.
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | Deleted By
+    |--------------------------------------------------------------------------
+    */
+
     public function deletedBy(): BelongsTo
     {
         return $this->belongsTo(
@@ -52,9 +81,13 @@ class Website extends Model
         );
     }
 
-    /**
-     * Deletion batch associated with this website.
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | Deletion Batch
+    |--------------------------------------------------------------------------
+    */
+
     public function deletionBatch(): BelongsTo
     {
         return $this->belongsTo(
@@ -63,12 +96,13 @@ class Website extends Model
         );
     }
 
-    /**
-     * Pages belonging to this website.
-     *
-     * Normal CMS usage automatically excludes
-     * soft-deleted pages.
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pages
+    |--------------------------------------------------------------------------
+    */
+
     public function pages(): HasMany
     {
         return $this->hasMany(
@@ -76,21 +110,29 @@ class Website extends Model
         );
     }
 
-    /**
-     * All pages including deleted pages.
-     *
-     * Used by Trash / Restore services.
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pages Including Trashed
+    |--------------------------------------------------------------------------
+    */
+
     public function pagesWithTrashed(): HasMany
     {
-        return $this->hasMany(
-            Page::class
-        )->withTrashed();
+        return $this
+            ->hasMany(
+                Page::class
+            )
+            ->withTrashed();
     }
 
-    /**
-     * Contact settings for this website.
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | Contact Settings
+    |--------------------------------------------------------------------------
+    */
+
     public function contactSetting(): HasOne
     {
         return $this->hasOne(
@@ -98,9 +140,13 @@ class Website extends Model
         );
     }
 
-    /**
-     * Menus belonging to this website.
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | Menus
+    |--------------------------------------------------------------------------
+    */
+
     public function menus(): HasMany
     {
         return $this->hasMany(
@@ -108,9 +154,13 @@ class Website extends Model
         );
     }
 
-    /**
-     * Media belonging to this website.
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | Media
+    |--------------------------------------------------------------------------
+    */
+
     public function media(): HasMany
     {
         return $this->hasMany(
@@ -118,14 +168,20 @@ class Website extends Model
         );
     }
 
-    /**
-     * Job openings assigned to this website.
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | Job Openings
+    |--------------------------------------------------------------------------
+    */
+
     public function jobOpenings(): BelongsToMany
     {
-        return $this->belongsToMany(
-            JobOpening::class,
-            'job_opening_website'
-        )->withTimestamps();
+        return $this
+            ->belongsToMany(
+                JobOpening::class,
+                'job_opening_website'
+            )
+            ->withTimestamps();
     }
 }

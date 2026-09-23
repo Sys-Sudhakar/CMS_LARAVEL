@@ -77,6 +77,207 @@ class HandleInertiaRequests extends Middleware
 
 
             /* =====================================================
+               CMS NOTIFICATIONS
+               =====================================================
+
+               Shared with CMSLayout.tsx as:
+
+               cms_notifications: {
+                   unread_count: number,
+                   recent: [...]
+               }
+
+               Notifications are scoped to the authenticated user's
+               CURRENT TEAM. Old notifications without data.team_id
+               are intentionally excluded.
+               ===================================================== */
+
+            'cms_notifications' =>
+                function () use (
+                    $user
+                ) {
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Guest User
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if (
+                        ! $user
+                    ) {
+
+                        return [
+
+                            'unread_count' =>
+                                0,
+
+                            'recent' =>
+                                [],
+
+                        ];
+
+                    }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Resolve Current Team
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $team =
+                        $user
+                            ->currentTeam()
+                            ->first();
+
+
+                    if (
+                        ! $team
+                    ) {
+
+                        return [
+
+                            'unread_count' =>
+                                0,
+
+                            'recent' =>
+                                [],
+
+                        ];
+
+                    }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Membership Protection
+                    |--------------------------------------------------------------------------
+                    |
+                    | Never expose CMS notifications for a team the authenticated
+                    | user does not actually belong to.
+                    |
+                    */
+
+                    if (
+                        ! $user->belongsToTeam(
+                            $team
+                        )
+                    ) {
+
+                        return [
+
+                            'unread_count' =>
+                                0,
+
+                            'recent' =>
+                                [],
+
+                        ];
+
+                    }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Current Team Unread Count
+                    |--------------------------------------------------------------------------
+                    |
+                    | Notifications created by CmsDeletionNotification contain:
+                    |
+                    |     data.team_id
+                    |
+                    | Old notifications without a team_id are intentionally excluded.
+                    |
+                    */
+
+                    $unreadCount =
+                        $user
+                            ->unreadNotifications()
+
+                            ->where(
+                                'data->team_id',
+                                $team->id
+                            )
+
+                            ->count();
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Current Team Recent Notifications
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $recentNotifications =
+                        $user
+                            ->notifications()
+
+                            ->where(
+                                'data->team_id',
+                                $team->id
+                            )
+
+                            ->latest()
+
+                            ->limit(
+                                8
+                            )
+
+                            ->get()
+
+                            ->map(
+                                function (
+                                    $notification
+                                ) {
+
+                                    return [
+
+                                        'id' =>
+                                            $notification
+                                                ->id,
+
+                                        'type' =>
+                                            $notification
+                                                ->type,
+
+                                        'data' =>
+                                            $notification
+                                                ->data,
+
+                                        'read_at' =>
+                                            $notification
+                                                ->read_at
+                                                ?->toISOString(),
+
+                                        'created_at' =>
+                                            $notification
+                                                ->created_at
+                                                ?->toISOString(),
+
+                                    ];
+
+                                }
+                            )
+
+                            ->values()
+                            ->all();
+
+
+                    return [
+
+                        'unread_count' =>
+                            $unreadCount,
+
+                        'recent' =>
+                            $recentNotifications,
+
+                    ];
+
+                },
+
+
+            /* =====================================================
                CLOUDFLARE TURNSTILE
                ===================================================== */
 

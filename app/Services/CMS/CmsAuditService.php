@@ -9,9 +9,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class CmsAuditService
 {
-    /**
-     * Record a CMS audit event.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Record CMS Audit Event
+    |--------------------------------------------------------------------------
+    */
+
     public function log(
         string $action,
         string $entityType,
@@ -21,30 +24,62 @@ class CmsAuditService
         ?CmsDeletionBatch $deletionBatch = null,
         array $metadata = []
     ): CmsAuditLog {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Resolve Team
+        |--------------------------------------------------------------------------
+        |
+        | Prefer the deletion batch because it is the permanent source of tenant
+        | ownership for Trash / restore / purge operations.
+        |
+        | current_team_id is only used as fallback.
+        |
+        */
+
+        $teamId =
+            $deletionBatch?->team_id
+            ?? $user?->current_team_id;
+
+
         return CmsAuditLog::create([
-            'user_id' => $user?->id,
+            'team_id' =>
+                $teamId,
 
-            'action' => $action,
+            'user_id' =>
+                $user?->id,
 
-            'entity_type' => $entityType,
+            'action' =>
+                $action,
 
-            'entity_id' => $entityId,
+            'entity_type' =>
+                $entityType,
 
-            'entity_name' => $entityName,
+            'entity_id' =>
+                $entityId,
+
+            'entity_name' =>
+                $entityName,
 
             'deletion_batch_id' =>
                 $deletionBatch?->id,
 
             'metadata' =>
-                empty($metadata)
+                empty(
+                    $metadata
+                )
                     ? null
                     : $metadata,
         ]);
     }
 
-    /**
-     * Log a model deletion.
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | Deleted
+    |--------------------------------------------------------------------------
+    */
+
     public function deleted(
         Model $model,
         string $entityName,
@@ -53,19 +88,36 @@ class CmsAuditService
         array $metadata = []
     ): CmsAuditLog {
         return $this->log(
-            action: 'deleted',
-            entityType: $model::class,
-            entityId: $model->getKey(),
-            entityName: $entityName,
-            user: $user,
-            deletionBatch: $batch,
-            metadata: $metadata,
+            action:
+                'deleted',
+
+            entityType:
+                $model::class,
+
+            entityId:
+                $model->getKey(),
+
+            entityName:
+                $entityName,
+
+            user:
+                $user,
+
+            deletionBatch:
+                $batch,
+
+            metadata:
+                $metadata,
         );
     }
 
-    /**
-     * Log a restoration.
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | Restored
+    |--------------------------------------------------------------------------
+    */
+
     public function restored(
         Model $model,
         string $entityName,
@@ -74,22 +126,36 @@ class CmsAuditService
         array $metadata = []
     ): CmsAuditLog {
         return $this->log(
-            action: 'restored',
-            entityType: $model::class,
-            entityId: $model->getKey(),
-            entityName: $entityName,
-            user: $user,
-            deletionBatch: $batch,
-            metadata: $metadata,
+            action:
+                'restored',
+
+            entityType:
+                $model::class,
+
+            entityId:
+                $model->getKey(),
+
+            entityName:
+                $entityName,
+
+            user:
+                $user,
+
+            deletionBatch:
+                $batch,
+
+            metadata:
+                $metadata,
         );
     }
 
-    /**
-     * Log a permanent deletion.
-     *
-     * This is written before forceDelete() so the
-     * original record ID and name are retained.
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | Permanently Deleted
+    |--------------------------------------------------------------------------
+    */
+
     public function permanentlyDeleted(
         string $entityType,
         int $entityId,
@@ -99,13 +165,26 @@ class CmsAuditService
         array $metadata = []
     ): CmsAuditLog {
         return $this->log(
-            action: 'permanently_deleted',
-            entityType: $entityType,
-            entityId: $entityId,
-            entityName: $entityName,
-            user: $user,
-            deletionBatch: $batch,
-            metadata: $metadata,
+            action:
+                'permanently_deleted',
+
+            entityType:
+                $entityType,
+
+            entityId:
+                $entityId,
+
+            entityName:
+                $entityName,
+
+            user:
+                $user,
+
+            deletionBatch:
+                $batch,
+
+            metadata:
+                $metadata,
         );
     }
 }

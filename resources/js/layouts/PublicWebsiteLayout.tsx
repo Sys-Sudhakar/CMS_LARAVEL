@@ -70,10 +70,7 @@ export default function PublicWebsiteLayout({
 
             <CookieConsentBanner />
 
-            
-
             <AnalyticsConsentManager />
-
         </div>
     );
 }

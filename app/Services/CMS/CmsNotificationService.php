@@ -85,12 +85,17 @@ class CmsNotificationService
     | Send Notification
     |--------------------------------------------------------------------------
     |
-    | Notifications are sent only to users whose assigned role contains:
+    | Notification flow:
     |
-    | notifications.receive
-    |
-    | Notification failures are logged instead of breaking the delete,
-    | restore or permanent-delete operation.
+    | CmsDeletionBatch
+    |       ↓
+    | batch.team_id
+    |       ↓
+    | Users belonging to that Team
+    |       ↓
+    | Team-specific CMS role
+    |       ↓
+    | notifications.receive permission
     |
     */
 
@@ -99,14 +104,59 @@ class CmsNotificationService
         User $performedBy,
         string $action
     ): void {
-        $recipients =
-            $this->getRecipients();
+        /*
+        |--------------------------------------------------------------------------
+        | Batch Must Have Tenant Ownership
+        |--------------------------------------------------------------------------
+        |
+        | Never send a tenant notification when the batch cannot be associated
+        | with a team.
+        |
+        */
 
+        if (! $batch->team_id) {
+
+            Log::warning(
+                'CMS notification skipped because deletion batch has no team.',
+                [
+                    'action' =>
+                        $action,
+
+                    'deletion_batch_id' =>
+                        $batch->id,
+
+                    'performed_by_user_id' =>
+                        $performedBy->id,
+                ]
+            );
+
+            return;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Resolve Team-Scoped Recipients
+        |--------------------------------------------------------------------------
+        */
+
+        $recipients =
+            $this->getRecipients(
+                (int) $batch->team_id
+            );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Send Notifications
+        |--------------------------------------------------------------------------
+        */
 
         foreach (
-            $recipients as
-            $recipient
+            $recipients
+            as $recipient
         ) {
+
             try {
 
                 $recipient->notify(
@@ -122,15 +172,17 @@ class CmsNotificationService
                     )
                 );
 
-            } catch (Throwable $exception) {
+            } catch (
+                Throwable $exception
+            ) {
 
                 /*
                 |--------------------------------------------------------------------------
                 | Notification Failure Protection
                 |--------------------------------------------------------------------------
                 |
-                | A notification problem must never undo or break a successful
-                | CMS deletion / restore / purge operation.
+                | Notification delivery must never roll back a successful
+                | deletion / restore / permanent-delete operation.
                 |
                 */
 
@@ -139,6 +191,9 @@ class CmsNotificationService
                     [
                         'action' =>
                             $action,
+
+                        'team_id' =>
+                            $batch->team_id,
 
                         'deletion_batch_id' =>
                             $batch->id,
@@ -163,27 +218,83 @@ class CmsNotificationService
     | Notification Recipients
     |--------------------------------------------------------------------------
     |
-    | A user receives CMS deletion lifecycle notifications only when one of
-    | their roles contains the notifications.receive permission.
+    | A recipient must satisfy BOTH:
     |
-    | This replaces the older trash.view based recipient logic.
+    | 1. The user is an actual member of this team.
+    |
+    | 2. The user's CMS role FOR THIS TEAM contains:
+    |
+    |       notifications.receive
+    |
+    | This intentionally avoids using User::roles() because roles() depends
+    | on the user's own current_team_id. A multi-team user may currently be
+    | viewing another team when this notification is generated.
     |
     */
 
-    private function getRecipients(): Collection
-    {
-        return User::query()
-            ->whereHas(
-                'roles.permissions',
+    private function getRecipients(
+        int $teamId
+    ): Collection {
+        /*
+        |--------------------------------------------------------------------------
+        | Get Actual Team Members
+        |--------------------------------------------------------------------------
+        */
+
+        $members =
+            User::query()
+
+                ->whereHas(
+                    'teams',
+                    function ($query) use (
+                        $teamId
+                    ) {
+                        $query->where(
+                            'teams.id',
+                            $teamId
+                        );
+                    }
+                )
+
+                ->get();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Check Team-Specific CMS Permission
+        |--------------------------------------------------------------------------
+        */
+
+        return $members
+
+            ->filter(
                 function (
-                    $permissionQuery
+                    User $user
+                ) use (
+                    $teamId
                 ) {
-                    $permissionQuery->where(
-                        'name',
-                        'notifications.receive'
-                    );
+                    return $user
+                        ->rolesForTeam(
+                            $teamId
+                        )
+
+                        ->whereHas(
+                            'permissions',
+                            function (
+                                $permissionQuery
+                            ) {
+                                $permissionQuery
+                                    ->where(
+                                        'name',
+                                        'notifications.receive'
+                                    );
+                            }
+                        )
+
+                        ->exists();
                 }
             )
-            ->get();
+
+            ->values();
     }
 }

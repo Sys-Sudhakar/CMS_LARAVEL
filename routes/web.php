@@ -63,6 +63,21 @@ Route::middleware(['auth'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
+
+
+        Route::get(
+            '/job-applications/{jobApplication}/resume',
+            [
+                JobApplicationController::class,
+                'downloadResume',
+            ]
+        )
+            ->middleware(
+                'permission:job-applications.view'
+            )
+            ->name(
+                'job-applications.resume'
+            );
         
 
         /*
@@ -71,17 +86,20 @@ Route::middleware(['auth'])
         |--------------------------------------------------------------------------
         */
 
-
         Route::get(
             '/websites/{website}/cookie-settings',
             [WebsiteCookieSettingController::class, 'edit']
-        )->name('websites.cookie-settings.edit');
+        )
+            ->middleware('permission:settings.view')
+            ->name('websites.cookie-settings.edit');
 
 
         Route::put(
             '/websites/{website}/cookie-settings',
             [WebsiteCookieSettingController::class, 'update']
-        )->name('websites.cookie-settings.update');
+        )
+            ->middleware('permission:settings.edit')
+            ->name('websites.cookie-settings.update');
 
 
 
@@ -200,23 +218,30 @@ Route::middleware(['auth'])
         |--------------------------------------------------------------------------
         | Contact Widget Settings
         |--------------------------------------------------------------------------
-        */   
+        */
 
         Route::get(
             '/contact-widget',
             [WebsiteContactSettingController::class, 'index']
-        )->name('admin.contact-widget.index');
-        
+        )
+            ->middleware('permission:settings.view')
+            ->name('contact-widget.index');
+
 
         Route::get(
             '/websites/{website}/contact-widget',
             [WebsiteContactSettingController::class, 'edit']
-        )->name('admin.websites.contact-widget.edit');
+        )
+            ->middleware('permission:settings.view')
+            ->name('websites.contact-widget.edit');
+
 
         Route::put(
             '/websites/{website}/contact-widget',
             [WebsiteContactSettingController::class, 'update']
-        )->name('admin.websites.contact-widget.update');
+        )
+            ->middleware('permission:settings.manage')
+            ->name('websites.contact-widget.update');
 
         /*
         |--------------------------------------------------------------------------
@@ -769,42 +794,68 @@ Route::middleware(['auth'])
         |--------------------------------------------------------------------------
         | Languages
         |--------------------------------------------------------------------------
+        |
+        | Languages are GLOBAL CMS configuration.
+        |
+        | They are not team-specific, so only users who explicitly have the
+        | corresponding language permissions should be able to manage them.
+        |
         */
 
         Route::get('/languages', [
             LanguageController::class,
             'index',
-        ])->name('languages.index');
+        ])
+            ->middleware('permission:languages.view')
+            ->name('languages.index');
+
 
         Route::get('/languages/create', [
             LanguageController::class,
             'create',
-        ])->name('languages.create');
+        ])
+            ->middleware('permission:languages.create')
+            ->name('languages.create');
+
 
         Route::post('/languages', [
             LanguageController::class,
             'store',
-        ])->name('languages.store');
+        ])
+            ->middleware('permission:languages.create')
+            ->name('languages.store');
+
 
         Route::get('/languages/{language}/edit', [
             LanguageController::class,
             'edit',
-        ])->name('languages.edit');
+        ])
+            ->middleware('permission:languages.edit')
+            ->name('languages.edit');
+
 
         Route::put('/languages/{language}', [
             LanguageController::class,
             'update',
-        ])->name('languages.update');
+        ])
+            ->middleware('permission:languages.edit')
+            ->name('languages.update');
+
 
         Route::patch('/languages/{language}/toggle-status', [
             LanguageController::class,
             'toggleStatus',
-        ])->name('languages.toggle-status');
+        ])
+            ->middleware('permission:languages.edit')
+            ->name('languages.toggle-status');
+
 
         Route::delete('/languages/{language}', [
             LanguageController::class,
             'destroy',
-        ])->name('languages.destroy');
+        ])
+            ->middleware('permission:languages.delete')
+            ->name('languages.destroy');
 
     });
 
@@ -812,6 +863,12 @@ Route::middleware(['auth'])
 |--------------------------------------------------------------------------
 | Contact Submissions - CMS
 |--------------------------------------------------------------------------
+|
+| Contact submissions are team-scoped inside the controller.
+|
+| These routes also enforce CMS permissions so authenticated users cannot
+| access contact data unless their active-team role allows it.
+|
 */
 
 Route::prefix('admin/contacts')
@@ -819,25 +876,66 @@ Route::prefix('admin/contacts')
     ->name('admin.contacts.')
     ->group(function () {
 
+        /*
+        |--------------------------------------------------------------------------
+        | View Contact Submissions
+        |--------------------------------------------------------------------------
+        */
+
         Route::get('/', [
             ContactSubmissionController::class,
             'index',
-        ])->name('index');
+        ])
+            ->middleware('permission:contacts.view')
+            ->name('index');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | View Single Contact Submission
+        |--------------------------------------------------------------------------
+        */
 
         Route::get('/{contactSubmission}', [
             ContactSubmissionController::class,
             'show',
-        ])->name('show');
+        ])
+            ->middleware('permission:contacts.view')
+            ->name('show');
 
-        Route::patch('/{contactSubmission}/status', [
-            ContactSubmissionController::class,
-            'updateStatus',
-        ])->name('status');
 
-        Route::delete('/{contactSubmission}', [
-            ContactSubmissionController::class,
-            'destroy',
-        ])->name('destroy');
+        /*
+        |--------------------------------------------------------------------------
+        | Update Contact Status
+        |--------------------------------------------------------------------------
+        */
+
+        Route::patch(
+            '/{contactSubmission}/status',
+            [
+                ContactSubmissionController::class,
+                'updateStatus',
+            ]
+        )
+            ->middleware('permission:contacts.edit')
+            ->name('status');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Delete Contact Submission
+        |--------------------------------------------------------------------------
+        */
+
+        Route::delete(
+            '/{contactSubmission}',
+            [
+                ContactSubmissionController::class,
+                'destroy',
+            ]
+        )
+            ->middleware('permission:contacts.delete')
+            ->name('destroy');
     });
 
 /*
@@ -868,14 +966,48 @@ Route::prefix('{current_team}')
 
 Route::middleware(['auth'])->group(function () {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Review Invitation
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get(
+        'invitations/{invitation}',
+        [
+            TeamInvitationController::class,
+            'show',
+        ]
+    )->name('invitations.show');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Accept Invitation
+    |--------------------------------------------------------------------------
+    */
+
     Route::post(
         'invitations/{invitation}/accept',
-        [TeamInvitationController::class, 'accept']
+        [
+            TeamInvitationController::class,
+            'accept',
+        ]
     )->name('invitations.accept');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Decline Invitation
+    |--------------------------------------------------------------------------
+    */
 
     Route::delete(
         'invitations/{invitation}',
-        [TeamInvitationController::class, 'decline']
+        [
+            TeamInvitationController::class,
+            'decline',
+        ]
     )->name('invitations.decline');
 });
 

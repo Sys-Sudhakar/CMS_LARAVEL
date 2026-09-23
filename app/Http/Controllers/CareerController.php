@@ -399,7 +399,7 @@ class CareerController extends Controller
                 ->file('resume')
                 ->store(
                     'job-applications/resumes',
-                    'public'
+                    'local'
                 );
 
         JobApplication::create([
