@@ -49,7 +49,15 @@ interface EditSectionProps {
 }
 
 
+type ContactVariant =
+    | 'split'
+    | 'form_only'
+    | 'contact_details';
+
+
 interface ContactContent {
+    variant: ContactVariant;
+
     heading: string;
     description: string;
 
@@ -71,8 +79,37 @@ interface ContactContent {
     show_service_category: boolean;
     show_message: boolean;
 
+    full_name_label: string;
+    full_name_placeholder: string;
+
+    email_label: string;
+    email_placeholder: string;
+
+    company_label: string;
+    company_placeholder: string;
+
+    phone_label: string;
+    phone_placeholder: string;
+
+    service_category_label: string;
+    service_category_placeholder: string;
+
+    message_label: string;
+    message_placeholder: string;
+
+    verification_label: string;
+    privacy_text: string;
+
     button_text: string;
+    success_message: string;
+
+    service_options: string[];
 }
+
+
+type SectionTheme =
+    | 'light'
+    | 'dark';
 
 
 type SectionType =
@@ -228,19 +265,43 @@ interface StatsContent {
 type AboutVariant =
     | 'image_left'
     | 'image_right'
+    | 'carousel'
     | 'video'
     | 'highlights'
     | 'why_choose_us'
     | 'core_values';
 
-interface AboutContent {
-    variant: AboutVariant;
+
+interface AboutSlide {
     label: string;
     heading: string;
     description: string;
+
+    image: string;
+
     button_text: string;
     button_url: string;
+
     highlights: string[];
+}
+
+
+interface AboutContent {
+    variant: AboutVariant;
+
+    label: string;
+    heading: string;
+    description: string;
+
+    button_text: string;
+    button_url: string;
+
+    highlights: string[];
+
+    autoplay: boolean;
+    interval: number;
+
+    slides: AboutSlide[];
 }
 
 
@@ -444,13 +505,39 @@ const defaultStatsContent: StatsContent = {
 
 const defaultAboutContent: AboutContent = {
     variant: 'image_left',
+
     label: 'About Us',
     heading: '',
     description: '',
+
     button_text: 'Learn More',
     button_url: '/about',
+
     highlights: [],
+
+    autoplay: true,
+    interval: 5200,
+
+    slides: [],
 };
+
+
+/* =========================================================
+   DEFAULT ABOUT CAROUSEL SLIDE
+   ========================================================= */
+
+const createEmptyAboutSlide = (): AboutSlide => ({
+    label: 'Our Story',
+    heading: '',
+    description: '',
+
+    image: '',
+
+    button_text: 'Learn More',
+    button_url: '/about',
+
+    highlights: [],
+});
 
 const defaultVisionContent: VisionContent = {
     variant: 'cards',
@@ -518,6 +605,66 @@ const defaultFaqContent: FaqContent = {
 };
 
 
+const defaultContactContent: ContactContent = {
+    variant: 'split',
+
+    heading: "Let's Discuss Your IT Needs",
+    description: '',
+
+    office_address: '',
+    phone: '',
+    email: '',
+    business_hours: '',
+
+    whatsapp: '',
+    whatsapp_text: 'Chat on WhatsApp',
+
+    form_title: 'Send us a message',
+    form_description: '',
+
+    show_full_name: true,
+    show_email: true,
+    show_company: true,
+    show_phone: true,
+    show_service_category: true,
+    show_message: true,
+
+    full_name_label: 'Full Name',
+    full_name_placeholder: 'Enter your full name',
+
+    email_label: 'Email Address',
+    email_placeholder: 'name@company.com',
+
+    company_label: 'Company',
+    company_placeholder: 'Company name',
+
+    phone_label: 'Phone Number',
+    phone_placeholder: '+65 1234 5678',
+
+    service_category_label: 'Service Category',
+    service_category_placeholder: 'Select a service',
+
+    message_label: 'Message',
+    message_placeholder: 'Tell us about your requirements...',
+
+    verification_label: 'Human Verification',
+    privacy_text:
+        'By submitting this form, you agree to our privacy policy.',
+
+    button_text: 'Send Message',
+    success_message: '',
+
+    service_options: [
+        'IT Infrastructure',
+        'Cybersecurity',
+        'Cloud Services',
+        'Managed Services',
+        'Software Development',
+        'Other',
+    ],
+};
+
+
 /* =========================================================
    COMPONENT
    ========================================================= */
@@ -532,6 +679,47 @@ const defaultFaqContent: FaqContent = {
 /* =========================================================
    COMPONENT
    ========================================================= */
+
+
+
+/* =========================================================
+   CONTACT TEXT INPUT
+   ========================================================= */
+
+function ContactTextInput({
+    label,
+    value,
+    onChange,
+}: {
+    label: string;
+    value: string;
+    onChange: (value: string) => void;
+}) {
+
+    return (
+
+        <div>
+
+            <label className="block text-sm font-medium text-gray-700">
+                {label}
+            </label>
+
+            <input
+                type="text"
+                value={value}
+                onChange={(e) =>
+                    onChange(
+                        e.target.value
+                    )
+                }
+                className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm"
+            />
+
+        </div>
+
+    );
+}
+
 
 export default function Edit({
     page,
@@ -632,6 +820,23 @@ export default function Edit({
 
 
     /* =====================================================
+       SECTION THEME
+       -----------------------------------------------------
+       Legacy sections that do not yet contain section_theme
+       keep the current animated dark appearance.
+       ===================================================== */
+
+    const [
+        sectionTheme,
+        setSectionTheme,
+    ] = useState<SectionTheme>(() =>
+        existingContent.section_theme === 'light'
+            ? 'light'
+            : 'dark'
+    );
+
+
+    /* =====================================================
        DYNAMIC SECTION STATES
        ===================================================== */
 
@@ -684,9 +889,59 @@ export default function Edit({
             return {
                 ...defaultAboutContent,
                 ...content,
-                highlights: Array.isArray(content.highlights)
-                    ? content.highlights as string[]
-                    : [],
+
+                highlights:
+                    Array.isArray(content.highlights)
+                        ? content.highlights as string[]
+                        : [],
+
+                autoplay:
+                    typeof content.autoplay === 'boolean'
+                        ? content.autoplay
+                        : defaultAboutContent.autoplay,
+
+                interval:
+                    typeof content.interval === 'number'
+                        ? content.interval
+                        : defaultAboutContent.interval,
+
+                slides:
+                    Array.isArray(content.slides)
+                        ? (content.slides as Partial<AboutSlide>[]).map(
+                              (slide) => ({
+                                  label:
+                                      slide.label ??
+                                      'Our Story',
+
+                                  heading:
+                                      slide.heading ??
+                                      '',
+
+                                  description:
+                                      slide.description ??
+                                      '',
+
+                                  image:
+                                      slide.image ??
+                                      '',
+
+                                  button_text:
+                                      slide.button_text ??
+                                      'Learn More',
+
+                                  button_url:
+                                      slide.button_url ??
+                                      '/about',
+
+                                  highlights:
+                                      Array.isArray(
+                                          slide.highlights
+                                      )
+                                          ? slide.highlights as string[]
+                                          : [],
+                              })
+                          )
+                        : [],
             };
         });
 
@@ -846,6 +1101,25 @@ export default function Edit({
                 items: Array.isArray(content.items)
                     ? content.items as FaqItem[]
                     : [],
+            };
+        });
+
+
+    const [contactContent, setContactContent] =
+        useState<ContactContent>(() => {
+            const content =
+                section.type === 'contact_form'
+                    ? existingContent as Partial<ContactContent>
+                    : {};
+
+            return {
+                ...defaultContactContent,
+                ...content,
+
+                service_options:
+                    Array.isArray(content.service_options)
+                        ? content.service_options as string[]
+                        : defaultContactContent.service_options,
             };
         });
 
@@ -1115,6 +1389,115 @@ export default function Edit({
                         itemIndex !== index
                 ),
         }));
+
+    };
+
+
+    /* =====================================================
+       ABOUT CAROUSEL HELPERS
+       ===================================================== */
+
+    const addAboutSlide = () => {
+
+        setAboutContent((previous) => ({
+            ...previous,
+
+            slides: [
+                ...previous.slides,
+                createEmptyAboutSlide(),
+            ],
+        }));
+
+    };
+
+
+    const updateAboutSlide = (
+        index: number,
+        field: keyof AboutSlide,
+        value: string | string[]
+    ) => {
+
+        setAboutContent((previous) => {
+
+            const slides = [
+                ...previous.slides,
+            ];
+
+
+            slides[index] = {
+                ...slides[index],
+                [field]: value,
+            };
+
+
+            return {
+                ...previous,
+                slides,
+            };
+
+        });
+
+    };
+
+
+    const removeAboutSlide = (
+        index: number
+    ) => {
+
+        setAboutContent((previous) => ({
+            ...previous,
+
+            slides:
+                previous.slides.filter(
+                    (_, slideIndex) =>
+                        slideIndex !== index
+                ),
+        }));
+
+    };
+
+
+    const moveAboutSlide = (
+        index: number,
+        direction: 'up' | 'down'
+    ) => {
+
+        setAboutContent((previous) => {
+
+            const slides = [
+                ...previous.slides,
+            ];
+
+
+            const newIndex =
+                direction === 'up'
+                    ? index - 1
+                    : index + 1;
+
+
+            if (
+                newIndex < 0 ||
+                newIndex >= slides.length
+            ) {
+                return previous;
+            }
+
+
+            [
+                slides[index],
+                slides[newIndex],
+            ] = [
+                slides[newIndex],
+                slides[index],
+            ];
+
+
+            return {
+                ...previous,
+                slides,
+            };
+
+        });
 
     };
 
@@ -1680,28 +2063,13 @@ export default function Edit({
 
             case 'contact_form':
 
-                if (
-                    data.content.trim() !== ''
-                ) {
-
-                    try {
-
-                        parsedContent =
-                            JSON.parse(
-                                data.content
-                            );
-
-                    } catch {
-
-                        alert(
-                            'Contact Form content must contain valid JSON.'
-                        );
-
-                        return;
-
-                    }
-
-                }
+                parsedContent = {
+                    ...contactContent,
+                    service_options:
+                        contactContent.service_options
+                            .map((item) => item.trim())
+                            .filter(Boolean),
+                };
 
                 break;
 
@@ -1727,6 +2095,60 @@ export default function Edit({
             );
 
             return;
+
+        }
+
+
+        /* =================================================
+           VALIDATE ABOUT CAROUSEL
+           ================================================= */
+
+        if (
+            data.type === 'about' &&
+            aboutContent.variant ===
+                'carousel'
+        ) {
+
+            const validAboutSlides =
+                aboutContent.slides.filter(
+                    (slide) =>
+                        slide.heading.trim() !== '' ||
+                        slide.description.trim() !== '' ||
+                        slide.image.trim() !== ''
+                );
+
+
+            if (
+                validAboutSlides.length === 0
+            ) {
+
+                alert(
+                    'Please add at least one About carousel slide.'
+                );
+
+                return;
+
+            }
+
+
+            parsedContent = {
+                ...aboutContent,
+
+                slides:
+                    validAboutSlides.map(
+                        (slide) => ({
+                            ...slide,
+
+                            highlights:
+                                slide.highlights
+                                    .map(
+                                        (item) =>
+                                            item.trim()
+                                    )
+                                    .filter(Boolean),
+                        })
+                    ),
+            };
 
         }
 
@@ -1760,6 +2182,19 @@ export default function Edit({
             };
 
         }
+
+
+        /* =================================================
+           APPLY SECTION THEME
+           -------------------------------------------------
+           Stored inside the existing content JSON so no
+           database migration / new column is required.
+           ================================================= */
+
+        parsedContent = {
+            ...parsedContent,
+            section_theme: sectionTheme,
+        };
 
 
         /* =================================================
@@ -1933,6 +2368,187 @@ export default function Edit({
                             </p>
 
                         )}
+
+                    </div>
+
+
+                    {/* =================================================
+                        SECTION THEME
+                    ================================================== */}
+
+                    <div className="rounded-xl border border-gray-200 bg-gray-50/70 p-5">
+
+                        <div>
+
+                            <label className="block text-sm font-semibold text-gray-900">
+                                Section Theme
+                            </label>
+
+                            <p className="mt-1 text-sm text-gray-600">
+                                Choose the background appearance for this individual public section.
+                            </p>
+
+                        </div>
+
+
+                        <div className="mt-4 grid gap-4 md:grid-cols-2">
+
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    setSectionTheme('light')
+                                }
+                                className={`
+                                    relative
+                                    overflow-hidden
+                                    rounded-xl
+                                    border
+                                    p-4
+                                    text-left
+                                    transition
+                                    duration-200
+
+                                    ${
+                                        sectionTheme === 'light'
+                                            ? 'border-blue-500 bg-white shadow-[0_8px_24px_rgba(37,99,235,0.10)] ring-2 ring-blue-100'
+                                            : 'border-gray-200 bg-white hover:border-blue-300 hover:shadow-sm'
+                                    }
+                                `}
+                            >
+                                <div className="flex items-start gap-3">
+                                    <span
+                                        className={`
+                                            mt-0.5
+                                            flex
+                                            h-5
+                                            w-5
+                                            shrink-0
+                                            items-center
+                                            justify-center
+                                            rounded-full
+                                            border
+
+                                            ${
+                                                sectionTheme === 'light'
+                                                    ? 'border-blue-600 bg-blue-600'
+                                                    : 'border-gray-300 bg-white'
+                                            }
+                                        `}
+                                    >
+                                        {sectionTheme === 'light' && (
+                                            <span className="h-2 w-2 rounded-full bg-white" />
+                                        )}
+                                    </span>
+
+                                    <div>
+                                        <p className="font-semibold text-gray-900">
+                                            Light Theme
+                                        </p>
+
+                                        <p className="mt-1 text-xs leading-5 text-gray-500">
+                                            Clean white / light background for bright content sections.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="mt-4 overflow-hidden rounded-lg border border-gray-200 bg-white">
+                                    <div className="h-2 bg-blue-600" />
+
+                                    <div className="space-y-2 p-4">
+                                        <div className="h-2 w-24 rounded-full bg-slate-800" />
+                                        <div className="h-1.5 w-full rounded-full bg-slate-200" />
+                                        <div className="h-1.5 w-4/5 rounded-full bg-slate-200" />
+                                    </div>
+                                </div>
+                            </button>
+
+
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    setSectionTheme('dark')
+                                }
+                                className={`
+                                    relative
+                                    overflow-hidden
+                                    rounded-xl
+                                    border
+                                    p-4
+                                    text-left
+                                    transition
+                                    duration-200
+
+                                    ${
+                                        sectionTheme === 'dark'
+                                            ? 'border-blue-500 bg-white shadow-[0_8px_24px_rgba(37,99,235,0.10)] ring-2 ring-blue-100'
+                                            : 'border-gray-200 bg-white hover:border-blue-300 hover:shadow-sm'
+                                    }
+                                `}
+                            >
+                                <div className="flex items-start gap-3">
+                                    <span
+                                        className={`
+                                            mt-0.5
+                                            flex
+                                            h-5
+                                            w-5
+                                            shrink-0
+                                            items-center
+                                            justify-center
+                                            rounded-full
+                                            border
+
+                                            ${
+                                                sectionTheme === 'dark'
+                                                    ? 'border-blue-600 bg-blue-600'
+                                                    : 'border-gray-300 bg-white'
+                                            }
+                                        `}
+                                    >
+                                        {sectionTheme === 'dark' && (
+                                            <span className="h-2 w-2 rounded-full bg-white" />
+                                        )}
+                                    </span>
+
+                                    <div>
+                                        <p className="font-semibold text-gray-900">
+                                            Dark Animated Theme
+                                        </p>
+
+                                        <p className="mt-1 text-xs leading-5 text-gray-500">
+                                            Uses the current SYSNET animated technology background.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="relative mt-4 overflow-hidden rounded-lg border border-slate-700 bg-[#04111C]">
+                                    <div className="absolute -left-6 top-2 h-16 w-16 rounded-full bg-blue-500/20 blur-xl" />
+                                    <div className="absolute -right-4 bottom-0 h-14 w-14 rounded-full bg-red-500/15 blur-xl" />
+
+                                    <div
+                                        className="
+                                            absolute
+                                            inset-0
+                                            opacity-25
+                                            [background-image:linear-gradient(rgba(96,165,250,0.18)_1px,transparent_1px),linear-gradient(90deg,rgba(96,165,250,0.18)_1px,transparent_1px)]
+                                            [background-size:18px_18px]
+                                        "
+                                    />
+
+                                    <div className="relative space-y-2 p-4">
+                                        <div className="h-2 w-24 rounded-full bg-white/90" />
+                                        <div className="h-1.5 w-full rounded-full bg-white/20" />
+                                        <div className="h-1.5 w-4/5 rounded-full bg-white/15" />
+                                    </div>
+                                </div>
+                            </button>
+
+                        </div>
+
+
+                        <p className="mt-3 text-xs text-gray-500">
+                            This setting affects only this section. The public header and CMS theme are not changed.
+                        </p>
 
                     </div>
 
@@ -3045,10 +3661,22 @@ export default function Edit({
 
                         <div className="space-y-6 rounded-xl border border-blue-200 bg-blue-50/30 p-5">
 
-                            <h2 className="text-lg font-semibold text-gray-900">
-                                About Configuration
-                            </h2>
+                            <div>
 
+                                <h2 className="text-lg font-semibold text-gray-900">
+                                    About Configuration
+                                </h2>
+
+                                <p className="mt-1 text-sm text-gray-600">
+                                    Configure a static About section or create a unique editorial About carousel.
+                                </p>
+
+                            </div>
+
+
+                            {/* =================================================
+                                ABOUT STYLE
+                            ================================================== */}
 
                             <div>
 
@@ -3078,6 +3706,10 @@ export default function Edit({
                                         Image Right
                                     </option>
 
+                                    <option value="carousel">
+                                        About Story Carousel
+                                    </option>
+
                                     <option value="video">
                                         Video
                                     </option>
@@ -3096,142 +3728,687 @@ export default function Edit({
 
                                 </select>
 
-                            </div>
-
-
-                            <input
-                                value={aboutContent.label}
-                                onChange={(e) =>
-                                    setAboutContent({
-                                        ...aboutContent,
-                                        label: e.target.value,
-                                    })
-                                }
-                                placeholder="ABOUT SYSNET"
-                                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2"
-                            />
-
-
-                            <input
-                                value={aboutContent.heading}
-                                onChange={(e) =>
-                                    setAboutContent({
-                                        ...aboutContent,
-
-                                        heading:
-                                            e.target.value,
-                                    })
-                                }
-                                placeholder="About Sysnet"
-                                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2"
-                            />
-
-
-                            <textarea
-                                rows={5}
-                                value={aboutContent.description}
-                                onChange={(e) =>
-                                    setAboutContent({
-                                        ...aboutContent,
-
-                                        description:
-                                            e.target.value,
-                                    })
-                                }
-                                placeholder="About description..."
-                                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3"
-                            />
-
-
-                            <div className="grid gap-4 md:grid-cols-2">
-
-                                <input
-                                    value={aboutContent.button_text}
-                                    onChange={(e) =>
-                                        setAboutContent({
-                                            ...aboutContent,
-
-                                            button_text:
-                                                e.target.value,
-                                        })
-                                    }
-                                    placeholder="Learn More"
-                                    className="rounded-lg border border-gray-300 bg-white px-4 py-2"
-                                />
-
-
-                                <input
-                                    value={aboutContent.button_url}
-                                    onChange={(e) =>
-                                        setAboutContent({
-                                            ...aboutContent,
-
-                                            button_url:
-                                                e.target.value,
-                                        })
-                                    }
-                                    placeholder="/about"
-                                    className="rounded-lg border border-gray-300 bg-white px-4 py-2"
-                                />
+                                <p className="mt-2 text-xs text-gray-500">
+                                    About Story Carousel creates a rotating company-story section with independent content, images, highlights and buttons for every slide.
+                                </p>
 
                             </div>
 
 
-                            <div className="flex items-center justify-between">
+                            {/* =================================================
+                                ABOUT CAROUSEL
+                            ================================================== */}
 
-                                <h3 className="font-semibold">
-                                    Highlights
-                                </h3>
+                            {aboutContent.variant === 'carousel' ? (
 
-                                <button
-                                    type="button"
-                                    onClick={
-                                        addAboutHighlight
-                                    }
-                                    className="rounded-lg bg-black px-4 py-2 text-sm text-white"
-                                >
-                                    + Add Highlight
-                                </button>
+                                <div className="space-y-6">
 
-                            </div>
+                                    {/* Carousel settings */}
+
+                                    <div className="rounded-xl border border-blue-200 bg-white p-5">
+
+                                        <div>
+
+                                            <h3 className="font-semibold text-gray-900">
+                                                About Carousel Settings
+                                            </h3>
+
+                                            <p className="mt-1 text-sm text-gray-500">
+                                                Configure how the company-story carousel moves on the public website.
+                                            </p>
+
+                                        </div>
 
 
-                            {aboutContent.highlights.map(
-                                (highlight, index) => (
+                                        <div className="mt-5 grid gap-5 md:grid-cols-2">
 
-                                    <div
-                                        key={index}
-                                        className="flex gap-3"
-                                    >
+                                            <div>
 
-                                        <input
-                                            value={highlight}
-                                            onChange={(e) =>
-                                                updateAboutHighlight(
-                                                    index,
-                                                    e.target.value
-                                                )
-                                            }
-                                            placeholder="24/7 Support"
-                                            className="flex-1 rounded-lg border border-gray-300 px-4 py-2"
-                                        />
+                                                <label className="block text-sm font-medium text-gray-700">
+                                                    Autoplay
+                                                </label>
+
+                                                <select
+                                                    value={
+                                                        aboutContent.autoplay
+                                                            ? 'yes'
+                                                            : 'no'
+                                                    }
+                                                    onChange={(e) =>
+                                                        setAboutContent({
+                                                            ...aboutContent,
+
+                                                            autoplay:
+                                                                e.target.value ===
+                                                                'yes',
+                                                        })
+                                                    }
+                                                    className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm"
+                                                >
+
+                                                    <option value="yes">
+                                                        Yes
+                                                    </option>
+
+                                                    <option value="no">
+                                                        No
+                                                    </option>
+
+                                                </select>
+
+                                            </div>
+
+
+                                            <div>
+
+                                                <label className="block text-sm font-medium text-gray-700">
+                                                    Slide Interval
+                                                </label>
+
+                                                <select
+                                                    value={
+                                                        aboutContent.interval
+                                                    }
+                                                    onChange={(e) =>
+                                                        setAboutContent({
+                                                            ...aboutContent,
+
+                                                            interval:
+                                                                Number(
+                                                                    e.target.value
+                                                                ),
+                                                        })
+                                                    }
+                                                    className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm"
+                                                >
+
+                                                    <option value={3500}>
+                                                        3.5 Seconds
+                                                    </option>
+
+                                                    <option value={5200}>
+                                                        5.2 Seconds
+                                                    </option>
+
+                                                    <option value={7000}>
+                                                        7 Seconds
+                                                    </option>
+
+                                                    <option value={10000}>
+                                                        10 Seconds
+                                                    </option>
+
+                                                </select>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    {/* Slides heading */}
+
+                                    <div className="flex flex-wrap items-center justify-between gap-3">
+
+                                        <div>
+
+                                            <h3 className="font-semibold text-gray-900">
+                                                About Carousel Slides
+                                            </h3>
+
+                                            <p className="mt-1 text-sm text-gray-500">
+                                                Each slide can tell a separate part of the Sysnet story.
+                                            </p>
+
+                                        </div>
 
 
                                         <button
                                             type="button"
-                                            onClick={() =>
-                                                removeAboutHighlight(
-                                                    index
-                                                )
-                                            }
-                                            className="text-sm text-red-600"
+                                            onClick={addAboutSlide}
+                                            className="rounded-lg bg-black px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800"
                                         >
-                                            Delete
+                                            + Add About Slide
                                         </button>
 
                                     </div>
 
-                                )
+
+                                    {/* Empty state */}
+
+                                    {aboutContent.slides.length === 0 && (
+
+                                        <div className="rounded-xl border border-dashed border-blue-200 bg-white px-6 py-10 text-center">
+
+                                            <p className="text-sm font-semibold text-gray-700">
+                                                No About carousel slides added yet.
+                                            </p>
+
+                                            <p className="mt-1 text-xs text-gray-500">
+                                                Click "Add About Slide" to create your first company-story slide.
+                                            </p>
+
+                                        </div>
+
+                                    )}
+
+
+                                    {/* Slides */}
+
+                                    {aboutContent.slides.map(
+                                        (
+                                            slide,
+                                            index
+                                        ) => {
+
+                                            const selectedAboutSlideMedia =
+                                                media.find(
+                                                    (
+                                                        item
+                                                    ) =>
+                                                        item.file_path ===
+                                                        slide.image
+                                                );
+
+
+                                            return (
+
+                                                <div
+                                                    key={index}
+                                                    className="overflow-hidden rounded-xl border border-blue-200 bg-white shadow-sm"
+                                                >
+
+                                                    {/* Slide header */}
+
+                                                    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 bg-gray-50 px-5 py-4">
+
+                                                        <div>
+
+                                                            <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">
+                                                                About Story
+                                                            </p>
+
+                                                            <h4 className="mt-1 font-semibold text-gray-900">
+                                                                Slide{' '}
+                                                                {index + 1}
+                                                            </h4>
+
+                                                        </div>
+
+
+                                                        <div className="flex flex-wrap gap-2">
+
+                                                            <button
+                                                                type="button"
+                                                                disabled={
+                                                                    index ===
+                                                                    0
+                                                                }
+                                                                onClick={() =>
+                                                                    moveAboutSlide(
+                                                                        index,
+                                                                        'up'
+                                                                    )
+                                                                }
+                                                                className="rounded border border-gray-300 bg-white px-3 py-1.5 text-xs disabled:opacity-40"
+                                                            >
+                                                                ↑ Up
+                                                            </button>
+
+
+                                                            <button
+                                                                type="button"
+                                                                disabled={
+                                                                    index ===
+                                                                    aboutContent
+                                                                        .slides
+                                                                        .length -
+                                                                        1
+                                                                }
+                                                                onClick={() =>
+                                                                    moveAboutSlide(
+                                                                        index,
+                                                                        'down'
+                                                                    )
+                                                                }
+                                                                className="rounded border border-gray-300 bg-white px-3 py-1.5 text-xs disabled:opacity-40"
+                                                            >
+                                                                ↓ Down
+                                                            </button>
+
+
+                                                            <button
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    removeAboutSlide(
+                                                                        index
+                                                                    )
+                                                                }
+                                                                className="rounded border border-red-200 bg-white px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
+                                                            >
+                                                                Delete
+                                                            </button>
+
+                                                        </div>
+
+                                                    </div>
+
+
+                                                    <div className="space-y-5 p-5">
+
+                                                        {/* Label + heading */}
+
+                                                        <div className="grid gap-5 md:grid-cols-2">
+
+                                                            <div>
+
+                                                                <label className="block text-sm font-medium text-gray-700">
+                                                                    Slide Label / Chapter
+                                                                </label>
+
+                                                                <input
+                                                                    type="text"
+                                                                    value={
+                                                                        slide.label
+                                                                    }
+                                                                    onChange={(e) =>
+                                                                        updateAboutSlide(
+                                                                            index,
+                                                                            'label',
+                                                                            e.target.value
+                                                                        )
+                                                                    }
+                                                                    placeholder="Our Story"
+                                                                    className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-2 text-sm"
+                                                                />
+
+                                                            </div>
+
+
+                                                            <div>
+
+                                                                <label className="block text-sm font-medium text-gray-700">
+                                                                    Slide Heading
+                                                                </label>
+
+                                                                <input
+                                                                    type="text"
+                                                                    value={
+                                                                        slide.heading
+                                                                    }
+                                                                    onChange={(e) =>
+                                                                        updateAboutSlide(
+                                                                            index,
+                                                                            'heading',
+                                                                            e.target.value
+                                                                        )
+                                                                    }
+                                                                    placeholder="Singapore's Technology Partner"
+                                                                    className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-2 text-sm"
+                                                                />
+
+                                                            </div>
+
+                                                        </div>
+
+
+                                                        {/* Description */}
+
+                                                        <div>
+
+                                                            <label className="block text-sm font-medium text-gray-700">
+                                                                Description
+                                                            </label>
+
+                                                            <textarea
+                                                                rows={4}
+                                                                value={
+                                                                    slide.description
+                                                                }
+                                                                onChange={(e) =>
+                                                                    updateAboutSlide(
+                                                                        index,
+                                                                        'description',
+                                                                        e.target.value
+                                                                    )
+                                                                }
+                                                                placeholder="Tell this chapter of your company story..."
+                                                                className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm"
+                                                            />
+
+                                                        </div>
+
+
+                                                        {/* Image */}
+
+                                                        <div>
+
+                                                            <label className="block text-sm font-medium text-gray-700">
+                                                                Slide Image
+                                                            </label>
+
+                                                            <select
+                                                                value={
+                                                                    slide.image
+                                                                }
+                                                                onChange={(e) =>
+                                                                    updateAboutSlide(
+                                                                        index,
+                                                                        'image',
+                                                                        e.target.value
+                                                                    )
+                                                                }
+                                                                className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-2 text-sm"
+                                                            >
+
+                                                                <option value="">
+                                                                    No Image
+                                                                </option>
+
+
+                                                                {media.map(
+                                                                    (
+                                                                        item
+                                                                    ) => (
+
+                                                                        <option
+                                                                            key={
+                                                                                item.id
+                                                                            }
+                                                                            value={
+                                                                                item.file_path
+                                                                            }
+                                                                        >
+                                                                            {
+                                                                                item.file_name
+                                                                            }
+                                                                        </option>
+
+                                                                    )
+                                                                )}
+
+                                                            </select>
+
+
+                                                            {selectedAboutSlideMedia && (
+
+                                                                <div className="mt-3 overflow-hidden rounded-xl border border-gray-200 bg-gray-50 p-3">
+
+                                                                    <img
+                                                                        src={`/storage/${selectedAboutSlideMedia.file_path}`}
+                                                                        alt={
+                                                                            selectedAboutSlideMedia.alt_text ||
+                                                                            selectedAboutSlideMedia.file_name
+                                                                        }
+                                                                        className="max-h-56 w-full rounded-lg object-cover"
+                                                                    />
+
+                                                                </div>
+
+                                                            )}
+
+                                                        </div>
+
+
+                                                        {/* Highlights */}
+
+                                                        <div>
+
+                                                            <label className="block text-sm font-medium text-gray-700">
+                                                                Slide Highlights
+                                                            </label>
+
+                                                            <textarea
+                                                                rows={4}
+                                                                value={
+                                                                    slide.highlights.join(
+                                                                        '\n'
+                                                                    )
+                                                                }
+                                                                onChange={(e) =>
+                                                                    updateAboutSlide(
+                                                                        index,
+                                                                        'highlights',
+                                                                        e.target.value
+                                                                            .split(
+                                                                                '\n'
+                                                                            )
+                                                                            .map(
+                                                                                (
+                                                                                    item
+                                                                                ) =>
+                                                                                    item.trim()
+                                                                            )
+                                                                            .filter(
+                                                                                Boolean
+                                                                            )
+                                                                    )
+                                                                }
+                                                                placeholder={`Enterprise technology expertise
+Regional delivery capabilities
+Long-term customer relationships`}
+                                                                className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm"
+                                                            />
+
+                                                            <p className="mt-1 text-xs text-gray-500">
+                                                                Enter one highlight per line.
+                                                            </p>
+
+                                                        </div>
+
+
+                                                        {/* Button */}
+
+                                                        <div className="grid gap-5 md:grid-cols-2">
+
+                                                            <div>
+
+                                                                <label className="block text-sm font-medium text-gray-700">
+                                                                    Button Text
+                                                                </label>
+
+                                                                <input
+                                                                    type="text"
+                                                                    value={
+                                                                        slide.button_text
+                                                                    }
+                                                                    onChange={(e) =>
+                                                                        updateAboutSlide(
+                                                                            index,
+                                                                            'button_text',
+                                                                            e.target.value
+                                                                        )
+                                                                    }
+                                                                    placeholder="Learn More"
+                                                                    className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-2 text-sm"
+                                                                />
+
+                                                            </div>
+
+
+                                                            <div>
+
+                                                                <label className="block text-sm font-medium text-gray-700">
+                                                                    Button URL
+                                                                </label>
+
+                                                                <input
+                                                                    type="text"
+                                                                    value={
+                                                                        slide.button_url
+                                                                    }
+                                                                    onChange={(e) =>
+                                                                        updateAboutSlide(
+                                                                            index,
+                                                                            'button_url',
+                                                                            e.target.value
+                                                                        )
+                                                                    }
+                                                                    placeholder="/about"
+                                                                    className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-2 text-sm"
+                                                                />
+
+                                                            </div>
+
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+
+                                            );
+
+                                        }
+                                    )}
+
+                                </div>
+
+                            ) : (
+
+                                /* =================================================
+                                    NON-CAROUSEL ABOUT
+                                ================================================== */
+
+                                <div className="space-y-6">
+
+                                    <input
+                                        value={aboutContent.label}
+                                        onChange={(e) =>
+                                            setAboutContent({
+                                                ...aboutContent,
+                                                label: e.target.value,
+                                            })
+                                        }
+                                        placeholder="ABOUT SYSNET"
+                                        className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2"
+                                    />
+
+
+                                    <input
+                                        value={aboutContent.heading}
+                                        onChange={(e) =>
+                                            setAboutContent({
+                                                ...aboutContent,
+
+                                                heading:
+                                                    e.target.value,
+                                            })
+                                        }
+                                        placeholder="About Sysnet"
+                                        className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2"
+                                    />
+
+
+                                    <textarea
+                                        rows={5}
+                                        value={aboutContent.description}
+                                        onChange={(e) =>
+                                            setAboutContent({
+                                                ...aboutContent,
+
+                                                description:
+                                                    e.target.value,
+                                            })
+                                        }
+                                        placeholder="About description..."
+                                        className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3"
+                                    />
+
+
+                                    <div className="grid gap-4 md:grid-cols-2">
+
+                                        <input
+                                            value={aboutContent.button_text}
+                                            onChange={(e) =>
+                                                setAboutContent({
+                                                    ...aboutContent,
+
+                                                    button_text:
+                                                        e.target.value,
+                                                })
+                                            }
+                                            placeholder="Learn More"
+                                            className="rounded-lg border border-gray-300 bg-white px-4 py-2"
+                                        />
+
+
+                                        <input
+                                            value={aboutContent.button_url}
+                                            onChange={(e) =>
+                                                setAboutContent({
+                                                    ...aboutContent,
+
+                                                    button_url:
+                                                        e.target.value,
+                                                })
+                                            }
+                                            placeholder="/about"
+                                            className="rounded-lg border border-gray-300 bg-white px-4 py-2"
+                                        />
+
+                                    </div>
+
+
+                                    <div className="flex items-center justify-between">
+
+                                        <h3 className="font-semibold">
+                                            Highlights
+                                        </h3>
+
+                                        <button
+                                            type="button"
+                                            onClick={
+                                                addAboutHighlight
+                                            }
+                                            className="rounded-lg bg-black px-4 py-2 text-sm text-white"
+                                        >
+                                            + Add Highlight
+                                        </button>
+
+                                    </div>
+
+
+                                    {aboutContent.highlights.map(
+                                        (highlight, index) => (
+
+                                            <div
+                                                key={index}
+                                                className="flex gap-3"
+                                            >
+
+                                                <input
+                                                    value={highlight}
+                                                    onChange={(e) =>
+                                                        updateAboutHighlight(
+                                                            index,
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                    placeholder="24/7 Support"
+                                                    className="flex-1 rounded-lg border border-gray-300 px-4 py-2"
+                                                />
+
+
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        removeAboutHighlight(
+                                                            index
+                                                        )
+                                                    }
+                                                    className="text-sm text-red-600"
+                                                >
+                                                    Delete
+                                                </button>
+
+                                            </div>
+
+                                        )
+                                    )}
+
+                                </div>
+
                             )}
 
                         </div>
@@ -5450,39 +6627,849 @@ export default function Edit({
 
                     {data.type === 'contact_form' && (
 
-                        <div>
+                        <div className="space-y-8">
 
-                            <label className="block text-sm font-medium text-gray-700">
-                                Contact Form Content
-                            </label>
+                            {/* =================================================
+                                LAYOUT + MAIN CONTENT
+                            ================================================== */}
 
+                            <div className="rounded-xl border border-gray-200 bg-gray-50 p-5">
 
-                            <textarea
-                                value={data.content}
-                                onChange={(e) =>
-                                    setData(
-                                        'content',
-                                        e.target.value
-                                    )
-                                }
-                                rows={12}
-                                placeholder={`{
-                        "heading": "Let's Discuss Your IT Needs",
-                        "description": "Contact our team today.",
-                        "button_text": "Send Message"
-                    }`}
-                                className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-3 font-mono text-sm"
-                            />
+                                <div className="mb-5">
+
+                                    <h3 className="text-base font-semibold text-gray-900">
+                                        Contact Section Layout
+                                    </h3>
+
+                                    <p className="mt-1 text-sm text-gray-500">
+                                        Choose how the contact section should appear on the public website.
+                                    </p>
+
+                                </div>
 
 
-                            <p className="mt-1 text-xs text-gray-500">
-                                Contact Form still uses its existing JSON configuration.
-                            </p>
+                                <div className="grid gap-5 md:grid-cols-2">
+
+                                    <div>
+
+                                        <label className="block text-sm font-medium text-gray-700">
+                                            Layout Variant
+                                        </label>
+
+                                        <select
+                                            value={contactContent.variant}
+                                            onChange={(e) =>
+                                                setContactContent(
+                                                    (previous) => ({
+                                                        ...previous,
+                                                        variant:
+                                                            e.target.value as ContactVariant,
+                                                    })
+                                                )
+                                            }
+                                            className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm"
+                                        >
+                                            <option value="split">
+                                                Split - Contact Details + Form
+                                            </option>
+
+                                            <option value="form_only">
+                                                Form Only
+                                            </option>
+
+                                            <option value="contact_details">
+                                                Contact Details Only
+                                            </option>
+
+                                        </select>
+
+                                    </div>
+
+
+                                    <div>
+
+                                        <label className="block text-sm font-medium text-gray-700">
+                                            Section Heading
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            value={contactContent.heading}
+                                            onChange={(e) =>
+                                                setContactContent(
+                                                    (previous) => ({
+                                                        ...previous,
+                                                        heading:
+                                                            e.target.value,
+                                                    })
+                                                )
+                                            }
+                                            placeholder="Let's Discuss Your IT Needs"
+                                            className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm"
+                                        />
+
+                                    </div>
+
+                                </div>
+
+
+                                <div className="mt-5">
+
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        Section Description
+                                    </label>
+
+                                    <textarea
+                                        value={contactContent.description}
+                                        onChange={(e) =>
+                                            setContactContent(
+                                                (previous) => ({
+                                                    ...previous,
+                                                    description:
+                                                        e.target.value,
+                                                })
+                                            )
+                                        }
+                                        rows={3}
+                                        placeholder="Tell visitors how your team can help."
+                                        className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm"
+                                    />
+
+                                </div>
+
+                            </div>
+
+
+                            {/* =================================================
+                                CONTACT DETAILS
+                            ================================================== */}
+
+                            {contactContent.variant !== 'form_only' && (
+
+                                <div className="rounded-xl border border-gray-200 bg-white p-5">
+
+                                    <div className="mb-5">
+
+                                        <h3 className="text-base font-semibold text-gray-900">
+                                            Contact Details Panel
+                                        </h3>
+
+                                        <p className="mt-1 text-sm text-gray-500">
+                                            These values are shown in the contact information panel.
+                                        </p>
+
+                                    </div>
+
+
+                                    <div className="grid gap-5 md:grid-cols-2">
+
+                                        <div className="md:col-span-2">
+
+                                            <label className="block text-sm font-medium text-gray-700">
+                                                Office Address
+                                            </label>
+
+                                            <textarea
+                                                value={contactContent.office_address}
+                                                onChange={(e) =>
+                                                    setContactContent(
+                                                        (previous) => ({
+                                                            ...previous,
+                                                            office_address:
+                                                                e.target.value,
+                                                        })
+                                                    )
+                                                }
+                                                rows={3}
+                                                placeholder="Enter office address"
+                                                className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm"
+                                            />
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <label className="block text-sm font-medium text-gray-700">
+                                                Phone
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                value={contactContent.phone}
+                                                onChange={(e) =>
+                                                    setContactContent(
+                                                        (previous) => ({
+                                                            ...previous,
+                                                            phone:
+                                                                e.target.value,
+                                                        })
+                                                    )
+                                                }
+                                                placeholder="+65 6773 0273"
+                                                className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm"
+                                            />
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <label className="block text-sm font-medium text-gray-700">
+                                                Email
+                                            </label>
+
+                                            <input
+                                                type="email"
+                                                value={contactContent.email}
+                                                onChange={(e) =>
+                                                    setContactContent(
+                                                        (previous) => ({
+                                                            ...previous,
+                                                            email:
+                                                                e.target.value,
+                                                        })
+                                                    )
+                                                }
+                                                placeholder="sales@example.com"
+                                                className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm"
+                                            />
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <label className="block text-sm font-medium text-gray-700">
+                                                Business Hours
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                value={contactContent.business_hours}
+                                                onChange={(e) =>
+                                                    setContactContent(
+                                                        (previous) => ({
+                                                            ...previous,
+                                                            business_hours:
+                                                                e.target.value,
+                                                        })
+                                                    )
+                                                }
+                                                placeholder="Monday - Friday, 9:00 AM - 6:00 PM"
+                                                className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm"
+                                            />
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <label className="block text-sm font-medium text-gray-700">
+                                                WhatsApp Number / URL
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                value={contactContent.whatsapp}
+                                                onChange={(e) =>
+                                                    setContactContent(
+                                                        (previous) => ({
+                                                            ...previous,
+                                                            whatsapp:
+                                                                e.target.value,
+                                                        })
+                                                    )
+                                                }
+                                                placeholder="+6567730273 or https://wa.me/..."
+                                                className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm"
+                                            />
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <label className="block text-sm font-medium text-gray-700">
+                                                WhatsApp Button Text
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                value={contactContent.whatsapp_text}
+                                                onChange={(e) =>
+                                                    setContactContent(
+                                                        (previous) => ({
+                                                            ...previous,
+                                                            whatsapp_text:
+                                                                e.target.value,
+                                                        })
+                                                    )
+                                                }
+                                                placeholder="Chat on WhatsApp"
+                                                className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm"
+                                            />
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            )}
+
+
+                            {/* =================================================
+                                FORM CONTENT
+                            ================================================== */}
+
+                            {contactContent.variant !== 'contact_details' && (
+
+                                <div className="rounded-xl border border-gray-200 bg-white p-5">
+
+                                    <div className="mb-5">
+
+                                        <h3 className="text-base font-semibold text-gray-900">
+                                            Form Content
+                                        </h3>
+
+                                        <p className="mt-1 text-sm text-gray-500">
+                                            Customize the form heading, helper text, button and privacy message.
+                                        </p>
+
+                                    </div>
+
+
+                                    <div className="grid gap-5 md:grid-cols-2">
+
+                                        <div>
+
+                                            <label className="block text-sm font-medium text-gray-700">
+                                                Form Title
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                value={contactContent.form_title}
+                                                onChange={(e) =>
+                                                    setContactContent(
+                                                        (previous) => ({
+                                                            ...previous,
+                                                            form_title:
+                                                                e.target.value,
+                                                        })
+                                                    )
+                                                }
+                                                placeholder="Send us a message"
+                                                className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm"
+                                            />
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <label className="block text-sm font-medium text-gray-700">
+                                                Submit Button Text
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                value={contactContent.button_text}
+                                                onChange={(e) =>
+                                                    setContactContent(
+                                                        (previous) => ({
+                                                            ...previous,
+                                                            button_text:
+                                                                e.target.value,
+                                                        })
+                                                    )
+                                                }
+                                                placeholder="Send Message"
+                                                className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm"
+                                            />
+
+                                        </div>
+
+
+                                        <div className="md:col-span-2">
+
+                                            <label className="block text-sm font-medium text-gray-700">
+                                                Form Description
+                                            </label>
+
+                                            <textarea
+                                                value={contactContent.form_description}
+                                                onChange={(e) =>
+                                                    setContactContent(
+                                                        (previous) => ({
+                                                            ...previous,
+                                                            form_description:
+                                                                e.target.value,
+                                                        })
+                                                    )
+                                                }
+                                                rows={3}
+                                                placeholder="Tell us about your requirements and our team will get back to you."
+                                                className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm"
+                                            />
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <label className="block text-sm font-medium text-gray-700">
+                                                Success Message
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                value={contactContent.success_message}
+                                                onChange={(e) =>
+                                                    setContactContent(
+                                                        (previous) => ({
+                                                            ...previous,
+                                                            success_message:
+                                                                e.target.value,
+                                                        })
+                                                    )
+                                                }
+                                                placeholder="Thank you. We will contact you soon."
+                                                className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm"
+                                            />
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <label className="block text-sm font-medium text-gray-700">
+                                                Verification Label
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                value={contactContent.verification_label}
+                                                onChange={(e) =>
+                                                    setContactContent(
+                                                        (previous) => ({
+                                                            ...previous,
+                                                            verification_label:
+                                                                e.target.value,
+                                                        })
+                                                    )
+                                                }
+                                                placeholder="Human Verification"
+                                                className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm"
+                                            />
+
+                                        </div>
+
+
+                                        <div className="md:col-span-2">
+
+                                            <label className="block text-sm font-medium text-gray-700">
+                                                Privacy Text
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                value={contactContent.privacy_text}
+                                                onChange={(e) =>
+                                                    setContactContent(
+                                                        (previous) => ({
+                                                            ...previous,
+                                                            privacy_text:
+                                                                e.target.value,
+                                                        })
+                                                    )
+                                                }
+                                                placeholder="By submitting this form, you agree to our privacy policy."
+                                                className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm"
+                                            />
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            )}
+
+
+                            {/* =================================================
+                                FIELD VISIBILITY
+                            ================================================== */}
+
+                            {contactContent.variant !== 'contact_details' && (
+
+                                <div className="rounded-xl border border-gray-200 bg-gray-50 p-5">
+
+                                    <div className="mb-5">
+
+                                        <h3 className="text-base font-semibold text-gray-900">
+                                            Form Fields
+                                        </h3>
+
+                                        <p className="mt-1 text-sm text-gray-500">
+                                            Enable or disable the fields that should appear on the public form.
+                                        </p>
+
+                                    </div>
+
+
+                                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+
+                                        {[
+                                            {
+                                                key: 'show_full_name',
+                                                label: 'Full Name',
+                                            },
+                                            {
+                                                key: 'show_email',
+                                                label: 'Email',
+                                            },
+                                            {
+                                                key: 'show_company',
+                                                label: 'Company',
+                                            },
+                                            {
+                                                key: 'show_phone',
+                                                label: 'Phone',
+                                            },
+                                            {
+                                                key: 'show_service_category',
+                                                label: 'Service Category',
+                                            },
+                                            {
+                                                key: 'show_message',
+                                                label: 'Message',
+                                            },
+                                        ].map((field) => {
+
+                                            const key =
+                                                field.key as
+                                                    | 'show_full_name'
+                                                    | 'show_email'
+                                                    | 'show_company'
+                                                    | 'show_phone'
+                                                    | 'show_service_category'
+                                                    | 'show_message';
+
+                                            return (
+
+                                                <label
+                                                    key={key}
+                                                    className="flex cursor-pointer items-center justify-between gap-4 rounded-lg border border-gray-200 bg-white px-4 py-3"
+                                                >
+
+                                                    <span className="text-sm font-medium text-gray-700">
+                                                        {field.label}
+                                                    </span>
+
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={contactContent[key]}
+                                                        onChange={(e) =>
+                                                            setContactContent(
+                                                                (previous) => ({
+                                                                    ...previous,
+                                                                    [key]:
+                                                                        e.target.checked,
+                                                                })
+                                                            )
+                                                        }
+                                                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                                    />
+
+                                                </label>
+
+                                            );
+
+                                        })}
+
+                                    </div>
+
+                                </div>
+
+                            )}
+
+
+                            {/* =================================================
+                                FIELD LABELS + PLACEHOLDERS
+                            ================================================== */}
+
+                            {contactContent.variant !== 'contact_details' && (
+
+                                <div className="rounded-xl border border-gray-200 bg-white p-5">
+
+                                    <div className="mb-5">
+
+                                        <h3 className="text-base font-semibold text-gray-900">
+                                            Field Labels & Placeholders
+                                        </h3>
+
+                                        <p className="mt-1 text-sm text-gray-500">
+                                            Customize the text visitors see for each enabled form field.
+                                        </p>
+
+                                    </div>
+
+
+                                    <div className="grid gap-5 md:grid-cols-2">
+
+                                        {contactContent.show_full_name && (
+                                            <>
+                                                <ContactTextInput
+                                                    label="Full Name Label"
+                                                    value={contactContent.full_name_label}
+                                                    onChange={(value) =>
+                                                        setContactContent(
+                                                            (previous) => ({
+                                                                ...previous,
+                                                                full_name_label:
+                                                                    value,
+                                                            })
+                                                        )
+                                                    }
+                                                />
+
+                                                <ContactTextInput
+                                                    label="Full Name Placeholder"
+                                                    value={contactContent.full_name_placeholder}
+                                                    onChange={(value) =>
+                                                        setContactContent(
+                                                            (previous) => ({
+                                                                ...previous,
+                                                                full_name_placeholder:
+                                                                    value,
+                                                            })
+                                                        )
+                                                    }
+                                                />
+                                            </>
+                                        )}
+
+
+                                        {contactContent.show_email && (
+                                            <>
+                                                <ContactTextInput
+                                                    label="Email Label"
+                                                    value={contactContent.email_label}
+                                                    onChange={(value) =>
+                                                        setContactContent(
+                                                            (previous) => ({
+                                                                ...previous,
+                                                                email_label:
+                                                                    value,
+                                                            })
+                                                        )
+                                                    }
+                                                />
+
+                                                <ContactTextInput
+                                                    label="Email Placeholder"
+                                                    value={contactContent.email_placeholder}
+                                                    onChange={(value) =>
+                                                        setContactContent(
+                                                            (previous) => ({
+                                                                ...previous,
+                                                                email_placeholder:
+                                                                    value,
+                                                            })
+                                                        )
+                                                    }
+                                                />
+                                            </>
+                                        )}
+
+
+                                        {contactContent.show_company && (
+                                            <>
+                                                <ContactTextInput
+                                                    label="Company Label"
+                                                    value={contactContent.company_label}
+                                                    onChange={(value) =>
+                                                        setContactContent(
+                                                            (previous) => ({
+                                                                ...previous,
+                                                                company_label:
+                                                                    value,
+                                                            })
+                                                        )
+                                                    }
+                                                />
+
+                                                <ContactTextInput
+                                                    label="Company Placeholder"
+                                                    value={contactContent.company_placeholder}
+                                                    onChange={(value) =>
+                                                        setContactContent(
+                                                            (previous) => ({
+                                                                ...previous,
+                                                                company_placeholder:
+                                                                    value,
+                                                            })
+                                                        )
+                                                    }
+                                                />
+                                            </>
+                                        )}
+
+
+                                        {contactContent.show_phone && (
+                                            <>
+                                                <ContactTextInput
+                                                    label="Phone Label"
+                                                    value={contactContent.phone_label}
+                                                    onChange={(value) =>
+                                                        setContactContent(
+                                                            (previous) => ({
+                                                                ...previous,
+                                                                phone_label:
+                                                                    value,
+                                                            })
+                                                        )
+                                                    }
+                                                />
+
+                                                <ContactTextInput
+                                                    label="Phone Placeholder"
+                                                    value={contactContent.phone_placeholder}
+                                                    onChange={(value) =>
+                                                        setContactContent(
+                                                            (previous) => ({
+                                                                ...previous,
+                                                                phone_placeholder:
+                                                                    value,
+                                                            })
+                                                        )
+                                                    }
+                                                />
+                                            </>
+                                        )}
+
+
+                                        {contactContent.show_service_category && (
+                                            <>
+                                                <ContactTextInput
+                                                    label="Service Category Label"
+                                                    value={contactContent.service_category_label}
+                                                    onChange={(value) =>
+                                                        setContactContent(
+                                                            (previous) => ({
+                                                                ...previous,
+                                                                service_category_label:
+                                                                    value,
+                                                            })
+                                                        )
+                                                    }
+                                                />
+
+                                                <ContactTextInput
+                                                    label="Service Category Placeholder"
+                                                    value={contactContent.service_category_placeholder}
+                                                    onChange={(value) =>
+                                                        setContactContent(
+                                                            (previous) => ({
+                                                                ...previous,
+                                                                service_category_placeholder:
+                                                                    value,
+                                                            })
+                                                        )
+                                                    }
+                                                />
+                                            </>
+                                        )}
+
+
+                                        {contactContent.show_message && (
+                                            <>
+                                                <ContactTextInput
+                                                    label="Message Label"
+                                                    value={contactContent.message_label}
+                                                    onChange={(value) =>
+                                                        setContactContent(
+                                                            (previous) => ({
+                                                                ...previous,
+                                                                message_label:
+                                                                    value,
+                                                            })
+                                                        )
+                                                    }
+                                                />
+
+                                                <ContactTextInput
+                                                    label="Message Placeholder"
+                                                    value={contactContent.message_placeholder}
+                                                    onChange={(value) =>
+                                                        setContactContent(
+                                                            (previous) => ({
+                                                                ...previous,
+                                                                message_placeholder:
+                                                                    value,
+                                                            })
+                                                        )
+                                                    }
+                                                />
+                                            </>
+                                        )}
+
+                                    </div>
+
+                                </div>
+
+                            )}
+
+
+                            {/* =================================================
+                                FALLBACK SERVICE OPTIONS
+                            ================================================== */}
+
+                            {contactContent.variant !== 'contact_details' &&
+                                contactContent.show_service_category && (
+
+                                <div className="rounded-xl border border-gray-200 bg-white p-5">
+
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        Fallback Service Options
+                                    </label>
+
+                                    <textarea
+                                        value={contactContent.service_options.join(
+                                            '\n'
+                                        )}
+                                        onChange={(e) =>
+                                            setContactContent(
+                                                (previous) => ({
+                                                    ...previous,
+                                                    service_options:
+                                                        e.target.value
+                                                            .split('\n'),
+                                                })
+                                            )
+                                        }
+                                        rows={7}
+                                        placeholder={`IT Infrastructure
+Cybersecurity
+Cloud Services
+Managed Services`}
+                                        className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm"
+                                    />
+
+                                    <p className="mt-1 text-xs text-gray-500">
+                                        Enter one service per line. These are used only when the main menu does not provide service categories.
+                                    </p>
+
+                                </div>
+
+                            )}
 
 
                             {errors.content && (
 
-                                <p className="mt-1 text-sm text-red-600">
+                                <p className="text-sm text-red-600">
                                     {errors.content}
                                 </p>
 
@@ -5491,8 +7478,6 @@ export default function Edit({
                         </div>
 
                     )}
-
-
 
 
                     {/* =================================================

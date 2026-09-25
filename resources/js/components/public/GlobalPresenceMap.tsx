@@ -80,26 +80,38 @@ export default function GlobalPresenceMap({
         variant === 'map_offices';
 
     return (
-        <section className="bg-white px-4 py-14 sm:px-6 lg:px-8">
-            <div className="mx-auto max-w-7xl">
+        <section className="relative overflow-hidden bg-[#F7FAFD] px-5 py-20 sm:px-6 lg:px-8 lg:py-28">
+            <div className="pointer-events-none absolute inset-0">
+                <div className="absolute -left-32 top-20 h-[320px] w-[320px] rounded-full bg-[#0A5F9E]/7 blur-[120px]" />
+                <div className="absolute -right-24 bottom-10 h-[300px] w-[300px] rounded-full bg-[#D71920]/5 blur-[120px]" />
+            </div>
+            <div className="relative z-10 mx-auto max-w-[1400px]">
 
                 {/* =====================================================
                     HEADER
                 ====================================================== */}
 
-                <div className="mb-9 text-center">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-red-600">
-                        Worldwide Network
-                    </p>
+                <div className="mb-12 grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
+                    <div>
+                        <div className="inline-flex items-center gap-3">
+                            <span className="h-[2px] w-7 bg-[#D71920]" />
+                            <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#0A5F9E] sm:text-xs">
+                                Worldwide Network
+                            </span>
+                        </div>
 
-                    <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-                        {heading}
-                    </h2>
+                        <h2 className="mt-4 text-3xl font-extrabold tracking-[-0.04em] text-[#0B2D4D] sm:text-4xl lg:text-[50px]">
+                            {heading}
+                        </h2>
 
-                    <div className="mx-auto mt-4 h-1 w-12 rounded-full bg-red-600" />
+                        <div className="mt-5 flex items-center gap-2">
+                            <span className="h-[3px] w-12 rounded-full bg-[#D71920]" />
+                            <span className="h-[3px] w-5 rounded-full bg-[#0A5F9E]" />
+                        </div>
+                    </div>
 
                     {subtitle && (
-                        <p className="mx-auto mt-5 max-w-3xl text-sm leading-7 text-slate-600 sm:text-base">
+                        <p className="max-w-3xl text-base leading-8 text-[#5C6F82] sm:text-[17px] lg:justify-self-end lg:text-right">
                             {subtitle}
                         </p>
                     )}
@@ -110,22 +122,43 @@ export default function GlobalPresenceMap({
                 ====================================================== */}
 
                 {showMap && (
-                    <div className="relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
+                    <div className="relative overflow-hidden rounded-[36px] border border-[#D3E1EA] bg-white p-2.5 shadow-[0_28px_80px_rgba(11,45,77,0.14)]">
+
+                        <div className="flex flex-col gap-3 border-b border-[#E8EFF4] px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#0A5F9E]">
+                                    Interactive Office Network
+                                </p>
+                                <p className="mt-1 text-sm font-semibold text-[#42576B]">
+                                    Select a marker to view office information.
+                                </p>
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-2">
+                                <span className="rounded-full bg-[#F2F7FA] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#607487]">
+                                    {sourceLocations.length} Locations
+                                </span>
+
+                                <span className="rounded-full bg-[#EAF4FC] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#0A5F9E]">
+                                    Global Coverage
+                                </span>
+                            </div>
+                        </div>
 
                         {validLocations.length === 0 ? (
-                            <div className="flex min-h-[430px] items-center justify-center px-6 text-center">
+                            <div className="flex min-h-[430px] items-center justify-center rounded-[28px] bg-white px-6 text-center">
                                 <div>
-                                    <p className="font-semibold text-slate-900">
+                                    <p className="font-semibold text-[#0B2D4D]">
                                         No map locations available
                                     </p>
 
-                                    <p className="mt-2 text-sm text-slate-500">
+                                    <p className="mt-2 text-sm text-[#6E8192]">
                                         Add valid latitude and longitude values to the office in the CMS.
                                     </p>
                                 </div>
                             </div>
                         ) : (
-                            <div className="relative h-[440px] w-full sm:h-[500px] lg:h-[540px]">
+                            <div className="relative h-[440px] w-full overflow-hidden rounded-[28px] bg-[linear-gradient(180deg,#EAF4FA_0%,#DCEBF4_100%)] sm:h-[500px] lg:h-[540px]">
 
                                 <ComposableMap
                                     width={1000}
@@ -149,14 +182,14 @@ export default function GlobalPresenceMap({
                                                 <Geography
                                                     key={geo.rsmKey}
                                                     geography={geo}
-                                                    fill="#244A9F"
-                                                    stroke="#DCE5F5"
+                                                    fill="#BFD8E8"
+                                                    stroke="#F7FAFD"
                                                     strokeWidth={0.5}
                                                     tabIndex={-1}
                                                     focusable="false"
                                                     className="pointer-events-none"
                                                     style={{
-                                                        fill: '#244A9F',
+                                                        fill: '#BFD8E8',
                                                         outline: 'none',
                                                     }}
                                                 />
@@ -223,8 +256,8 @@ export default function GlobalPresenceMap({
                                                             }
                                                             fill={
                                                                 isHeadquarters
-                                                                    ? 'rgba(225,29,72,0.16)'
-                                                                    : 'rgba(153,27,27,0.10)'
+                                                                    ? 'rgba(215,25,32,0.18)'
+                                                                    : 'rgba(10,95,158,0.14)'
                                                             }
                                                         />
 
@@ -240,8 +273,8 @@ export default function GlobalPresenceMap({
                                                             fill="#ffffff"
                                                             stroke={
                                                                 isHeadquarters
-                                                                    ? '#E11D48'
-                                                                    : '#991B1B'
+                                                                    ? '#D71920'
+                                                                    : '#0A5F9E'
                                                             }
                                                             strokeWidth={
                                                                 isHeadquarters
@@ -259,8 +292,8 @@ export default function GlobalPresenceMap({
                                                             }
                                                             fill={
                                                                 isHeadquarters
-                                                                    ? '#E11D48'
-                                                                    : '#991B1B'
+                                                                    ? '#D71920'
+                                                                    : '#0A5F9E'
                                                             }
                                                         />
                                                     </g>
@@ -271,11 +304,20 @@ export default function GlobalPresenceMap({
 
                                 </ComposableMap>
 
+                                <div className="absolute right-4 top-4 z-20 hidden rounded-2xl border border-white/60 bg-white/90 px-4 py-3 shadow-[0_12px_30px_rgba(11,45,77,0.10)] backdrop-blur-md sm:block">
+                                    <p className="text-[9px] font-bold uppercase tracking-[0.13em] text-[#8A9AA8]">
+                                        Live Office Map
+                                    </p>
+                                    <p className="mt-1 text-xs font-bold text-[#0B2D4D]">
+                                        {validLocations.length} Active Locations
+                                    </p>
+                                </div>
+
                                 {/* HOVER TOOLTIP */}
 
                                 {hoveredLocation && (
-                                    <div className="pointer-events-none absolute left-1/2 top-5 z-30 w-[220px] -translate-x-1/2 rounded-xl border border-slate-200 bg-white/95 px-4 py-3 text-center shadow-[0_12px_28px_rgba(15,23,42,0.16)] backdrop-blur">
-                                        <p className="text-sm font-bold text-slate-900">
+                                    <div className="pointer-events-none absolute left-1/2 top-5 z-30 w-[230px] -translate-x-1/2 rounded-[18px] border border-[#D5E3EC] bg-white/95 px-4 py-3 text-center shadow-[0_18px_40px_rgba(11,45,77,0.18)] backdrop-blur-md">
+                                        <p className="text-sm font-bold text-[#0B2D4D]">
                                             {hoveredLocation.country ||
                                                 hoveredLocation.city}
                                         </p>
@@ -301,8 +343,8 @@ export default function GlobalPresenceMap({
                                                 className={`h-2 w-2 rounded-full ${
                                                     hoveredLocation.type ===
                                                     'headquarters'
-                                                        ? 'bg-rose-600'
-                                                        : 'bg-red-900'
+                                                        ? 'bg-[#D71920]'
+                                                        : 'bg-[#0A5F9E]'
                                                 }`}
                                             />
 
@@ -318,21 +360,21 @@ export default function GlobalPresenceMap({
 
                                 {/* COMPACT LEGEND INSIDE MAP */}
 
-                                <div className="absolute bottom-4 left-4 z-30 flex items-center gap-4 rounded-lg border border-slate-200 bg-white/95 px-3.5 py-2.5 shadow-[0_8px_20px_rgba(15,23,42,0.12)] backdrop-blur">
+                                <div className="absolute bottom-4 left-4 z-30 flex flex-wrap items-center gap-4 rounded-2xl border border-[#D5E3EC] bg-white/95 px-4 py-3 shadow-[0_14px_32px_rgba(11,45,77,0.12)] backdrop-blur-md">
                                     <div className="flex items-center gap-2">
-                                        <span className="relative flex h-4 w-4 items-center justify-center rounded-full border-2 border-rose-500 bg-white">
-                                            <span className="h-2 w-2 rounded-full bg-rose-600" />
+                                        <span className="relative flex h-4 w-4 items-center justify-center rounded-full border-2 border-[#D71920] bg-white">
+                                            <span className="h-2 w-2 rounded-full bg-[#D71920]" />
                                         </span>
 
-                                        <span className="text-xs font-semibold text-slate-800">
+                                        <span className="text-xs font-semibold text-[#0B2D4D]">
                                             Headquarters
                                         </span>
                                     </div>
 
                                     <div className="flex items-center gap-2">
-                                        <span className="h-2.5 w-2.5 rounded-full bg-red-900" />
+                                        <span className="h-2.5 w-2.5 rounded-full bg-[#0A5F9E]" />
 
-                                        <span className="text-xs font-semibold text-slate-800">
+                                        <span className="text-xs font-semibold text-[#0B2D4D]">
                                             Regional Office
                                         </span>
                                     </div>
@@ -349,7 +391,7 @@ export default function GlobalPresenceMap({
                 ====================================================== */}
 
                 {showCards && sourceLocations.length > 0 && (
-                    <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
                         {sourceLocations.map(
                             (location, index) => (
                                 <button
@@ -363,10 +405,16 @@ export default function GlobalPresenceMap({
                                             location,
                                         )
                                     }
-                                    className="group rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md"
+                                    className="group relative overflow-hidden rounded-[24px] border border-[#DCE7EF] bg-white p-5 text-left shadow-[0_10px_30px_rgba(11,45,77,0.055)] transition duration-300 hover:-translate-y-1.5 hover:border-[#A9CDE7] hover:shadow-[0_20px_48px_rgba(11,45,77,0.10)]"
                                 >
-                                    <div className="flex items-start gap-3">
-                                        <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-600">
+                                    <div className="absolute left-0 top-0 h-[3px] w-14 bg-[linear-gradient(90deg,#0A5F9E,#D71920)] transition-all duration-300 group-hover:w-full" />
+
+                                    <div className="absolute right-4 top-4 text-[10px] font-black text-[#C2CDD6]">
+                                        {String(index + 1).padStart(2, '0')}
+                                    </div>
+
+                                    <div className="flex items-start gap-3 pr-8">
+                                        <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[linear-gradient(145deg,#EAF4FC,#F8FCFE)] text-[#0A5F9E] shadow-[inset_0_0_0_1px_rgba(10,95,158,0.08)]">
                                             <svg
                                                 viewBox="0 0 24 24"
                                                 fill="none"
@@ -385,7 +433,7 @@ export default function GlobalPresenceMap({
                                         </div>
 
                                         <div className="min-w-0">
-                                            <p className="text-sm font-bold text-slate-900">
+                                            <p className="text-sm font-bold text-[#0B2D4D]">
                                                 {location.country ||
                                                     location.city ||
                                                     `Office ${index + 1}`}
@@ -399,13 +447,23 @@ export default function GlobalPresenceMap({
                                                     </p>
                                                 )}
 
-                                            <p className="mt-1 text-xs font-medium text-red-600">
+                                            <p className="mt-1 text-xs font-bold uppercase tracking-[0.10em] text-[#D71920]">
                                                 {location.type ===
                                                 'headquarters'
                                                     ? 'Headquarters'
                                                     : 'Regional Office'}
                                             </p>
                                         </div>
+                                    </div>
+
+                                    <div className="mt-5 flex items-center justify-between border-t border-[#EDF2F6] pt-4">
+                                        <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#8A9AA8]">
+                                            Office Details
+                                        </span>
+
+                                        <span className="text-[#0A5F9E] transition duration-300 group-hover:translate-x-1 group-hover:text-[#D71920]">
+                                            →
+                                        </span>
                                     </div>
                                 </button>
                             ),
@@ -419,13 +477,13 @@ export default function GlobalPresenceMap({
 
                 {activeLocation && (
                     <div
-                        className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/55 px-4 backdrop-blur-sm"
+                        className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#071D31]/80 px-4 backdrop-blur-md"
                         onClick={() =>
                             setActiveLocation(null)
                         }
                     >
                         <div
-                            className="relative w-full max-w-xl overflow-hidden rounded-2xl bg-white shadow-2xl"
+                            className="relative w-full max-w-2xl overflow-hidden rounded-[30px] border border-white/10 bg-white shadow-[0_34px_100px_rgba(7,29,49,0.38)]"
                             onClick={(event) =>
                                 event.stopPropagation()
                             }
@@ -435,32 +493,44 @@ export default function GlobalPresenceMap({
                                 onClick={() =>
                                     setActiveLocation(null)
                                 }
-                                className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-lg text-slate-700 transition hover:bg-slate-200"
+                                className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-xl border border-[#DCE7EF] bg-[#F5F9FC] text-lg text-[#42576B] transition hover:border-[#A9CDE7] hover:bg-[#EAF4FC] hover:text-[#0A5F9E]"
                                 aria-label="Close location details"
                             >
                                 ×
                             </button>
 
-                            <div className="border-b border-slate-200 px-6 py-5 pr-16">
-                                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-red-600">
+                            <div className="border-b border-[#E3EAF0] bg-[linear-gradient(180deg,#FFFFFF_0%,#F8FBFD_100%)] px-6 py-6 pr-16">
+                                <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#D71920]">
                                     {activeLocation.type ===
                                     'headquarters'
                                         ? 'Headquarters'
                                         : 'Regional Office'}
                                 </p>
 
-                                <h3 className="mt-2 text-2xl font-bold text-slate-900">
+                                <h3 className="mt-2 text-2xl font-extrabold text-[#0B2D4D]">
                                     {activeLocation.country ||
                                         activeLocation.city}
                                 </h3>
 
                                 {(activeLocation.company ||
                                     activeLocation.office_name) && (
-                                    <p className="mt-2 text-sm font-semibold text-slate-700">
+                                    <p className="mt-2 text-sm font-semibold text-[#42576B]">
                                         {activeLocation.company ||
                                             activeLocation.office_name}
                                     </p>
                                 )}
+
+                                <div className="mt-4 flex flex-wrap gap-2">
+                                    <span className="rounded-full bg-[#EAF4FC] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#0A5F9E]">
+                                        {activeLocation.city || activeLocation.country}
+                                    </span>
+
+                                    <span className="rounded-full bg-[#FFF1F2] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#D71920]">
+                                        {activeLocation.type === 'headquarters'
+                                            ? 'Primary Office'
+                                            : 'Regional Network'}
+                                    </span>
+                                </div>
                             </div>
 
                             <div className="space-y-5 px-6 py-5">
@@ -486,7 +556,7 @@ export default function GlobalPresenceMap({
                                             href={`tel:${normalizePhone(
                                                 activeLocation.phone,
                                             )}`}
-                                            className="mt-1 block text-sm font-medium text-slate-800 hover:text-red-600"
+                                            className="mt-1 block text-sm font-medium text-[#0B2D4D] hover:text-red-600"
                                         >
                                             {
                                                 activeLocation.phone
@@ -503,7 +573,7 @@ export default function GlobalPresenceMap({
 
                                         <a
                                             href={`mailto:${activeLocation.email}`}
-                                            className="mt-1 block break-all text-sm font-medium text-slate-800 hover:text-red-600"
+                                            className="mt-1 block break-all text-sm font-medium text-[#0B2D4D] hover:text-red-600"
                                         >
                                             {
                                                 activeLocation.email
@@ -520,7 +590,7 @@ export default function GlobalPresenceMap({
                                             }
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700"
+                                            className="rounded-xl bg-[#0A5F9E] px-4 py-2.5 text-sm font-bold text-white shadow-[0_8px_20px_rgba(10,95,158,0.16)] transition hover:-translate-y-0.5 hover:bg-[#084F84]"
                                         >
                                             View on Google Maps
                                         </a>
@@ -533,7 +603,7 @@ export default function GlobalPresenceMap({
                                             }
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                                            className="rounded-xl border border-[#C8D6E3] bg-white px-4 py-2.5 text-sm font-bold text-[#42576B] transition hover:-translate-y-0.5 hover:border-[#0A5F9E] hover:text-[#0A5F9E]"
                                         >
                                             Visit Website
                                         </a>

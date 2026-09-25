@@ -644,10 +644,10 @@ export default function CookieConsentBanner() {
 
                         sm:left-6
                         sm:right-auto
-                        sm:w-[390px]
+                        sm:w-[410px]
 
-                        lg:bottom-10
-                        lg:left-10
+                        lg:bottom-8
+                        lg:left-8
                         lg:right-auto
                     "
                 >
@@ -656,14 +656,14 @@ export default function CookieConsentBanner() {
                         className="
                             overflow-hidden
 
-                            rounded-2xl
+                            rounded-[22px]
 
                             border
-                            border-slate-200/80
+                            border-[#D9E5EE]
 
-                            bg-white/95
+                            bg-white/97
 
-                            shadow-[0_20px_60px_rgba(15,23,42,0.18)]
+                            shadow-[0_22px_65px_rgba(11,45,77,0.18)]
 
                             backdrop-blur-xl
                         "
@@ -676,7 +676,7 @@ export default function CookieConsentBanner() {
                                 h-1
                                 w-full
 
-                                bg-slate-900
+                                bg-[#0A5F9E]
                             "
                         />
 
@@ -709,11 +709,16 @@ export default function CookieConsentBanner() {
                                         items-center
                                         justify-center
 
-                                        rounded-xl
+                                        rounded-2xl
 
-                                        bg-slate-100
+                                        border
+                                        border-[#CFE3F1]
+
+                                        bg-[#EAF4FC]
 
                                         text-lg
+
+                                        shadow-[inset_0_0_0_1px_rgba(10,95,158,0.04)]
                                     "
                                     aria-hidden="true"
                                 >
@@ -729,12 +734,12 @@ export default function CookieConsentBanner() {
 
                                     <h2
                                         className="
-                                            text-[15px]
-                                            font-semibold
+                                            text-[16px]
+                                            font-bold
 
-                                            tracking-tight
+                                            tracking-[-0.01em]
 
-                                            text-slate-950
+                                            text-[#0B2D4D]
                                         "
                                     >
                                         {
@@ -751,7 +756,7 @@ export default function CookieConsentBanner() {
                                             text-[13px]
                                             leading-5
 
-                                            text-slate-600
+                                            text-[#5C6F82]
                                         "
                                     >
                                         {
@@ -794,11 +799,12 @@ export default function CookieConsentBanner() {
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="
-                                                text-slate-500
+                                                font-medium
+                                                text-[#6A7E90]
 
                                                 transition
 
-                                                hover:text-slate-900
+                                                hover:text-[#0A5F9E]
                                             "
                                         >
                                             {
@@ -819,11 +825,12 @@ export default function CookieConsentBanner() {
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="
-                                                text-slate-500
+                                                font-medium
+                                                text-[#6A7E90]
 
                                                 transition
 
-                                                hover:text-slate-900
+                                                hover:text-[#0A5F9E]
                                             "
                                         >
                                             {
@@ -861,7 +868,7 @@ export default function CookieConsentBanner() {
                                         rounded-xl
 
                                         border
-                                        border-slate-300
+                                        border-[#C8D6E3]
 
                                         bg-white
 
@@ -871,15 +878,15 @@ export default function CookieConsentBanner() {
                                         text-[13px]
                                         font-semibold
 
-                                        text-slate-700
+                                        text-[#42576B]
 
                                         transition
 
-                                        hover:bg-slate-50
+                                        hover:bg-[#F7FAFD]
 
                                         focus:outline-none
                                         focus:ring-2
-                                        focus:ring-slate-300
+                                        focus:ring-[#0A5F9E]/20
                                         focus:ring-offset-2
                                     "
                                 >
@@ -896,9 +903,9 @@ export default function CookieConsentBanner() {
                                         rounded-xl
 
                                         border
-                                        border-slate-900
+                                        border-[#D71920]
 
-                                        bg-slate-900
+                                        bg-[#D71920]
 
                                         px-4
                                         py-2.5
@@ -912,11 +919,11 @@ export default function CookieConsentBanner() {
 
                                         transition
 
-                                        hover:bg-slate-800
+                                        hover:bg-[#B9141A]
 
                                         focus:outline-none
                                         focus:ring-2
-                                        focus:ring-slate-500
+                                        focus:ring-[#0A5F9E]/35
                                         focus:ring-offset-2
                                     "
                                 >
@@ -949,17 +956,17 @@ export default function CookieConsentBanner() {
                                     }
                                     className="
                                         text-[12px]
-                                        font-medium
+                                        font-semibold
 
-                                        text-slate-500
+                                        text-[#0A5F9E]
 
                                         underline
-                                        decoration-slate-300
+                                        decoration-[#B7C8D5]
                                         underline-offset-4
 
                                         transition
 
-                                        hover:text-slate-900
+                                        hover:text-[#0A5F9E]
                                     "
                                 >
                                     {
@@ -996,7 +1003,7 @@ export default function CookieConsentBanner() {
                         items-center
                         justify-center
 
-                        bg-slate-950/45
+                        bg-[#071D31]/55
 
                         p-4
 
@@ -1016,18 +1023,20 @@ export default function CookieConsentBanner() {
 
                             overflow-y-auto
 
-                            rounded-2xl
+                            rounded-[26px]
 
                             border
-                            border-slate-200
+                            border-[#DDE7EF]
 
                             bg-white
 
-                            shadow-2xl
+                            shadow-[0_30px_90px_rgba(7,29,49,0.28)]
                         "
                     >
 
                         {/* Header */}
+
+                        <div className="h-1 w-full bg-gradient-to-r from-[#0A5F9E] via-[#0A5F9E] to-[#D71920]" />
 
                         <div
                             className="
@@ -1038,7 +1047,7 @@ export default function CookieConsentBanner() {
                                 gap-4
 
                                 border-b
-                                border-slate-200
+                                border-[#DDE7EF]
 
                                 px-6
                                 py-5
@@ -1050,10 +1059,12 @@ export default function CookieConsentBanner() {
                                 <h2
                                     id="cookie-preferences-title"
                                     className="
-                                        text-lg
-                                        font-semibold
+                                        text-xl
+                                        font-bold
 
-                                        text-slate-950
+                                        tracking-[-0.02em]
+
+                                        text-[#0B2D4D]
                                     "
                                 >
                                     {
@@ -1070,7 +1081,7 @@ export default function CookieConsentBanner() {
                                         text-sm
                                         leading-5
 
-                                        text-slate-600
+                                        text-[#5C6F82]
                                     "
                                 >
                                     {
@@ -1105,12 +1116,12 @@ export default function CookieConsentBanner() {
 
                                     text-lg
 
-                                    text-slate-500
+                                    text-[#718395]
 
                                     transition
 
-                                    hover:bg-slate-100
-                                    hover:text-slate-900
+                                    hover:bg-[#EFF5F9]
+                                    hover:text-[#0A5F9E]
                                 "
                                 aria-label="Close cookie preferences"
                             >
@@ -1237,12 +1248,12 @@ export default function CookieConsentBanner() {
                                 gap-2
 
                                 border-t
-                                border-slate-200
+                                border-[#DDE7EF]
 
-                                bg-slate-50
+                                bg-[#F7FAFD]
 
                                 px-6
-                                py-4
+                                py-5
 
                                 sm:flex-row
                                 sm:justify-end
@@ -1258,7 +1269,7 @@ export default function CookieConsentBanner() {
                                     rounded-lg
 
                                     border
-                                    border-slate-300
+                                    border-[#C8D6E3]
 
                                     bg-white
 
@@ -1268,11 +1279,11 @@ export default function CookieConsentBanner() {
                                     text-sm
                                     font-semibold
 
-                                    text-slate-700
+                                    text-[#42576B]
 
                                     transition
 
-                                    hover:bg-slate-100
+                                    hover:bg-[#EFF5F9]
                                 "
                             >
                                 Reject Optional
@@ -1287,7 +1298,7 @@ export default function CookieConsentBanner() {
                                 className="
                                     rounded-lg
 
-                                    bg-slate-900
+                                    bg-[#0A5F9E]
 
                                     px-4
                                     py-2.5
@@ -1299,7 +1310,7 @@ export default function CookieConsentBanner() {
 
                                     transition
 
-                                    hover:bg-slate-800
+                                    hover:bg-[#084F84]
                                 "
                             >
                                 {
@@ -1366,14 +1377,16 @@ function PreferenceRow({
 
                 gap-4
 
-                rounded-xl
+                rounded-2xl
 
                 border
-                border-slate-200
+                border-[#DDE7EF]
 
                 bg-white
 
                 p-4
+
+                shadow-[0_6px_18px_rgba(11,45,77,0.04)]
             "
         >
 
@@ -1412,15 +1425,18 @@ function PreferenceRow({
                             className="
                                 rounded-full
 
-                                bg-slate-100
+                                border
+                                border-[#D9E6EF]
+
+                                bg-[#F4F8FB]
 
                                 px-2
                                 py-0.5
 
                                 text-[10px]
-                                font-medium
+                                font-semibold
 
-                                text-slate-600
+                                text-[#5C6F82]
                             "
                         >
                             {lockedText}
@@ -1436,7 +1452,7 @@ function PreferenceRow({
                                 className="
                                     rounded-full
 
-                                    bg-slate-100
+                                    bg-[#EFF5F9]
 
                                     px-2
                                     py-0.5
@@ -1444,7 +1460,7 @@ function PreferenceRow({
                                     text-[10px]
                                     font-medium
 
-                                    text-slate-600
+                                    text-[#5C6F82]
                                 "
                             >
                                 Recommended
@@ -1462,7 +1478,7 @@ function PreferenceRow({
                         text-xs
                         leading-5
 
-                        text-slate-500
+                        text-[#718395]
                     "
                 >
                     {description}
@@ -1486,7 +1502,7 @@ function PreferenceRow({
 
                         rounded-full
 
-                        bg-slate-900
+                        bg-[#0A5F9E]
                     "
                 >
 
@@ -1535,13 +1551,13 @@ function PreferenceRow({
 
                         focus:outline-none
                         focus:ring-2
-                        focus:ring-slate-400
+                        focus:ring-[#0A5F9E]/30
                         focus:ring-offset-2
 
                         ${
                             enabled
-                                ? 'bg-slate-900'
-                                : 'bg-slate-300'
+                                ? 'bg-[#0A5F9E]'
+                                : 'bg-[#C9D5DE]'
                         }
                     `}
                 >

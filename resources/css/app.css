@@ -3199,2660 +3199,3355 @@
 }
 
 /* =========================================================
-   PUBLIC WEBSITE — BLUE / WHITE / RED THEME OVERRIDE
+   PUBLIC WEBSITE — CINEMATIC TECH BACKGROUND V3
    ---------------------------------------------------------
-   Public-site only. CMS/admin theme remains untouched.
+   FINAL VISUAL OVERRIDE LAYER
+   - Scoped ONLY to .public-theme
+   - CMS / administration styles remain untouched
+   - Uses the existing PublicWebsiteLayout background elements
+   ========================================================= */
+
+
+/* =========================================================
+   1. MASTER CANVAS
    ========================================================= */
 
 .public-theme {
-    --public-bg: #ffffff;
-    --public-bg-secondary: #f7fbfe;
-    --public-bg-tertiary: #edf6fb;
-    --public-white: #ffffff;
-    --public-surface: #ffffff;
-    --public-surface-soft: #f5f9fc;
-    --public-text: #18324a;
-    --public-muted: #64748b;
-    --public-card-text: #18324a;
-    --public-card-muted: #64748b;
-    --public-primary: #0b5e9c;
-    --public-primary-dark: #073b63;
-    --public-primary-light: #4f9ed3;
-    --public-gold: #c90000;
-    --public-orange: #c90000;
-    --public-red: #c90000;
-    --public-card-border: #d7e4ee;
-    --public-block-bg-start: #ffffff;
-    --public-block-bg-mid: #f7fbfe;
-    --public-block-bg-end: #edf6fb;
-    --public-block-border: rgba(11, 94, 156, 0.18);
-    --public-block-shadow: rgba(15, 64, 98, 0.10);
-    background: #ffffff;
-    color: #18324a;
-}
+    --public-v3-bg-0: #01050a;
+    --public-v3-bg-1: #03101b;
+    --public-v3-bg-2: #071b2c;
 
-.public-theme .public-main {
-    background:
-        radial-gradient(circle at 0% 8%, rgba(11, 94, 156, 0.08), transparent 27%),
-        radial-gradient(circle at 100% 35%, rgba(201, 0, 0, 0.035), transparent 24%),
-        linear-gradient(180deg, #ffffff 0%, #f7fbfe 48%, #ffffff 100%) !important;
-    color: #18324a !important;
-}
+    --public-v3-blue: #168bd1;
+    --public-v3-blue-soft: #56b9ef;
+    --public-v3-red: #d71920;
 
-.public-theme .public-content-section,
-.public-theme .public-stats-section,
-.public-theme .public-certifications-section,
-.public-theme .public-grid-section,
-.public-theme .public-video-section {
-    background: #f5f9fc !important;
-}
-
-.public-theme .public-about-section,
-.public-theme .public-vision-section,
-.public-theme .public-global-section,
-.public-theme .public-cards-section,
-.public-theme .public-contact-section {
-    background: #ffffff !important;
-}
-
-.public-theme .public-label,
-.public-theme .public-hero-label,
-.public-theme .public-cta-label {
-    color: #c90000 !important;
-}
-
-.public-theme .public-heading,
-.public-theme .public-global-section .public-heading,
-.public-theme .public-hero-title,
-.public-theme .public-cta-title,
-.public-theme .careers-hero-title,
-.public-theme .careers-section-title {
-    color: #12324a !important;
-}
-
-.public-theme .public-description,
-.public-theme .public-global-section .public-description,
-.public-theme .public-rich-text,
-.public-theme .public-hero-description,
-.public-theme .public-cta-description,
-.public-theme .careers-hero-description,
-.public-theme .careers-section-description {
-    color: #64748b !important;
-}
-
-.public-theme .public-accent-line {
-    background: linear-gradient(90deg, #0b5e9c 0%, #0b5e9c 58%, #c90000 58%, #c90000 100%) !important;
-}
-
-.public-theme .public-hero {
-    background:
-        radial-gradient(circle at 85% 12%, rgba(11, 94, 156, 0.12), transparent 32%),
-        radial-gradient(circle at 8% 90%, rgba(201, 0, 0, 0.04), transparent 24%),
-        linear-gradient(135deg, #ffffff 0%, #f5fafe 52%, #eaf4fb 100%) !important;
-}
-
-.public-theme .public-hero-container {
-    border-color: rgba(11, 94, 156, 0.22) !important;
-    background:
-        radial-gradient(circle at 94% 2%, rgba(11, 94, 156, 0.10), transparent 34%),
-        radial-gradient(circle at 4% 96%, rgba(201, 0, 0, 0.035), transparent 26%),
-        linear-gradient(135deg, #ffffff 0%, #f7fbfe 54%, #eef7fc 100%) !important;
-    box-shadow: 0 22px 60px rgba(15, 64, 98, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
-}
-
-.public-theme .public-hero-container::before {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.82), transparent 45%) !important;
-}
-
-.public-theme .public-hero-image-card,
-.public-theme .public-video-wrapper,
-.public-theme .public-global-image-wrap {
-    border-color: #d7e4ee !important;
-    background: #ffffff !important;
-    box-shadow: 0 18px 45px rgba(15, 64, 98, 0.12) !important;
-}
-
-.public-theme .public-button,
-.public-theme .public-contact-submit {
-    border-color: #0b5e9c !important;
-    background: linear-gradient(135deg, #0b5e9c 0%, #084b7d 100%) !important;
-    color: #ffffff !important;
-    box-shadow: 0 8px 22px rgba(11, 94, 156, 0.20) !important;
-}
-
-.public-theme .public-button:hover,
-.public-theme .public-contact-submit:hover {
-    border-color: #073b63 !important;
-    box-shadow: 0 12px 30px rgba(11, 94, 156, 0.28) !important;
-}
-
-.public-theme .public-stat-card,
-.public-theme .public-mission-card,
-.public-theme .public-vision-card,
-.public-theme .public-certification-card,
-.public-theme .public-location-card,
-.public-theme .public-grid-card,
-.public-theme .public-card,
-.public-theme .careers-job-card {
-    border-color: #d7e4ee !important;
-    background: #ffffff !important;
-    color: #18324a !important;
-    box-shadow: 0 10px 28px rgba(15, 64, 98, 0.08) !important;
-}
-
-.public-theme .public-stat-card:hover,
-.public-theme .public-mission-card:hover,
-.public-theme .public-vision-card:hover,
-.public-theme .public-certification-card:hover,
-.public-theme .public-location-card:hover,
-.public-theme .public-grid-card:hover,
-.public-theme .public-card:hover,
-.public-theme .careers-job-card:hover {
-    border-color: rgba(11, 94, 156, 0.38) !important;
-    box-shadow: 0 18px 40px rgba(15, 64, 98, 0.14) !important;
-}
-
-.public-theme .public-card-title,
-.public-theme .public-card-title-light,
-.public-theme .public-grid-title,
-.public-theme .public-location-city,
-.public-theme .careers-job-title {
-    color: #18324a !important;
-}
-
-.public-theme .public-card-description,
-.public-theme .public-card-description-light,
-.public-theme .public-location-detail,
-.public-theme .careers-job-description {
-    color: #64748b !important;
-}
-
-.public-theme .public-card-label,
-.public-theme .public-card-label-light,
-.public-theme .public-stat-value,
-.public-theme .public-location-website,
-.public-theme .public-card-link,
-.public-theme .careers-job-department,
-.public-theme .careers-meta-icon {
-    color: #0b5e9c !important;
-}
-
-.public-theme .public-card-link:hover,
-.public-theme .public-location-website:hover,
-.public-theme .careers-job-card:hover .careers-job-title {
-    color: #c90000 !important;
-}
-
-.public-theme .public-stat-card::before,
-.public-theme .public-location-top-accent,
-.public-theme .public-grid-accent,
-.public-theme .public-card-bottom-accent {
-    background: #c90000 !important;
-}
-
-.public-theme .public-grid-card::before {
-    background: #0b5e9c !important;
-}
-
-.public-theme .careers-job-accent {
-    background: linear-gradient(90deg, #0b5e9c 0%, #0b5e9c 58%, #c90000 58%, #c90000 100%) !important;
-}
-
-.public-theme .public-card-icon,
-.public-theme .public-card-icon-dark,
-.public-theme .public-certification-icon,
-.public-theme .public-location-icon {
-    background: rgba(11, 94, 156, 0.09) !important;
-    color: #0b5e9c !important;
-}
-
-.public-theme .public-global-section {
-    background: linear-gradient(180deg, #ffffff 0%, #f5f9fc 100%) !important;
-    color: #18324a !important;
-}
-
-.public-theme .public-location-country,
-.public-theme .public-location-detail,
-.public-theme .public-location-address {
-    color: #64748b !important;
-}
-
-.public-theme .public-location-company,
-.public-theme .public-location-detail strong {
-    color: #334155 !important;
-}
-
-.public-theme .public-card-image-wrap {
-    background: #eef5f9 !important;
-}
-
-.public-theme .public-card-footer {
-    border-color: #e1eaf0 !important;
-}
-
-.public-theme .public-cta-section {
-    background: #ffffff !important;
-}
-
-.public-theme .public-cta {
-    border-color: rgba(11, 94, 156, 0.22) !important;
-    background:
-        radial-gradient(circle at 100% 0%, rgba(11, 94, 156, 0.10), transparent 34%),
-        linear-gradient(135deg, #f7fbfe 0%, #eaf5fc 100%) !important;
-    box-shadow: 0 18px 45px rgba(15, 64, 98, 0.10) !important;
-}
-
-.public-theme .public-cta-glow {
-    background: rgba(11, 94, 156, 0.08) !important;
-}
-
-.public-theme .public-empty-state {
-    border-color: rgba(11, 94, 156, 0.25) !important;
-    background: #f7fbfe !important;
-    color: #64748b !important;
-}
-
-.public-theme .public-error-box {
-    border-color: rgba(201, 0, 0, 0.30) !important;
-    background: rgba(201, 0, 0, 0.05) !important;
-    color: #a40000 !important;
-}
-
-.public-theme .public-contact-section {
-    background:
-        radial-gradient(circle at 50% 0%, rgba(11, 94, 156, 0.08), transparent 34%),
-        linear-gradient(180deg, #ffffff 0%, #f5f9fc 100%) !important;
-    color: #18324a !important;
-}
-
-.public-theme .public-contact-form-card {
-    border-color: #d7e4ee !important;
-    background: linear-gradient(145deg, #ffffff, #f7fbfe) !important;
-    box-shadow: 0 18px 45px rgba(15, 64, 98, 0.10) !important;
-}
-
-.public-theme .public-contact-form-card label {
-    color: #18324a !important;
-}
-
-.public-theme .public-contact-form-card input,
-.public-theme .public-contact-form-card select,
-.public-theme .public-contact-form-card textarea {
-    border-color: #cbdbe6 !important;
-    background: #ffffff !important;
-    color: #18324a !important;
-}
-
-.public-theme .public-contact-form-card input::placeholder,
-.public-theme .public-contact-form-card textarea::placeholder {
-    color: #94a3b8 !important;
-}
-
-.public-theme .public-contact-form-card input:focus,
-.public-theme .public-contact-form-card select:focus,
-.public-theme .public-contact-form-card textarea:focus {
-    border-color: #0b5e9c !important;
-    background: #ffffff !important;
-    box-shadow: 0 0 0 3px rgba(11, 94, 156, 0.10) !important;
-}
-
-.public-theme .public-contact-form-card select,
-.public-theme .public-contact-form-card option {
-    color: #18324a !important;
-    background: #ffffff !important;
-}
-
-.public-theme .service-category-scroll {
-    scrollbar-color: #0b5e9c #edf5fa;
-}
-
-.public-theme .service-category-scroll::-webkit-scrollbar-track {
-    background: #edf5fa !important;
-}
-
-.public-theme .service-category-scroll::-webkit-scrollbar-thumb {
-    background: #0b5e9c !important;
-    border-color: #edf5fa !important;
-}
-
-.public-theme .service-category-scroll::-webkit-scrollbar-thumb:hover {
-    background: #073b63 !important;
-}
-
-.public-theme .careers-hero {
-    background:
-        radial-gradient(circle at 50% 0%, rgba(11, 94, 156, 0.12), transparent 40%),
-        radial-gradient(circle at 90% 50%, rgba(201, 0, 0, 0.035), transparent 26%),
-        linear-gradient(135deg, #ffffff 0%, #f5fafe 55%, #eaf4fb 100%) !important;
-}
-
-.public-theme .careers-hero::before {
-    background: rgba(11, 94, 156, 0.06) !important;
-}
-
-.public-theme .careers-openings-section {
-    background: linear-gradient(180deg, #f5f9fc 0%, #ffffff 100%) !important;
-}
-
-.public-theme .careers-job-status {
-    border-color: rgba(11, 94, 156, 0.20) !important;
-    background: #eaf5fc !important;
-    color: #0b5e9c !important;
-}
-
-.public-theme .careers-meta-item {
-    border-color: #d7e4ee !important;
-    background: #f5f9fc !important;
-    color: #526273 !important;
-}
-
-.public-theme .public-section-surface,
-.public-theme .public-content-section > .public-container,
-.public-theme .public-about-section > .public-container,
-.public-theme .public-stats-section > .public-container,
-.public-theme .public-vision-section > .public-container,
-.public-theme .public-certifications-section > .public-container,
-.public-theme .public-global-section > .public-container,
-.public-theme .public-grid-section > .public-container,
-.public-theme .public-cards-section > .public-container,
-.public-theme .public-video-section > .public-container,
-.public-theme .public-contact-section > .public-container,
-.public-theme .careers-openings-section > .public-container {
-    border-color: rgba(11, 94, 156, 0.16) !important;
-    background:
-        radial-gradient(circle at 96% 3%, rgba(11, 94, 156, 0.055), transparent 30%),
-        radial-gradient(circle at 4% 96%, rgba(201, 0, 0, 0.025), transparent 25%),
-        linear-gradient(145deg, #ffffff 0%, #f8fbfd 52%, #eef6fb 100%) !important;
-    box-shadow: 0 22px 55px rgba(15, 64, 98, 0.09), inset 0 1px 0 rgba(255, 255, 255, 0.96) !important;
-}
-
-.public-theme .public-section-surface::before,
-.public-theme .public-content-section > .public-container::before,
-.public-theme .public-about-section > .public-container::before,
-.public-theme .public-stats-section > .public-container::before,
-.public-theme .public-vision-section > .public-container::before,
-.public-theme .public-certifications-section > .public-container::before,
-.public-theme .public-global-section > .public-container::before,
-.public-theme .public-grid-section > .public-container::before,
-.public-theme .public-cards-section > .public-container::before,
-.public-theme .public-video-section > .public-container::before,
-.public-theme .public-contact-section > .public-container::before,
-.public-theme .careers-openings-section > .public-container::before {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.72), transparent 40%) !important;
-}
-
-.public-theme .public-section-surface:hover {
-    border-color: rgba(11, 94, 156, 0.30) !important;
-    box-shadow: 0 28px 68px rgba(15, 64, 98, 0.13), 0 0 0 1px rgba(11, 94, 156, 0.025), inset 0 1px 0 rgba(255, 255, 255, 0.98) !important;
-}
-
-.public-theme ::selection {
-    background: rgba(11, 94, 156, 0.18);
-    color: #12324a;
-}
-
-@media (max-width: 767px) {
-    .public-theme .public-section-surface,
-    .public-theme .public-content-section > .public-container,
-    .public-theme .public-about-section > .public-container,
-    .public-theme .public-stats-section > .public-container,
-    .public-theme .public-vision-section > .public-container,
-    .public-theme .public-certifications-section > .public-container,
-    .public-theme .public-global-section > .public-container,
-    .public-theme .public-grid-section > .public-container,
-    .public-theme .public-cards-section > .public-container,
-    .public-theme .public-video-section > .public-container,
-    .public-theme .public-contact-section > .public-container,
-    .public-theme .careers-openings-section > .public-container {
-        border-color: rgba(11, 94, 156, 0.14) !important;
-        box-shadow: 0 12px 30px rgba(15, 64, 98, 0.07) !important;
-    }
-}
-
-/* =========================================================
-   FINAL PUBLIC WEBSITE PROFESSIONAL LAYOUT OVERRIDE
-   ---------------------------------------------------------
-   PURPOSE
-   - Keep CMS/admin design untouched.
-   - Remove the "box inside a box" appearance from public pages.
-   - Make each CMS section flow as one continuous corporate page.
-   - Preserve individual cards only where cards are useful.
-   - Blue / White / Red corporate visual system.
-   ========================================================= */
-
-
-/* =========================================================
-   1. CORE PUBLIC PALETTE
-   ========================================================= */
-
-.public-theme {
-    --brand-blue: #0b5e9c;
-    --brand-blue-dark: #073b63;
-    --brand-blue-soft: #edf6fc;
-    --brand-blue-soft-2: #f6fafd;
-
-    --brand-red: #c90000;
-
-    --brand-white: #ffffff;
-
-    --brand-heading: #12324a;
-    --brand-text: #334e63;
-    --brand-muted: #64748b;
-
-    --brand-border: #d9e5ed;
-    --brand-border-soft: #e9f0f5;
-
-    background: #ffffff !important;
-    color: var(--brand-text) !important;
-}
-
-
-/* =========================================================
-   2. PAGE BACKGROUND
-   ========================================================= */
-
-.public-theme .public-main {
-    overflow: hidden;
-
-    background:
-        linear-gradient(
-            180deg,
-            #ffffff 0%,
-            #ffffff 100%
-        ) !important;
-
-    color: var(--brand-text) !important;
-}
-
-
-/* =========================================================
-   3. CONTAINER
-   ---------------------------------------------------------
-   The container is only for width/alignment.
-   It must NOT look like a large card.
-   ========================================================= */
-
-.public-theme .public-container {
-    width: 100%;
-    max-width: 1180px;
-
-    margin-left: auto;
-    margin-right: auto;
-
-    padding-left: 28px;
-    padding-right: 28px;
-}
-
-
-/* =========================================================
-   4. REMOVE OUTER SECTION BOXES
-   ---------------------------------------------------------
-   This fixes the main design problem visible on the homepage.
-   ========================================================= */
-
-.public-theme .public-section-surface,
-.public-theme .public-content-section > .public-container,
-.public-theme .public-about-section > .public-container,
-.public-theme .public-stats-section > .public-container,
-.public-theme .public-vision-section > .public-container,
-.public-theme .public-certifications-section > .public-container,
-.public-theme .public-global-section > .public-container,
-.public-theme .public-grid-section > .public-container,
-.public-theme .public-cards-section > .public-container,
-.public-theme .public-video-section > .public-container,
-.public-theme .public-contact-section > .public-container,
-.public-theme .careers-openings-section > .public-container {
-    overflow: visible !important;
-
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-
-    border: 0 !important;
-    border-radius: 0 !important;
-
-    background: transparent !important;
-
-    box-shadow: none !important;
-
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-
-    transform: none !important;
-}
-
-
-/* remove decorative overlay that made every section look like a card */
-
-.public-theme .public-section-surface::before,
-.public-theme .public-content-section > .public-container::before,
-.public-theme .public-about-section > .public-container::before,
-.public-theme .public-stats-section > .public-container::before,
-.public-theme .public-vision-section > .public-container::before,
-.public-theme .public-certifications-section > .public-container::before,
-.public-theme .public-global-section > .public-container::before,
-.public-theme .public-grid-section > .public-container::before,
-.public-theme .public-cards-section > .public-container::before,
-.public-theme .public-video-section > .public-container::before,
-.public-theme .public-contact-section > .public-container::before,
-.public-theme .careers-openings-section > .public-container::before {
-    display: none !important;
-}
-
-
-/* =========================================================
-   5. CONSISTENT SECTION RHYTHM
-   ========================================================= */
-
-.public-theme .public-main .public-section,
-.public-theme .public-content-section,
-.public-theme .public-about-section,
-.public-theme .public-stats-section,
-.public-theme .public-vision-section,
-.public-theme .public-certifications-section,
-.public-theme .public-global-section,
-.public-theme .public-grid-section,
-.public-theme .public-cards-section,
-.public-theme .public-video-section,
-.public-theme .public-contact-section,
-.public-theme .careers-openings-section {
     position: relative;
 
-    width: 100%;
-
-    padding-top: 82px !important;
-    padding-bottom: 82px !important;
-}
-
-
-/* =========================================================
-   6. ALTERNATING SECTION BACKGROUNDS
-   ---------------------------------------------------------
-   Full-width background changes separate sections naturally.
-   No giant rounded containers required.
-   ========================================================= */
-
-.public-theme .public-content-section,
-.public-theme .public-stats-section,
-.public-theme .public-certifications-section,
-.public-theme .public-grid-section,
-.public-theme .public-video-section,
-.public-theme .careers-openings-section {
     background:
-        linear-gradient(
-            180deg,
-            #f5f9fc 0%,
-            #eef6fb 100%
-        ) !important;
-}
+        #01050a !important;
 
-.public-theme .public-about-section,
-.public-theme .public-vision-section,
-.public-theme .public-global-section,
-.public-theme .public-cards-section,
-.public-theme .public-contact-section {
-    background: #ffffff !important;
-}
+    overflow-x: clip;
 
-
-/* very subtle divider between sections */
-
-.public-theme .public-content-section,
-.public-theme .public-about-section,
-.public-theme .public-stats-section,
-.public-theme .public-vision-section,
-.public-theme .public-certifications-section,
-.public-theme .public-global-section,
-.public-theme .public-grid-section,
-.public-theme .public-cards-section,
-.public-theme .public-video-section,
-.public-theme .public-contact-section,
-.public-theme .careers-openings-section {
-    border-top: 1px solid rgba(11, 94, 156, 0.055);
+    isolation: isolate;
 }
 
 
 /* =========================================================
-   7. SECTION HEADERS
+   2. DEEP AURORA / LIVING MESH
    ========================================================= */
 
-.public-theme .public-section-header {
-    max-width: 760px;
-
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 44px;
-
-    text-align: center;
-}
-
-.public-theme .public-label {
-    margin-bottom: 10px;
-
-    color: var(--brand-red) !important;
-
-    font-size: 11px;
-    line-height: 1.4;
-
-    font-weight: 700;
-
-    letter-spacing: 0.16em;
-}
-
-.public-theme .public-heading {
-    color: var(--brand-heading) !important;
-
-    font-size: clamp(30px, 3vw, 40px);
-    line-height: 1.16;
-
-    font-weight: 700;
-
-    letter-spacing: -0.025em;
-}
-
-.public-theme .public-description {
-    max-width: 700px;
-
-    margin-top: 16px;
-
-    color: var(--brand-muted) !important;
-
-    font-size: 15px;
-    line-height: 1.75;
-}
-
-.public-theme .public-accent-line {
-    width: 48px;
-    height: 3px;
-
-    margin-top: 18px;
-
-    background:
-        linear-gradient(
-            90deg,
-            var(--brand-blue) 0%,
-            var(--brand-blue) 58%,
-            var(--brand-red) 58%,
-            var(--brand-red) 100%
-        ) !important;
-}
-
-
-/* =========================================================
-   8. HERO — FULL PAGE INTRO, NOT A CARD
-   ========================================================= */
-
-.public-theme .public-hero {
-    min-height: auto;
-
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-
-    background:
-        radial-gradient(
-            circle at 90% 10%,
-            rgba(11, 94, 156, 0.10),
-            transparent 32%
-        ),
-        linear-gradient(
-            135deg,
-            #ffffff 0%,
-            #f4f9fd 55%,
-            #eaf4fb 100%
-        ) !important;
-}
-
-.public-theme .public-hero-container {
-    gap: 72px;
-
-    max-width: 1180px;
-
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-
-    padding:
-        86px
-        28px !important;
-
-    border: 0 !important;
-    border-radius: 0 !important;
-
-    background: transparent !important;
-
-    box-shadow: none !important;
-}
-
-.public-theme .public-hero-container::before {
-    display: none !important;
-}
-
-.public-theme .public-hero-content {
-    max-width: 560px;
-}
-
-.public-theme .public-hero-label {
-    margin-bottom: 14px;
-
-    color: var(--brand-red) !important;
-
-    font-size: 11px;
-    letter-spacing: 0.16em;
-}
-
-.public-theme .public-hero-title {
-    max-width: 650px;
-
-    color: var(--brand-heading) !important;
-
-    font-size: clamp(40px, 4.4vw, 58px);
-    line-height: 1.04;
-
-    letter-spacing: -0.04em;
-}
-
-.public-theme .public-hero-description {
-    max-width: 600px;
-
-    margin-top: 22px;
-
-    color: var(--brand-muted) !important;
-
-    font-size: 16px;
-    line-height: 1.78;
-}
-
-.public-theme .public-hero-button {
-    margin-top: 28px;
-}
-
-.public-theme .public-hero-image-card {
-    border: 1px solid var(--brand-border) !important;
-    border-radius: 14px !important;
-
-    background: #ffffff !important;
-
-    box-shadow:
-        0 18px 45px rgba(25, 72, 104, 0.14) !important;
-}
-
-.public-theme .public-hero-image {
-    height: 390px;
-}
-
-
-/* =========================================================
-   9. ABOUT / CONTENT
-   ========================================================= */
-
-.public-theme .public-about-layout,
-.public-theme .public-content-layout {
-    gap: 70px;
-
-    align-items: center;
-}
-
-.public-theme .public-about-image-wrap,
-.public-theme .public-content-image-wrap {
-    border: 1px solid var(--brand-border) !important;
-    border-radius: 14px !important;
-
-    background: #ffffff !important;
-
-    box-shadow:
-        0 14px 36px rgba(25, 72, 104, 0.10) !important;
-}
-
-.public-theme .public-rich-text {
-    color: var(--brand-text) !important;
-
-    font-size: 15px;
-    line-height: 1.85;
-}
-
-
-/* =========================================================
-   10. STATS — CLEAN CORPORATE STRIP
-   ---------------------------------------------------------
-   Individual values remain visible, but the grid no longer
-   looks like a collection of dashboard widgets.
-   ========================================================= */
-
-.public-theme .public-stats-grid {
-    gap: 0;
-
-    overflow: hidden;
-
-    border-top: 1px solid var(--brand-border);
-    border-bottom: 1px solid var(--brand-border);
-
-    background: rgba(255, 255, 255, 0.55);
-}
-
-.public-theme .public-stat-card {
-    min-height: 150px;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-
-    padding: 28px 20px;
-
-    border: 0 !important;
-    border-right: 1px solid var(--brand-border) !important;
-    border-radius: 0 !important;
-
-    background: transparent !important;
-
-    box-shadow: none !important;
-
-    transform: none !important;
-}
-
-.public-theme .public-stat-card:last-child {
-    border-right: 0 !important;
-}
-
-.public-theme .public-stat-card::before {
-    top: 18px;
-
-    width: 24px;
-    height: 2px;
-
-    background: var(--brand-red) !important;
-}
-
-.public-theme .public-stat-card:hover {
-    background: rgba(255, 255, 255, 0.70) !important;
-
-    box-shadow: none !important;
-
-    transform: none !important;
-}
-
-.public-theme .public-stat-value {
-    color: var(--brand-blue) !important;
-
-    font-size: 40px;
-}
-
-.public-theme .public-stat-label {
-    margin-top: 8px;
-
-    color: var(--brand-muted) !important;
-
-    font-size: 11px;
-}
-
-
-/* =========================================================
-   11. VISION / MISSION — CARDS ARE APPROPRIATE HERE
-   ========================================================= */
-
-.public-theme .public-vision-grid {
-    gap: 28px;
-}
-
-.public-theme .public-mission-card,
-.public-theme .public-vision-card {
-    min-height: 270px;
-
-    padding: 34px;
-
-    border: 1px solid var(--brand-border) !important;
-    border-radius: 14px !important;
-
-    background: #ffffff !important;
-
-    color: var(--brand-text) !important;
-
-    box-shadow:
-        0 10px 28px rgba(25, 72, 104, 0.08) !important;
-
-    transition:
-        transform 220ms ease,
-        box-shadow 220ms ease,
-        border-color 220ms ease;
-}
-
-.public-theme .public-mission-card:hover,
-.public-theme .public-vision-card:hover {
-    transform: translateY(-4px);
-
-    border-color: rgba(11, 94, 156, 0.30) !important;
-
-    box-shadow:
-        0 18px 38px rgba(25, 72, 104, 0.12) !important;
-}
-
-.public-theme .public-card-icon,
-.public-theme .public-card-icon-dark {
-    width: 50px;
-    height: 50px;
-
-    margin-bottom: 22px;
-
-    border-radius: 10px;
-
-    background: rgba(11, 94, 156, 0.08) !important;
-
-    color: var(--brand-blue) !important;
-}
-
-.public-theme .public-card-label,
-.public-theme .public-card-label-light {
-    color: var(--brand-red) !important;
-}
-
-.public-theme .public-card-title,
-.public-theme .public-card-title-light {
-    color: var(--brand-heading) !important;
-}
-
-.public-theme .public-card-description,
-.public-theme .public-card-description-light {
-    color: var(--brand-muted) !important;
-}
-
-
-/* =========================================================
-   12. CERTIFICATIONS
-   ========================================================= */
-
-.public-theme .public-certifications-grid {
-    gap: 22px;
-}
-
-.public-theme .public-certification-card {
-    padding: 28px;
-
-    border: 1px solid var(--brand-border) !important;
-    border-radius: 12px !important;
-
-    background: #ffffff !important;
-
-    box-shadow:
-        0 8px 24px rgba(25, 72, 104, 0.07) !important;
-}
-
-.public-theme .public-certification-card:hover {
-    transform: translateY(-4px);
-
-    border-color: rgba(11, 94, 156, 0.30) !important;
-
-    box-shadow:
-        0 16px 34px rgba(25, 72, 104, 0.11) !important;
-}
-
-
-/* =========================================================
-   13. GLOBAL PRESENCE
-   ========================================================= */
-
-.public-theme .public-global-section {
-    color: var(--brand-text) !important;
-}
-
-.public-theme .public-global-section .public-heading {
-    color: var(--brand-heading) !important;
-}
-
-.public-theme .public-global-section .public-description {
-    color: var(--brand-muted) !important;
-}
-
-.public-theme .public-global-image-wrap {
-    border: 1px solid var(--brand-border) !important;
-    border-radius: 14px !important;
-
-    box-shadow:
-        0 12px 32px rgba(25, 72, 104, 0.08) !important;
-}
-
-.public-theme .public-locations-grid {
-    gap: 18px;
-}
-
-.public-theme .public-location-card {
-    padding: 26px;
-
-    border: 1px solid var(--brand-border) !important;
-    border-radius: 12px !important;
-
-    box-shadow:
-        0 7px 22px rgba(25, 72, 104, 0.06) !important;
-}
-
-.public-theme .public-location-card:hover {
-    transform: translateY(-3px);
-
-    box-shadow:
-        0 14px 30px rgba(25, 72, 104, 0.10) !important;
-}
-
-.public-theme .public-location-top-accent {
-    width: 34px;
-    height: 3px;
-
-    background: var(--brand-red) !important;
-}
-
-
-/* =========================================================
-   14. GRID / PRODUCT / LOGO ITEMS
-   ========================================================= */
-
-.public-theme .public-grid-items {
-    gap: 18px;
-}
-
-.public-theme .public-grid-card {
-    min-height: 170px;
-
-    padding: 26px 18px;
-
-    border: 1px solid var(--brand-border) !important;
-    border-radius: 12px !important;
-
-    box-shadow:
-        0 7px 22px rgba(25, 72, 104, 0.06) !important;
-}
-
-.public-theme .public-grid-card:hover {
-    transform: translateY(-4px);
-
-    box-shadow:
-        0 14px 30px rgba(25, 72, 104, 0.10) !important;
-}
-
-.public-theme .public-grid-card::before {
-    width: 34px;
-    height: 3px;
-
-    background: var(--brand-blue) !important;
-}
-
-.public-theme .public-grid-accent {
-    background: var(--brand-red) !important;
-}
-
-
-/* =========================================================
-   15. STANDARD CONTENT CARDS
-   ========================================================= */
-
-.public-theme .public-cards-grid {
-    gap: 22px;
-}
-
-.public-theme .public-card {
-    border: 1px solid var(--brand-border) !important;
-    border-radius: 12px !important;
-
-    box-shadow:
-        0 8px 24px rgba(25, 72, 104, 0.07) !important;
-}
-
-.public-theme .public-card:hover {
-    transform: translateY(-4px);
-
-    border-color: rgba(11, 94, 156, 0.30) !important;
-
-    box-shadow:
-        0 16px 34px rgba(25, 72, 104, 0.11) !important;
-}
-
-.public-theme .public-card-body {
-    padding: 26px;
-}
-
-.public-theme .public-card-link {
-    color: var(--brand-blue) !important;
-}
-
-.public-theme .public-card-link:hover {
-    color: var(--brand-red) !important;
-}
-
-.public-theme .public-card-bottom-accent {
-    background: var(--brand-red) !important;
-}
-
-
-/* =========================================================
-   16. CTA — ONE STRONG BLUE SECTION
-   ========================================================= */
-
-.public-theme .public-cta-section {
-    padding-top: 76px !important;
-    padding-bottom: 76px !important;
-
-    background:
-        linear-gradient(
-            135deg,
-            #073b63 0%,
-            #0b5e9c 100%
-        ) !important;
-}
-
-.public-theme .public-cta {
-    max-width: 900px;
-
-    margin-left: auto;
-    margin-right: auto;
-
-    padding: 0 !important;
-
-    border: 0 !important;
-    border-radius: 0 !important;
-
-    background: transparent !important;
-
-    box-shadow: none !important;
-}
-
-.public-theme .public-cta::before {
-    display: none !important;
-}
-
-.public-theme .public-cta-label {
-    color: #ffffff !important;
-
-    opacity: 0.82;
-}
-
-.public-theme .public-cta-title {
-    color: #ffffff !important;
-
-    font-size: clamp(32px, 3.5vw, 44px);
-}
-
-.public-theme .public-cta-description {
-    color: rgba(255, 255, 255, 0.82) !important;
-}
-
-.public-theme .public-cta-glow {
-    display: none;
-}
-
-.public-theme .public-cta .public-button {
-    border-color: #ffffff !important;
-
-    background: #ffffff !important;
-
-    color: var(--brand-blue) !important;
-
-    box-shadow: none !important;
-}
-
-.public-theme .public-cta .public-button:hover {
-    background: #f4f9fc !important;
-
-    color: var(--brand-blue-dark) !important;
-}
-
-
-/* =========================================================
-   17. BUTTON SYSTEM
-   ========================================================= */
-
-.public-theme .public-button,
-.public-theme .public-contact-submit {
-    min-height: 46px;
-
-    padding: 11px 22px;
-
-    border: 1px solid var(--brand-blue) !important;
-    border-radius: 7px !important;
-
-    background:
-        linear-gradient(
-            135deg,
-            var(--brand-blue),
-            #084b7d
-        ) !important;
-
-    color: #ffffff !important;
-
-    box-shadow:
-        0 7px 18px rgba(11, 94, 156, 0.18) !important;
-}
-
-.public-theme .public-button:hover,
-.public-theme .public-contact-submit:hover {
-    transform: translateY(-1px);
-
-    box-shadow:
-        0 10px 24px rgba(11, 94, 156, 0.24) !important;
-}
-
-
-/* =========================================================
-   18. CONTACT FORM
-   ---------------------------------------------------------
-   Keep the form itself as a card.
-   Only remove the giant outer section card.
-   ========================================================= */
-
-.public-theme .public-contact-form-card {
-    max-width: 900px;
-
-    padding: 38px;
-
-    border: 1px solid var(--brand-border) !important;
-    border-radius: 14px !important;
-
-    background: #ffffff !important;
-
-    box-shadow:
-        0 14px 36px rgba(25, 72, 104, 0.09) !important;
-}
-
-.public-theme .public-contact-form-card label {
-    color: var(--brand-heading) !important;
-}
-
-.public-theme .public-contact-form-card input,
-.public-theme .public-contact-form-card select,
-.public-theme .public-contact-form-card textarea {
-    border-color: #cddce6 !important;
-    border-radius: 7px !important;
-
-    background: #ffffff !important;
-
-    color: var(--brand-heading) !important;
-}
-
-.public-theme .public-contact-form-card input::placeholder,
-.public-theme .public-contact-form-card textarea::placeholder {
-    color: #94a3b8 !important;
-}
-
-.public-theme .public-contact-form-card input:focus,
-.public-theme .public-contact-form-card select:focus,
-.public-theme .public-contact-form-card textarea:focus {
-    border-color: var(--brand-blue) !important;
-
-    background: #ffffff !important;
-
-    box-shadow:
-        0 0 0 3px rgba(11, 94, 156, 0.09) !important;
-}
-
-
-/* =========================================================
-   19. CAREERS
-   ========================================================= */
-
-.public-theme .careers-hero {
-    min-height: 330px;
-
-    background:
-        radial-gradient(
-            circle at 50% 0%,
-            rgba(11, 94, 156, 0.09),
-            transparent 40%
-        ),
-        linear-gradient(
-            135deg,
-            #ffffff 0%,
-            #f3f8fc 55%,
-            #eaf4fb 100%
-        ) !important;
-}
-
-.public-theme .careers-hero-title,
-.public-theme .careers-section-title {
-    color: var(--brand-heading) !important;
-}
-
-.public-theme .careers-hero-description,
-.public-theme .careers-section-description {
-    color: var(--brand-muted) !important;
-}
-
-.public-theme .careers-job-card {
-    padding: 28px;
-
-    border: 1px solid var(--brand-border) !important;
-    border-radius: 12px !important;
-
-    box-shadow:
-        0 8px 24px rgba(25, 72, 104, 0.07) !important;
-}
-
-.public-theme .careers-job-card:hover {
-    transform: translateY(-4px);
-
-    box-shadow:
-        0 16px 34px rgba(25, 72, 104, 0.11) !important;
-}
-
-.public-theme .careers-job-accent {
-    height: 3px;
-
-    background:
-        linear-gradient(
-            90deg,
-            var(--brand-blue) 0%,
-            var(--brand-blue) 60%,
-            var(--brand-red) 60%,
-            var(--brand-red) 100%
-        ) !important;
-}
-
-
-/* =========================================================
-   20. VIDEO
-   ========================================================= */
-
-.public-theme .public-video-wrapper {
-    border: 1px solid var(--brand-border) !important;
-    border-radius: 14px !important;
-
-    box-shadow:
-        0 14px 36px rgba(25, 72, 104, 0.10) !important;
-}
-
-
-/* =========================================================
-   21. RESPONSIVE
-   ========================================================= */
-
-@media (max-width: 1024px) {
-
-    .public-theme .public-container {
-        padding-left: 24px;
-        padding-right: 24px;
-    }
-
-    .public-theme .public-main .public-section,
-    .public-theme .public-content-section,
-    .public-theme .public-about-section,
-    .public-theme .public-stats-section,
-    .public-theme .public-vision-section,
-    .public-theme .public-certifications-section,
-    .public-theme .public-global-section,
-    .public-theme .public-grid-section,
-    .public-theme .public-cards-section,
-    .public-theme .public-video-section,
-    .public-theme .public-contact-section,
-    .public-theme .careers-openings-section {
-        padding-top: 68px !important;
-        padding-bottom: 68px !important;
-    }
-
-    .public-theme .public-hero-container {
-        gap: 46px;
-
-        padding-top: 68px !important;
-        padding-bottom: 68px !important;
-    }
-
-    .public-theme .public-about-layout,
-    .public-theme .public-content-layout {
-        gap: 46px;
-    }
-
-}
-
-
-@media (max-width: 767px) {
-
-    .public-theme .public-container {
-        padding-left: 20px;
-        padding-right: 20px;
-    }
-
-    .public-theme .public-main .public-section,
-    .public-theme .public-content-section,
-    .public-theme .public-about-section,
-    .public-theme .public-stats-section,
-    .public-theme .public-vision-section,
-    .public-theme .public-certifications-section,
-    .public-theme .public-global-section,
-    .public-theme .public-grid-section,
-    .public-theme .public-cards-section,
-    .public-theme .public-video-section,
-    .public-theme .public-contact-section,
-    .public-theme .careers-openings-section {
-        padding-top: 54px !important;
-        padding-bottom: 54px !important;
-    }
-
-    .public-theme .public-section-header {
-        margin-bottom: 34px;
-    }
-
-    .public-theme .public-heading {
-        font-size: 30px;
-    }
-
-    .public-theme .public-description {
-        font-size: 14px;
-    }
-
-    .public-theme .public-hero-container {
-        padding:
-            54px
-            20px !important;
-    }
-
-    .public-theme .public-hero-title {
-        font-size: 38px;
-    }
-
-    .public-theme .public-hero-image {
-        height: 300px;
-    }
-
-    .public-theme .public-stats-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-
-        border: 1px solid var(--brand-border);
-    }
-
-    .public-theme .public-stat-card {
-        min-height: 135px;
-
-        border-right: 1px solid var(--brand-border) !important;
-        border-bottom: 1px solid var(--brand-border) !important;
-    }
-
-    .public-theme .public-stat-card:nth-child(2n) {
-        border-right: 0 !important;
-    }
-
-    .public-theme .public-stat-card:nth-last-child(-n + 2) {
-        border-bottom: 0 !important;
-    }
-
-    .public-theme .public-mission-card,
-    .public-theme .public-vision-card {
-        min-height: auto;
-
-        padding: 28px;
-    }
-
-    .public-theme .public-contact-form-card {
-        padding: 26px;
-    }
-
-    .public-theme .public-cta-section {
-        padding-top: 58px !important;
-        padding-bottom: 58px !important;
-    }
-
-}
-
-
-@media (max-width: 480px) {
-
-    .public-theme .public-hero-title {
-        font-size: 34px;
-    }
-
-    .public-theme .public-stats-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .public-theme .public-stat-card,
-    .public-theme .public-stat-card:nth-child(2n),
-    .public-theme .public-stat-card:nth-last-child(-n + 2) {
-        border-right: 0 !important;
-        border-bottom: 1px solid var(--brand-border) !important;
-    }
-
-    .public-theme .public-stat-card:last-child {
-        border-bottom: 0 !important;
-    }
-
-}
-
-/* =========================================================
-   FINAL SEAMLESS CORPORATE PUBLIC THEME
-   ---------------------------------------------------------
-   This override removes visible horizontal section bands and
-   makes all CMS-driven public sections read as one continuous
-   modern corporate website.
-
-   CMS / admin styles remain untouched because every rule is
-   scoped under .public-theme.
-   ========================================================= */
-
-
-/* =========================================================
-   1. ONE CONTINUOUS PAGE CANVAS
-   ========================================================= */
-
-.public-theme,
-.public-theme .public-main {
-    background:
-        radial-gradient(
-            circle at 8% 8%,
-            rgba(11, 94, 156, 0.055),
-            transparent 28%
-        ),
-        radial-gradient(
-            circle at 92% 30%,
-            rgba(201, 0, 0, 0.018),
-            transparent 22%
-        ),
-        linear-gradient(
-            180deg,
-            #ffffff 0%,
-            #fbfdff 38%,
-            #f7fbfe 64%,
-            #ffffff 100%
-        ) !important;
-
-    color: #334e63 !important;
-}
-
-
-/* =========================================================
-   2. REMOVE ALL HARD SECTION SEPARATION
-   ========================================================= */
-
-.public-theme .public-hero,
-.public-theme .public-content-section,
-.public-theme .public-about-section,
-.public-theme .public-stats-section,
-.public-theme .public-vision-section,
-.public-theme .public-certifications-section,
-.public-theme .public-global-section,
-.public-theme .public-grid-section,
-.public-theme .public-cards-section,
-.public-theme .public-video-section,
-.public-theme .public-contact-section,
-.public-theme .careers-openings-section {
-    border-top: 0 !important;
-    border-bottom: 0 !important;
-
-    background: transparent !important;
-}
-
-
-/* =========================================================
-   3. SOFT SECTION FLOW
-   ---------------------------------------------------------
-   Sections keep spacing, but the page no longer looks cut
-   into separate horizontal slabs.
-   ========================================================= */
-
-.public-theme .public-main .public-section,
-.public-theme .public-content-section,
-.public-theme .public-about-section,
-.public-theme .public-stats-section,
-.public-theme .public-vision-section,
-.public-theme .public-certifications-section,
-.public-theme .public-global-section,
-.public-theme .public-grid-section,
-.public-theme .public-cards-section,
-.public-theme .public-video-section,
-.public-theme .public-contact-section,
-.public-theme .careers-openings-section {
-    position: relative;
-
-    padding-top: 74px !important;
-    padding-bottom: 74px !important;
-}
-
-
-/* subtle flowing highlight instead of horizontal background blocks */
-
-.public-theme .public-content-section::before,
-.public-theme .public-stats-section::before,
-.public-theme .public-certifications-section::before,
-.public-theme .public-grid-section::before,
-.public-theme .public-contact-section::before,
-.public-theme .careers-openings-section::before {
-    content: '';
-
-    position: absolute;
-    inset: 10% 0;
+.public-theme .public-background {
+    position: fixed;
+    inset: -10%;
+
+    z-index: -30;
 
     pointer-events: none;
 
     background:
         radial-gradient(
-            ellipse at center,
-            rgba(11, 94, 156, 0.035),
-            transparent 68%
+            42% 34% at 9% 14%,
+            rgba(24, 145, 214, 0.28) 0%,
+            rgba(24, 145, 214, 0.09) 38%,
+            transparent 72%
+        ),
+        radial-gradient(
+            40% 34% at 88% 20%,
+            rgba(67, 169, 228, 0.17) 0%,
+            transparent 72%
+        ),
+        radial-gradient(
+            34% 36% at 78% 72%,
+            rgba(215, 25, 32, 0.13) 0%,
+            transparent 72%
+        ),
+        radial-gradient(
+            36% 34% at 18% 86%,
+            rgba(8, 101, 164, 0.17) 0%,
+            transparent 74%
+        ),
+        radial-gradient(
+            30% 28% at 50% 48%,
+            rgba(30, 116, 174, 0.08) 0%,
+            transparent 76%
+        ),
+        linear-gradient(
+            145deg,
+            #01050a 0%,
+            #03101b 30%,
+            #071827 57%,
+            #04111c 78%,
+            #01050a 100%
         );
 
-    filter: blur(12px);
+    background-size:
+        118% 118%,
+        124% 124%,
+        128% 128%,
+        120% 120%,
+        115% 115%,
+        100% 100%;
+
+    animation:
+        publicV3Aurora 24s ease-in-out infinite alternate;
+
+    will-change:
+        transform,
+        background-position;
 }
 
-.public-theme .public-content-section > *,
-.public-theme .public-stats-section > *,
-.public-theme .public-certifications-section > *,
-.public-theme .public-grid-section > *,
-.public-theme .public-contact-section > *,
-.public-theme .careers-openings-section > * {
-    position: relative;
-    z-index: 1;
+
+/* rotating atmospheric veil */
+
+.public-theme .public-background::before {
+    content: '';
+
+    position: absolute;
+    inset: -28%;
+
+    pointer-events: none;
+
+    opacity: 0.22;
+
+    background:
+        conic-gradient(
+            from 210deg at 50% 50%,
+            transparent 0deg,
+            rgba(21, 131, 197, 0.10) 48deg,
+            transparent 112deg,
+            rgba(215, 25, 32, 0.055) 185deg,
+            transparent 250deg,
+            rgba(52, 164, 224, 0.08) 318deg,
+            transparent 360deg
+        );
+
+    filter:
+        blur(85px);
+
+    animation:
+        publicV3VeilRotate 52s linear infinite;
+
+    transform:
+        scale(1.1);
+}
+
+
+/* slow breathing exposure */
+
+.public-theme .public-background::after {
+    content: '';
+
+    position: absolute;
+    inset: 0;
+
+    pointer-events: none;
+
+    background:
+        radial-gradient(
+            circle at 50% 50%,
+            transparent 22%,
+            rgba(1, 5, 10, 0.10) 64%,
+            rgba(1, 5, 10, 0.58) 100%
+        );
+
+    animation:
+        publicV3VignettePulse 12s ease-in-out infinite;
 }
 
 
 /* =========================================================
-   4. CLEAN SECTION TITLES
+   3. DUAL TECHNOLOGY GRID
    ========================================================= */
 
-.public-theme .public-section-header {
-    max-width: 760px;
+.public-theme .public-background-grid {
+    position: fixed;
+    inset: -12% -5%;
 
-    margin-bottom: 38px;
+    z-index: -28;
+
+    pointer-events: none;
+
+    opacity: 0.28;
+
+    transform-origin:
+        50% 100%;
+
+    background-image:
+        linear-gradient(
+            rgba(76, 170, 225, 0.11) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(76, 170, 225, 0.11) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            rgba(255, 255, 255, 0.025) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.025) 1px,
+            transparent 1px
+        );
+
+    background-size:
+        74px 74px,
+        74px 74px,
+        18px 18px,
+        18px 18px;
+
+    mask-image:
+        linear-gradient(
+            to bottom,
+            transparent 0%,
+            black 17%,
+            black 90%,
+            transparent 100%
+        );
+
+    -webkit-mask-image:
+        linear-gradient(
+            to bottom,
+            transparent 0%,
+            black 17%,
+            black 90%,
+            transparent 100%
+        );
+
+    animation:
+        publicV3PerspectiveGrid 20s linear infinite;
+
+    will-change:
+        transform,
+        background-position;
 }
 
-.public-theme .public-label {
-    margin-bottom: 8px;
 
-    color: #c90000 !important;
+/* horizon glow */
 
-    font-size: 10.5px;
-    font-weight: 700;
+.public-theme .public-background-grid::after {
+    content: '';
 
-    letter-spacing: 0.17em;
-}
+    position: absolute;
 
-.public-theme .public-heading {
-    color: #0f3047 !important;
+    left: 8%;
+    right: 8%;
+    top: 21%;
 
-    font-size: clamp(30px, 3vw, 39px);
-    line-height: 1.16;
-
-    letter-spacing: -0.03em;
-}
-
-.public-theme .public-description {
-    margin-top: 14px;
-
-    color: #65798a !important;
-
-    font-size: 14.5px;
-    line-height: 1.75;
-}
-
-.public-theme .public-accent-line {
-    width: 42px;
-    height: 2px;
-
-    margin-top: 16px;
+    height: 1px;
 
     background:
         linear-gradient(
             90deg,
-            #0b5e9c 0%,
-            #0b5e9c 68%,
-            #c90000 68%,
-            #c90000 100%
-        ) !important;
+            transparent,
+            rgba(74, 174, 232, 0.32),
+            rgba(255, 255, 255, 0.10),
+            rgba(215, 25, 32, 0.17),
+            transparent
+        );
+
+    box-shadow:
+        0 0 26px rgba(53, 157, 218, 0.18);
+
+    animation:
+        publicV3HorizonGlow 9s ease-in-out infinite;
 }
 
 
 /* =========================================================
-   5. HERO — MODERN OPEN LAYOUT
+   4. MICRO DATA / STAR FIELD
    ========================================================= */
 
-.public-theme .public-hero {
-    position: relative;
+.public-theme .public-background-noise {
+    position: fixed;
+    inset: 0;
 
-    overflow: hidden;
+    z-index: -27;
 
-    padding: 0 !important;
+    pointer-events: none;
+
+    opacity: 0.18;
+
+    background-image:
+        radial-gradient(
+            circle,
+            rgba(109, 202, 250, 0.56) 0 0.7px,
+            transparent 0.9px
+        ),
+        radial-gradient(
+            circle,
+            rgba(255, 255, 255, 0.28) 0 0.55px,
+            transparent 0.8px
+        ),
+        radial-gradient(
+            circle,
+            rgba(215, 25, 32, 0.26) 0 0.65px,
+            transparent 0.85px
+        );
+
+    background-size:
+        92px 92px,
+        137px 137px,
+        181px 181px;
+
+    background-position:
+        18px 26px,
+        67px 43px,
+        31px 119px;
+
+    animation:
+        publicV3StarDrift 34s linear infinite;
+
+    will-change:
+        background-position;
 }
 
-.public-theme .public-hero::before {
-    content: '';
 
-    position: absolute;
+/* =========================================================
+   5. AMBIENT ORBS — RICHER DEPTH
+   ========================================================= */
+
+.public-theme .public-ambient-orb {
+    position: fixed;
+
+    z-index: -24;
+
+    pointer-events: none;
+
+    border-radius: 999px;
+
+    filter:
+        blur(115px);
+
+    mix-blend-mode:
+        screen;
+
+    will-change:
+        transform,
+        opacity;
+}
+
+
+.public-theme .public-ambient-orb-one {
+    top: 0%;
+    left: -11%;
+
+    width: 560px;
+    height: 560px;
+
+    opacity: 0.72;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(22, 146, 216, 0.32) 0%,
+            rgba(22, 146, 216, 0.10) 46%,
+            transparent 72%
+        );
+
+    animation:
+        publicV3OrbOne 17s ease-in-out infinite alternate;
+}
+
+
+.public-theme .public-ambient-orb-two {
+    top: 35%;
+    right: -14%;
+
+    width: 650px;
+    height: 650px;
+
+    opacity: 0.58;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(49, 161, 224, 0.25) 0%,
+            rgba(49, 161, 224, 0.08) 48%,
+            transparent 72%
+        );
+
+    animation:
+        publicV3OrbTwo 23s ease-in-out infinite alternate;
+}
+
+
+.public-theme .public-ambient-orb-three {
+    bottom: -19%;
+    left: 22%;
 
     width: 620px;
     height: 620px;
 
-    top: -260px;
-    right: -160px;
+    opacity: 0.44;
 
-    border-radius: 50%;
+    background:
+        radial-gradient(
+            circle,
+            rgba(215, 25, 32, 0.20) 0%,
+            rgba(215, 25, 32, 0.055) 52%,
+            transparent 74%
+        );
 
-    background: rgba(11, 94, 156, 0.055);
-
-    filter: blur(25px);
-
-    pointer-events: none;
+    animation:
+        publicV3OrbThree 27s ease-in-out infinite alternate;
 }
 
-.public-theme .public-hero::after {
+
+/* =========================================================
+   6. CINEMATIC SCANNING BEAMS
+   ========================================================= */
+
+.public-theme .public-light-beam {
+    position: fixed;
+
+    z-index: -22;
+
+    width: 78vw;
+    height: 190px;
+
+    pointer-events: none;
+
+    border-radius: 999px;
+
+    filter:
+        blur(33px);
+
+    will-change:
+        transform,
+        opacity;
+}
+
+
+.public-theme .public-light-beam-one {
+    top: 18%;
+    left: -86vw;
+
+    opacity: 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(47, 165, 230, 0.02) 18%,
+            rgba(47, 165, 230, 0.26) 47%,
+            rgba(120, 211, 255, 0.12) 58%,
+            transparent 100%
+        );
+
+    transform:
+        rotate(-12deg);
+
+    animation:
+        publicV3BlueScan 16s cubic-bezier(.45,0,.2,1) infinite;
+}
+
+
+.public-theme .public-light-beam-two {
+    top: 68%;
+    right: -86vw;
+
+    opacity: 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(215, 25, 32, 0.02) 20%,
+            rgba(215, 25, 32, 0.18) 47%,
+            rgba(255, 99, 105, 0.07) 58%,
+            transparent 100%
+        );
+
+    transform:
+        rotate(11deg);
+
+    animation:
+        publicV3RedScan 23s cubic-bezier(.45,0,.2,1) infinite;
+}
+
+
+/* =========================================================
+   7. DATA PARTICLES
+   ========================================================= */
+
+.public-theme .public-particles {
+    position: fixed;
+    inset: 0;
+
+    z-index: -20;
+
+    pointer-events: none;
+
+    overflow: hidden;
+}
+
+
+.public-theme .public-particle {
+    position: absolute;
+
+    width: 5px;
+    height: 5px;
+
+    border-radius: 999px;
+
+    opacity: 0.50;
+
+    background:
+        rgba(91, 197, 250, 0.90);
+
+    box-shadow:
+        0 0 8px rgba(91, 197, 250, 0.85),
+        0 0 20px rgba(91, 197, 250, 0.26);
+
+    animation:
+        publicV3ParticleFloat 13s ease-in-out infinite;
+
+    will-change:
+        transform,
+        opacity;
+}
+
+
+.public-theme .public-particle::before {
     content: '';
 
     position: absolute;
 
-    width: 260px;
-    height: 260px;
+    left: 50%;
+    top: 8px;
 
-    bottom: -150px;
-    left: -100px;
+    width: 1px;
+    height: 44px;
+
+    transform:
+        translateX(-50%);
+
+    background:
+        linear-gradient(
+            to bottom,
+            rgba(81, 188, 244, 0.33),
+            transparent
+        );
+
+    opacity: 0.70;
+}
+
+
+.public-theme .public-particle::after {
+    content: '';
+
+    position: absolute;
+
+    inset: -5px;
+
+    border:
+        1px solid rgba(100, 199, 249, 0.12);
+
+    border-radius:
+        999px;
+
+    animation:
+        publicV3ParticleRing 2.8s ease-out infinite;
+}
+
+
+.public-theme .public-particle:nth-child(3n) {
+    width: 3px;
+    height: 3px;
+
+    background:
+        rgba(255, 255, 255, 0.75);
+
+    box-shadow:
+        0 0 10px rgba(255, 255, 255, 0.42);
+}
+
+
+.public-theme .public-particle:nth-child(4n) {
+    background:
+        rgba(235, 72, 78, 0.84);
+
+    box-shadow:
+        0 0 11px rgba(215, 25, 32, 0.48),
+        0 0 20px rgba(215, 25, 32, 0.20);
+}
+
+
+.public-theme .public-particle-1 {
+    top: 11%;
+    left: 7%;
+    animation-delay: -2s;
+}
+
+.public-theme .public-particle-2 {
+    top: 18%;
+    left: 73%;
+    animation-delay: -8s;
+}
+
+.public-theme .public-particle-3 {
+    top: 31%;
+    left: 44%;
+    animation-delay: -4s;
+}
+
+.public-theme .public-particle-4 {
+    top: 42%;
+    left: 87%;
+    animation-delay: -10s;
+}
+
+.public-theme .public-particle-5 {
+    top: 54%;
+    left: 16%;
+    animation-delay: -6s;
+}
+
+.public-theme .public-particle-6 {
+    top: 62%;
+    left: 64%;
+    animation-delay: -12s;
+}
+
+.public-theme .public-particle-7 {
+    top: 74%;
+    left: 32%;
+    animation-delay: -3s;
+}
+
+.public-theme .public-particle-8 {
+    top: 85%;
+    left: 91%;
+    animation-delay: -9s;
+}
+
+.public-theme .public-particle-9 {
+    top: 39%;
+    left: 4%;
+    animation-delay: -11s;
+}
+
+.public-theme .public-particle-10 {
+    top: 8%;
+    left: 53%;
+    animation-delay: -5s;
+}
+
+
+/* =========================================================
+   8. FLOATING GEOMETRIC TECH SHAPES
+   ========================================================= */
+
+.public-theme .public-floating-shape {
+    position: fixed;
+
+    z-index: -18;
+
+    pointer-events: none;
+
+    opacity: 0.36;
+
+    border:
+        1px solid rgba(89, 187, 240, 0.16);
+
+    box-shadow:
+        inset 0 0 28px rgba(52, 155, 214, 0.025),
+        0 0 32px rgba(52, 155, 214, 0.025);
+
+    will-change:
+        transform;
+}
+
+
+.public-theme .public-floating-one {
+    top: 15%;
+    right: 7%;
+
+    width: 122px;
+    height: 122px;
+
+    border-radius: 28px;
+
+    animation:
+        publicV3ShapeOne 25s ease-in-out infinite alternate;
+}
+
+
+.public-theme .public-floating-two {
+    bottom: 15%;
+    left: 4%;
+
+    width: 92px;
+    height: 92px;
 
     border-radius: 50%;
 
-    background: rgba(201, 0, 0, 0.025);
+    border-color:
+        rgba(215, 25, 32, 0.14);
 
-    filter: blur(30px);
-
-    pointer-events: none;
+    animation:
+        publicV3ShapeTwo 28s ease-in-out infinite alternate;
 }
 
-.public-theme .public-hero-container {
-    min-height: 520px;
 
-    gap: 78px;
+/* =========================================================
+   9. CONTINUOUS PUBLIC CANVAS
+   ---------------------------------------------------------
+   Only the main canvas is transparent.
+   Individual section backgrounds are controlled later by
+   .public-section-theme-light / .public-section-theme-dark.
+   ========================================================= */
 
-    padding-top: 82px !important;
-    padding-bottom: 82px !important;
-
+.public-theme .public-main {
     position: relative;
+
     z-index: 1;
-}
 
-.public-theme .public-hero-content {
-    max-width: 540px;
-}
-
-.public-theme .public-hero-title {
-    color: #0d2f47 !important;
-
-    font-size: clamp(42px, 4.6vw, 60px);
-    line-height: 1.02;
-}
-
-.public-theme .public-hero-description {
-    margin-top: 20px;
-
-    color: #617687 !important;
-
-    font-size: 15.5px;
-    line-height: 1.78;
-}
-
-.public-theme .public-hero-image-card {
-    border: 0 !important;
-    border-radius: 16px !important;
-
-    box-shadow:
-        0 24px 60px rgba(28, 75, 106, 0.16) !important;
-}
-
-.public-theme .public-hero-image {
-    height: 400px;
-}
-
-
-/* =========================================================
-   6. ABOUT / CONTENT — OPEN, EDITORIAL LAYOUT
-   ========================================================= */
-
-.public-theme .public-about-layout,
-.public-theme .public-content-layout {
-    gap: 76px;
-
-    align-items: center;
-}
-
-.public-theme .public-about-content,
-.public-theme .public-content-text {
-    max-width: 560px;
-}
-
-.public-theme .public-about-image-wrap,
-.public-theme .public-content-image-wrap {
-    border: 0 !important;
-    border-radius: 14px !important;
-
-    box-shadow:
-        0 18px 44px rgba(27, 70, 99, 0.10) !important;
-}
-
-
-/* =========================================================
-   7. STATS — MINIMAL EXECUTIVE METRICS
-   ========================================================= */
-
-.public-theme .public-stats-grid {
-    gap: 0;
-
-    max-width: 980px;
-
-    margin-left: auto;
-    margin-right: auto;
+    min-height: 100vh;
 
     overflow: visible;
 
-    border: 0 !important;
-
     background: transparent !important;
-}
-
-.public-theme .public-stat-card {
-    min-height: 126px;
-
-    padding: 22px 24px;
-
-    border: 0 !important;
-    border-right: 1px solid #dce8ef !important;
-
-    background: transparent !important;
-
-    box-shadow: none !important;
-}
-
-.public-theme .public-stat-card:last-child {
-    border-right: 0 !important;
-}
-
-.public-theme .public-stat-card::before {
-    top: 4px;
-
-    width: 26px;
-    height: 2px;
-
-    background: #c90000 !important;
-}
-
-.public-theme .public-stat-card:hover {
-    background: transparent !important;
-}
-
-.public-theme .public-stat-value {
-    color: #0b5e9c !important;
-
-    font-size: 38px;
-    line-height: 1;
-}
-
-.public-theme .public-stat-label {
-    margin-top: 10px;
-
-    color: #718494 !important;
-
-    font-size: 10.5px;
-    letter-spacing: 0.08em;
 }
 
 
 /* =========================================================
-   8. VISION / MISSION — PREMIUM FLOATING CARDS
+   10. SECTION AURA
+   ---------------------------------------------------------
+   Adds subtle animated depth behind each section without
+   creating obvious containers.
    ========================================================= */
 
-.public-theme .public-vision-grid {
-    gap: 24px;
-
-    max-width: 980px;
-
-    margin-left: auto;
-    margin-right: auto;
+.public-theme .public-main > section {
+    isolation: isolate;
 }
 
-.public-theme .public-mission-card,
-.public-theme .public-vision-card {
-    min-height: 240px;
 
-    padding: 32px;
+.public-theme .public-main > section::before {
+    content: '';
 
-    border: 1px solid rgba(11, 94, 156, 0.14) !important;
-    border-radius: 14px !important;
+    position: absolute;
+
+    z-index: -1;
+
+    left: 50%;
+    top: 50%;
+
+    width: min(92vw, 1280px);
+    height: 78%;
+
+    transform:
+        translate(-50%, -50%);
+
+    pointer-events: none;
+
+    border-radius:
+        48px;
+
+    background:
+        radial-gradient(
+            ellipse at 50% 50%,
+            rgba(17, 88, 131, 0.055),
+            rgba(6, 18, 29, 0.015) 55%,
+            transparent 78%
+        );
+
+    opacity: 0.78;
+
+    animation:
+        publicV3SectionAura 9s ease-in-out infinite;
+}
+
+
+.public-theme .public-main > section:nth-of-type(even)::before {
+    background:
+        radial-gradient(
+            ellipse at 50% 50%,
+            rgba(215, 25, 32, 0.028),
+            rgba(16, 78, 116, 0.045) 48%,
+            transparent 78%
+        );
+}
+
+
+/* elegant divider glow */
+
+.public-theme .public-main > section::after {
+    content: '';
+
+    position: absolute;
+
+    left: 50%;
+    bottom: 0;
+
+    width: min(88vw, 1220px);
+    height: 1px;
+
+    transform:
+        translateX(-50%);
+
+    pointer-events: none;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(66, 167, 225, 0.04) 10%,
+            rgba(66, 167, 225, 0.24) 37%,
+            rgba(255, 255, 255, 0.08) 50%,
+            rgba(215, 25, 32, 0.14) 68%,
+            rgba(215, 25, 32, 0.02) 90%,
+            transparent 100%
+        );
+
+    box-shadow:
+        0 0 18px rgba(41, 145, 205, 0.08);
+}
+
+
+/* =========================================================
+   11. GLASS / FLOATING CARD SYSTEM
+   ========================================================= */
+
+.public-theme .public-glass {
+    border:
+        1px solid rgba(124, 190, 229, 0.16);
 
     background:
         linear-gradient(
             145deg,
-            rgba(255, 255, 255, 0.97),
-            rgba(248, 252, 255, 0.95)
-        ) !important;
+            rgba(255, 255, 255, 0.075),
+            rgba(255, 255, 255, 0.028)
+        );
 
     box-shadow:
-        0 12px 32px rgba(25, 72, 104, 0.07) !important;
+        0 28px 80px rgba(0, 0, 0, 0.34),
+        inset 0 1px 0 rgba(255, 255, 255, 0.055);
+
+    backdrop-filter:
+        blur(22px) saturate(1.12);
+
+    -webkit-backdrop-filter:
+        blur(22px) saturate(1.12);
 }
 
+
+/* shared lift */
+
+.public-theme .public-card,
+.public-theme .public-grid-card,
+.public-theme .public-stat-card,
+.public-theme .public-certification-card,
+.public-theme .public-location-card,
+.public-theme .public-mission-card,
+.public-theme .public-vision-card,
+.public-theme .careers-job-card {
+    position: relative;
+
+    transform:
+        translate3d(0, 0, 0);
+
+    transition:
+        transform 430ms cubic-bezier(.2,.78,.2,1),
+        box-shadow 430ms ease,
+        border-color 430ms ease,
+        filter 430ms ease;
+
+    will-change:
+        transform;
+}
+
+
+/* halo on hover */
+
+.public-theme .public-card::after,
+.public-theme .public-grid-card::after,
+.public-theme .public-stat-card::after,
+.public-theme .public-certification-card::after,
+.public-theme .public-location-card::after,
+.public-theme .public-mission-card::after,
+.public-theme .public-vision-card::after,
+.public-theme .careers-job-card::after {
+    content: '';
+
+    position: absolute;
+
+    z-index: -1;
+
+    inset: 12% 8% -14%;
+
+    border-radius:
+        inherit;
+
+    pointer-events: none;
+
+    opacity: 0;
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(43, 155, 219, 0.20),
+            transparent 68%
+        );
+
+    filter:
+        blur(25px);
+
+    transition:
+        opacity 420ms ease,
+        transform 420ms ease;
+
+    transform:
+        scale(0.88);
+}
+
+
+.public-theme .public-card:hover,
+.public-theme .public-grid-card:hover,
+.public-theme .public-stat-card:hover,
+.public-theme .public-certification-card:hover,
+.public-theme .public-location-card:hover,
 .public-theme .public-mission-card:hover,
-.public-theme .public-vision-card:hover {
-    transform: translateY(-4px);
+.public-theme .public-vision-card:hover,
+.public-theme .careers-job-card:hover {
+    transform:
+        translate3d(0, -10px, 0)
+        scale(1.009);
 
-    border-color: rgba(11, 94, 156, 0.27) !important;
+    border-color:
+        rgba(75, 176, 232, 0.44);
 
     box-shadow:
-        0 20px 42px rgba(25, 72, 104, 0.11) !important;
+        0 34px 78px rgba(0, 0, 0, 0.38),
+        0 0 0 1px rgba(82, 181, 237, 0.05),
+        0 0 46px rgba(19, 128, 190, 0.09);
 }
 
-.public-theme .public-card-icon,
-.public-theme .public-card-icon-dark {
-    width: 46px;
-    height: 46px;
 
-    margin-bottom: 20px;
+.public-theme .public-card:hover::after,
+.public-theme .public-grid-card:hover::after,
+.public-theme .public-stat-card:hover::after,
+.public-theme .public-certification-card:hover::after,
+.public-theme .public-location-card:hover::after,
+.public-theme .public-mission-card:hover::after,
+.public-theme .public-vision-card:hover::after,
+.public-theme .careers-job-card:hover::after {
+    opacity: 1;
 
-    border-radius: 10px;
-
-    background: #edf6fc !important;
-
-    color: #0b5e9c !important;
+    transform:
+        scale(1);
 }
 
 
 /* =========================================================
-   9. CARD SECTIONS — LIGHTER, LESS "CMS"
+   12. IMAGE HOVER DEPTH
+   ========================================================= */
+
+.public-theme .public-main img {
+    backface-visibility:
+        hidden;
+}
+
+
+.public-theme .public-main a img,
+.public-theme .public-main button img {
+    transition:
+        transform 520ms cubic-bezier(.2,.75,.2,1),
+        filter 520ms ease;
+}
+
+
+.public-theme .public-main a:hover img,
+.public-theme .public-main button:hover img {
+    filter:
+        saturate(1.06)
+        contrast(1.02);
+}
+
+
+/* =========================================================
+   14. SECTION REVEAL
+   ========================================================= */
+
+@media (prefers-reduced-motion: no-preference) {
+
+    .public-theme .public-main > section {
+        animation:
+            publicV3SectionReveal 800ms cubic-bezier(.2,.72,.2,1) both;
+    }
+}
+
+
+/* =========================================================
+   15. KEYFRAMES
+   ========================================================= */
+
+@keyframes publicV3Aurora {
+
+    0% {
+        background-position:
+            0% 0%,
+            100% 0%,
+            100% 100%,
+            0% 100%,
+            50% 50%,
+            0 0;
+
+        transform:
+            translate3d(-1%, -0.6%, 0)
+            scale(1.025);
+    }
+
+    50% {
+        background-position:
+            11% 7%,
+            91% 12%,
+            84% 87%,
+            15% 82%,
+            56% 44%,
+            0 0;
+
+        transform:
+            translate3d(1.1%, 0.8%, 0)
+            scale(1.065);
+    }
+
+    100% {
+        background-position:
+            4% 14%,
+            96% 6%,
+            90% 95%,
+            8% 91%,
+            43% 58%,
+            0 0;
+
+        transform:
+            translate3d(-0.4%, 1.2%, 0)
+            scale(1.04);
+    }
+}
+
+
+@keyframes publicV3VeilRotate {
+
+    from {
+        transform:
+            rotate(0deg)
+            scale(1.10);
+    }
+
+    to {
+        transform:
+            rotate(360deg)
+            scale(1.10);
+    }
+}
+
+
+@keyframes publicV3VignettePulse {
+
+    0%,
+    100% {
+        opacity: 0.72;
+    }
+
+    50% {
+        opacity: 0.92;
+    }
+}
+
+
+@keyframes publicV3PerspectiveGrid {
+
+    0% {
+        background-position:
+            0 0,
+            0 0,
+            0 0,
+            0 0;
+
+        transform:
+            perspective(860px)
+            rotateX(64deg)
+            translateY(8%);
+    }
+
+    100% {
+        background-position:
+            0 74px,
+            74px 0,
+            0 18px,
+            18px 0;
+
+        transform:
+            perspective(860px)
+            rotateX(64deg)
+            translateY(8%);
+    }
+}
+
+
+@keyframes publicV3HorizonGlow {
+
+    0%,
+    100% {
+        opacity: 0.32;
+
+        filter:
+            blur(0);
+    }
+
+    50% {
+        opacity: 0.90;
+
+        filter:
+            blur(0.4px);
+    }
+}
+
+
+@keyframes publicV3StarDrift {
+
+    from {
+        background-position:
+            18px 26px,
+            67px 43px,
+            31px 119px;
+    }
+
+    to {
+        background-position:
+            118px 144px,
+            -84px 205px,
+            183px -64px;
+    }
+}
+
+
+@keyframes publicV3OrbOne {
+
+    from {
+        transform:
+            translate3d(0, 0, 0)
+            scale(1);
+    }
+
+    to {
+        transform:
+            translate3d(125px, 82px, 0)
+            scale(1.18);
+    }
+}
+
+
+@keyframes publicV3OrbTwo {
+
+    from {
+        transform:
+            translate3d(0, 0, 0)
+            scale(1);
+    }
+
+    to {
+        transform:
+            translate3d(-150px, 94px, 0)
+            scale(1.13);
+    }
+}
+
+
+@keyframes publicV3OrbThree {
+
+    from {
+        transform:
+            translate3d(0, 0, 0)
+            scale(1);
+    }
+
+    to {
+        transform:
+            translate3d(96px, -118px, 0)
+            scale(1.16);
+    }
+}
+
+
+@keyframes publicV3BlueScan {
+
+    0%,
+    12% {
+        transform:
+            translate3d(0, 0, 0)
+            rotate(-12deg);
+
+        opacity:
+            0;
+    }
+
+    20% {
+        opacity:
+            0.28;
+    }
+
+    56% {
+        opacity:
+            0.22;
+    }
+
+    68%,
+    100% {
+        transform:
+            translate3d(188vw, 48px, 0)
+            rotate(-12deg);
+
+        opacity:
+            0;
+    }
+}
+
+
+@keyframes publicV3RedScan {
+
+    0%,
+    18% {
+        transform:
+            translate3d(0, 0, 0)
+            rotate(11deg);
+
+        opacity:
+            0;
+    }
+
+    27% {
+        opacity:
+            0.18;
+    }
+
+    59% {
+        opacity:
+            0.14;
+    }
+
+    72%,
+    100% {
+        transform:
+            translate3d(-188vw, -38px, 0)
+            rotate(11deg);
+
+        opacity:
+            0;
+    }
+}
+
+
+@keyframes publicV3ParticleFloat {
+
+    0%,
+    100% {
+        transform:
+            translate3d(0, 18px, 0);
+
+        opacity:
+            0.20;
+    }
+
+    42% {
+        opacity:
+            0.88;
+    }
+
+    50% {
+        transform:
+            translate3d(24px, -72px, 0);
+
+        opacity:
+            0.94;
+    }
+}
+
+
+@keyframes publicV3ParticleRing {
+
+    0% {
+        transform:
+            scale(0.65);
+
+        opacity:
+            0.50;
+    }
+
+    100% {
+        transform:
+            scale(1.9);
+
+        opacity:
+            0;
+    }
+}
+
+
+@keyframes publicV3ShapeOne {
+
+    from {
+        transform:
+            translate3d(0, 0, 0)
+            rotate(18deg);
+    }
+
+    to {
+        transform:
+            translate3d(-44px, 52px, 0)
+            rotate(42deg);
+    }
+}
+
+
+@keyframes publicV3ShapeTwo {
+
+    from {
+        transform:
+            translate3d(0, 0, 0)
+            scale(1);
+    }
+
+    to {
+        transform:
+            translate3d(42px, -54px, 0)
+            scale(1.14);
+    }
+}
+
+
+@keyframes publicV3SectionAura {
+
+    0%,
+    100% {
+        opacity:
+            0.48;
+
+        transform:
+            translate(-50%, -50%)
+            scale(0.98);
+    }
+
+    50% {
+        opacity:
+            0.85;
+
+        transform:
+            translate(-50%, -50%)
+            scale(1.025);
+    }
+}
+
+
+@keyframes publicV3SectionReveal {
+
+    from {
+        opacity:
+            0;
+
+        transform:
+            translateY(24px)
+            scale(0.995);
+    }
+
+    to {
+        opacity:
+            1;
+
+        transform:
+            translateY(0)
+            scale(1);
+    }
+}
+
+
+/* =========================================================
+   16. ACCESSIBILITY / REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .public-theme .public-background,
+    .public-theme .public-background::before,
+    .public-theme .public-background::after,
+    .public-theme .public-background-grid,
+    .public-theme .public-background-grid::after,
+    .public-theme .public-background-noise,
+    .public-theme .public-ambient-orb,
+    .public-theme .public-light-beam,
+    .public-theme .public-particle,
+    .public-theme .public-particle::after,
+    .public-theme .public-floating-shape,
+    .public-theme .public-main > section,
+    .public-theme .public-main > section::before {
+        animation:
+            none !important;
+    }
+}
+
+
+/* =========================================================
+   17. MOBILE PERFORMANCE TUNING
+   ========================================================= */
+
+@media (max-width: 767px) {
+
+    .public-theme .public-background {
+        inset:
+            -6%;
+    }
+
+
+    .public-theme .public-background-grid {
+        opacity:
+            0.17;
+
+        background-size:
+            54px 54px,
+            54px 54px,
+            18px 18px,
+            18px 18px;
+    }
+
+
+    .public-theme .public-ambient-orb {
+        filter:
+            blur(88px);
+
+        opacity:
+            0.55;
+    }
+
+
+    .public-theme .public-light-beam {
+        display:
+            none;
+    }
+
+
+    .public-theme .public-particle:nth-child(n + 7) {
+        display:
+            none;
+    }
+
+
+    .public-theme .public-floating-shape {
+        opacity:
+            0.20;
+    }
+
+
+    .public-theme .public-main > section::before {
+        width:
+            96vw;
+
+        height:
+            88%;
+
+        border-radius:
+            30px;
+    }
+
+
+    .public-theme .public-main > section::after {
+        width:
+            92vw;
+    }
+}
+
+/* =========================================================
+   PUBLIC HEADER PROTECTION — FINAL CORRECTED VERSION
+   ---------------------------------------------------------
+   IMPORTANT:
+   - Keeps the animated dark background OUTSIDE the header.
+   - Preserves the original SYSNET white navigation.
+   - Preserves the blue/navy information bar.
+   - DOES NOT force social buttons to white.
+   - DOES NOT override dropdown/social elements using broad
+     [class*="shadow"] or [class*="rounded"] selectors.
+   ========================================================= */
+
+
+/* =========================================================
+   1. HEADER WRAPPER
+   ========================================================= */
+
+.public-theme > header,
+.public-theme header {
+    position: sticky;
+    top: 0;
+
+    z-index: 99999 !important;
+
+    isolation: isolate;
+
+    filter: none !important;
+    mix-blend-mode: normal !important;
+
+    text-shadow: none;
+
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+
+/* =========================================================
+   2. MAIN WHITE NAVIGATION
+   ========================================================= */
+
+.public-theme header nav {
+    position: relative;
+
+    background-color: #ffffff !important;
+    background-image: none !important;
+
+    color: #18324a !important;
+
+    filter: none !important;
+
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+
+/*
+   Only make the HIGH-OPACITY white navigation surfaces solid.
+   Do NOT include bg-white/10, bg-white/15, etc. because those
+   are used by the social icons in the top bar.
+*/
+
+.public-theme header [class*="bg-white/95"],
+.public-theme header [class*="bg-white/90"],
+.public-theme header [class*="bg-white/85"],
+.public-theme header [class*="bg-white/80"],
+.public-theme header [class*="bg-white/75"],
+.public-theme header [class*="bg-white/70"] {
+    background-color: #ffffff !important;
+    background-image: none !important;
+}
+
+
+/* =========================================================
+   3. SYSNET TOP INFORMATION BAR
+   ========================================================= */
+
+.public-theme header [class*="bg-[#0A5F9E]"],
+.public-theme header [class*="bg-[#0a5f9e]"] {
+    background-color: #0a5f9e !important;
+    background-image: none !important;
+}
+
+
+.public-theme header [class*="bg-[#0B2D4D]"],
+.public-theme header [class*="bg-[#0b2d4d]"] {
+    background-color: #0b2d4d !important;
+    background-image: none !important;
+}
+
+
+/* =========================================================
+   4. HEADER TYPOGRAPHY
+   ========================================================= */
+
+.public-theme header a,
+.public-theme header button,
+.public-theme header span,
+.public-theme header p {
+    text-shadow: none !important;
+}
+
+
+.public-theme header nav a,
+.public-theme header nav button {
+    color: #18324a;
+}
+
+
+.public-theme header nav a:hover,
+.public-theme header nav button:hover {
+    color: #0a5f9e;
+}
+
+
+/* =========================================================
+   5. DROPDOWNS / MEGA MENUS
+   ---------------------------------------------------------
+   IMPORTANT:
+   Only target actual white dropdown surfaces.
+   We intentionally DO NOT use [class*="shadow"] because
+   social icon buttons can also contain shadow classes.
+   ========================================================= */
+
+.public-theme header [role="menu"],
+.public-theme header [class*="absolute"][class*="bg-white"],
+.public-theme header [class*="absolute"][class*="bg-[#FFFFFF]"],
+.public-theme header [class*="absolute"][class*="bg-[#ffffff]"] {
+    background-color: #ffffff !important;
+    background-image: none !important;
+}
+
+
+/* =========================================================
+   6. SOCIAL ICON BUTTONS
+   ---------------------------------------------------------
+   Restores Facebook / X / LinkedIn / Instagram / YouTube.
+   ========================================================= */
+
+.public-theme header a[href*="facebook.com"],
+.public-theme header a[href*="x.com"],
+.public-theme header a[href*="twitter.com"],
+.public-theme header a[href*="linkedin.com"],
+.public-theme header a[href*="instagram.com"],
+.public-theme header a[href*="youtube.com"] {
+    display: inline-flex !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    width: 30px !important;
+    height: 30px !important;
+
+    min-width: 30px !important;
+    min-height: 30px !important;
+
+    padding: 0 !important;
+
+    border: 1px solid rgba(255, 255, 255, 0.24) !important;
+
+    border-radius: 999px !important;
+
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    background-image: none !important;
+
+    color: #ffffff !important;
+
+    box-shadow: none !important;
+
+    filter: none !important;
+    mix-blend-mode: normal !important;
+
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+
+    opacity: 1 !important;
+
+    transition:
+        transform 200ms ease,
+        background-color 200ms ease,
+        border-color 200ms ease !important;
+}
+
+
+.public-theme header a[href*="facebook.com"]:hover,
+.public-theme header a[href*="x.com"]:hover,
+.public-theme header a[href*="twitter.com"]:hover,
+.public-theme header a[href*="linkedin.com"]:hover,
+.public-theme header a[href*="instagram.com"]:hover,
+.public-theme header a[href*="youtube.com"]:hover {
+    transform: translateY(-2px) !important;
+
+    border-color: rgba(255, 255, 255, 0.46) !important;
+
+    background-color: rgba(255, 255, 255, 0.17) !important;
+
+    color: #ffffff !important;
+}
+
+
+/* =========================================================
+   7. SOCIAL SVG ICONS
+   ========================================================= */
+
+.public-theme header a[href*="facebook.com"] svg,
+.public-theme header a[href*="x.com"] svg,
+.public-theme header a[href*="twitter.com"] svg,
+.public-theme header a[href*="linkedin.com"] svg,
+.public-theme header a[href*="instagram.com"] svg,
+.public-theme header a[href*="youtube.com"] svg {
+    display: block !important;
+
+    width: 14px !important;
+    height: 14px !important;
+
+    color: #ffffff !important;
+
+    opacity: 1 !important;
+
+    visibility: visible !important;
+
+    filter: none !important;
+
+    mix-blend-mode: normal !important;
+}
+
+
+.public-theme header a[href*="facebook.com"] svg *,
+.public-theme header a[href*="x.com"] svg *,
+.public-theme header a[href*="twitter.com"] svg *,
+.public-theme header a[href*="linkedin.com"] svg *,
+.public-theme header a[href*="instagram.com"] svg *,
+.public-theme header a[href*="youtube.com"] svg * {
+    opacity: 1 !important;
+}
+
+
+/*
+   Keep transparent top-bar icon backgrounds transparent.
+   This overrides any older broad header rules that may still
+   exist earlier in the stylesheet.
+*/
+
+.public-theme header [class*="bg-white/5"],
+.public-theme header [class*="bg-white/10"],
+.public-theme header [class*="bg-white/15"],
+.public-theme header [class*="bg-white/20"],
+.public-theme header [class*="bg-white/25"] {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    background-image: none !important;
+}
+
+
+.public-theme header [class*="bg-white/5"] svg,
+.public-theme header [class*="bg-white/10"] svg,
+.public-theme header [class*="bg-white/15"] svg,
+.public-theme header [class*="bg-white/20"] svg,
+.public-theme header [class*="bg-white/25"] svg {
+    color: #ffffff !important;
+
+    opacity: 1 !important;
+
+    visibility: visible !important;
+}
+
+
+/* =========================================================
+   8. LANGUAGE SELECTOR
+   ---------------------------------------------------------
+   Keep the white desktop language selector clean, but target
+   it only through high-opacity white surfaces. We DO NOT use
+   the old broad:
+       [class*="rounded"][class*="bg-white"]
+   because that also captures circular social buttons.
+   ========================================================= */
+
+.public-theme header button[class*="bg-white/90"],
+.public-theme header button[class*="bg-white/95"],
+.public-theme header [class*="bg-white"][class*="border-[#D"],
+.public-theme header [class*="bg-white"][class*="border-slate"] {
+    background-color: #ffffff !important;
+}
+
+
+/* =========================================================
+   9. HEADER BORDER / SHADOW
+   ========================================================= */
+
+.public-theme header {
+    border-bottom: 1px solid #dbe5ec;
+
+    box-shadow:
+        0 4px 18px rgba(11, 45, 77, 0.08);
+}
+
+
+/* =========================================================
+   10. ANIMATED BACKGROUND MUST STAY BEHIND HEADER
+   ========================================================= */
+
+.public-theme .public-background,
+.public-theme .public-background-grid,
+.public-theme .public-background-noise,
+.public-theme .public-ambient-orb,
+.public-theme .public-light-beam,
+.public-theme .public-particles,
+.public-theme .public-floating-shape {
+    pointer-events: none !important;
+}
+
+
+/* =========================================================
+   11. MOBILE HEADER
+   ========================================================= */
+
+@media (max-width: 1023px) {
+
+    .public-theme header nav {
+        background-color: #ffffff !important;
+        background-image: none !important;
+    }
+
+
+    .public-theme header [class*="bg-white/95"],
+    .public-theme header [class*="bg-white/90"],
+    .public-theme header [class*="bg-white/85"],
+    .public-theme header [class*="bg-white/80"] {
+        background-color: #ffffff !important;
+        background-image: none !important;
+    }
+
+
+    .public-theme header a[href*="facebook.com"],
+    .public-theme header a[href*="x.com"],
+    .public-theme header a[href*="twitter.com"],
+    .public-theme header a[href*="linkedin.com"],
+    .public-theme header a[href*="instagram.com"],
+    .public-theme header a[href*="youtube.com"] {
+        width: 29px !important;
+        height: 29px !important;
+
+        min-width: 29px !important;
+        min-height: 29px !important;
+    }
+}
+
+
+/* =========================================================
+   END PUBLIC HEADER PROTECTION
+   ========================================================= */
+
+/* =========================================================
+   PUBLIC SECTION THEME SYSTEM
+   ---------------------------------------------------------
+   PageView applies:
+      .public-section-theme-light
+      .public-section-theme-dark
+
+   This is the ONLY section-theme override block.
+   ========================================================= */
+
+.public-theme .public-section-theme {
+    position: relative;
+    width: 100%;
+    isolation: isolate;
+    overflow: clip;
+}
+
+/* ---------------- LIGHT ---------------- */
+
+.public-theme .public-section-theme-light {
+    background:
+        radial-gradient(circle at 8% 18%, rgba(10, 95, 158, 0.045), transparent 27%),
+        radial-gradient(circle at 94% 76%, rgba(215, 25, 32, 0.022), transparent 24%),
+        linear-gradient(180deg, #ffffff 0%, #f7fbfe 52%, #ffffff 100%) !important;
+
+    color: #0b2d4d !important;
+}
+
+.public-theme .public-section-theme-light > section {
+    background-color: transparent !important;
+}
+
+/* Hero-specific light-theme protection */
+.public-theme
+.public-section-theme-light
+[data-hero-theme="light"] h1 {
+    color: #0b2d4d !important;
+}
+
+.public-theme
+.public-section-theme-light
+[data-hero-theme="light"] p {
+    color: #5c6f82;
+}
+
+/* Root section headings/body */
+.public-theme .public-section-theme-light > section h1,
+.public-theme .public-section-theme-light > section h2,
+.public-theme .public-section-theme-light > section h3 {
+    color: #0b2d4d !important;
+}
+
+.public-theme .public-section-theme-light > section p {
+    color: #5c6f82;
+}
+
+/* Common corporate text colours */
+.public-theme .public-section-theme-light [class*="text-[#0B2D4D]"],
+.public-theme .public-section-theme-light [class*="text-[#0b2d4d]"],
+.public-theme .public-section-theme-light [class*="text-[#17202B]"],
+.public-theme .public-section-theme-light [class*="text-[#17202b]"],
+.public-theme .public-section-theme-light [class*="text-[#18324A]"],
+.public-theme .public-section-theme-light [class*="text-[#18324a]"] {
+    color: #0b2d4d !important;
+}
+
+.public-theme .public-section-theme-light [class*="text-[#42576B]"],
+.public-theme .public-section-theme-light [class*="text-[#526A7D]"],
+.public-theme .public-section-theme-light [class*="text-[#536779]"],
+.public-theme .public-section-theme-light [class*="text-[#536A7D]"],
+.public-theme .public-section-theme-light [class*="text-[#5C6F82]"],
+.public-theme .public-section-theme-light [class*="text-[#607487]"],
+.public-theme .public-section-theme-light [class*="text-[#64748B]"],
+.public-theme .public-section-theme-light [class*="text-[#6E8192]"],
+.public-theme .public-section-theme-light [class*="text-[#718395]"] {
+    color: #5c6f82 !important;
+}
+
+.public-theme .public-section-theme-light [class*="text-[#0A5F9E]"],
+.public-theme .public-section-theme-light [class*="text-[#0a5f9e]"] {
+    color: #0a5f9e !important;
+}
+
+.public-theme .public-section-theme-light [class*="text-[#D71920]"],
+.public-theme .public-section-theme-light [class*="text-[#d71920]"] {
+    color: #d71920 !important;
+}
+
+/* Keep coloured CTA button text white */
+.public-theme .public-section-theme-light a[class*="bg-[#D71920]"],
+.public-theme .public-section-theme-light button[class*="bg-[#D71920]"],
+.public-theme .public-section-theme-light a[class*="bg-[#0A5F9E]"],
+.public-theme .public-section-theme-light button[class*="bg-[#0A5F9E]"] {
+    color: #ffffff !important;
+}
+
+
+/* ---------------- DARK ---------------- */
+
+.public-theme .public-section-theme-dark {
+    background: transparent !important;
+    color: #f4f8fb !important;
+}
+
+.public-theme .public-section-theme-dark > section {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+}
+
+/* Remove common light full-section backgrounds */
+.public-theme .public-section-theme-dark section.bg-\[\#F7FAFD\],
+.public-theme .public-section-theme-dark section.bg-\[\#f7fafd\] {
+    background: transparent !important;
+}
+
+/* Hero-specific dark-theme protection */
+.public-theme
+.public-section-theme-dark
+[data-hero-theme="dark"] h1 {
+    color: #f4f8fb !important;
+}
+
+.public-theme
+.public-section-theme-dark
+[data-hero-theme="dark"] p {
+    color: #a7b9c8;
+}
+
+/* Dark headings/body */
+.public-theme .public-section-theme-dark > section h1,
+.public-theme .public-section-theme-dark > section h2,
+.public-theme .public-section-theme-dark > section h3 {
+    color: #f4f8fb !important;
+}
+
+.public-theme .public-section-theme-dark [class*="text-[#0B2D4D]"],
+.public-theme .public-section-theme-dark [class*="text-[#0b2d4d]"] {
+    color: #f4f8fb !important;
+}
+
+.public-theme .public-section-theme-dark [class*="text-[#42576B]"],
+.public-theme .public-section-theme-dark [class*="text-[#526A7D]"],
+.public-theme .public-section-theme-dark [class*="text-[#536779]"],
+.public-theme .public-section-theme-dark [class*="text-[#536A7D]"],
+.public-theme .public-section-theme-dark [class*="text-[#5C6F82]"],
+.public-theme .public-section-theme-dark [class*="text-[#607487]"],
+.public-theme .public-section-theme-dark [class*="text-[#6E8192]"],
+.public-theme .public-section-theme-dark [class*="text-[#718395]"] {
+    color: #a7b9c8 !important;
+}
+
+/* Intentional white cards inside dark sections stay readable */
+.public-theme .public-section-theme-dark .bg-white h1,
+.public-theme .public-section-theme-dark .bg-white h2,
+.public-theme .public-section-theme-dark .bg-white h3,
+.public-theme .public-section-theme-dark .bg-white [class*="text-[#0B2D4D]"],
+.public-theme .public-section-theme-dark .bg-white [class*="text-[#0b2d4d]"],
+.public-theme .public-section-theme-dark .bg-white [class*="text-[#17202B]"],
+.public-theme .public-section-theme-dark .bg-white [class*="text-[#17202b]"] {
+    color: #0b2d4d !important;
+}
+
+.public-theme .public-section-theme-dark .bg-white [class*="text-[#42576B]"],
+.public-theme .public-section-theme-dark .bg-white [class*="text-[#526A7D]"],
+.public-theme .public-section-theme-dark .bg-white [class*="text-[#5C6F82]"],
+.public-theme .public-section-theme-dark .bg-white [class*="text-[#607487]"],
+.public-theme .public-section-theme-dark .bg-white [class*="text-[#64748B]"],
+.public-theme .public-section-theme-dark .bg-white [class*="text-[#6E8192]"],
+.public-theme .public-section-theme-dark .bg-white [class*="text-[#718395]"] {
+    color: #5c6f82 !important;
+}
+
+/* Dark ambient aura */
+.public-theme .public-section-theme-dark::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    left: 50%;
+    top: 50%;
+    width: min(94vw, 1380px);
+    height: 82%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    border-radius: 48px;
+
+    background:
+        radial-gradient(ellipse at 24% 30%, rgba(22, 139, 209, 0.075), transparent 48%),
+        radial-gradient(ellipse at 82% 72%, rgba(215, 25, 32, 0.035), transparent 44%);
+
+    filter: blur(10px);
+    animation: publicSectionDarkAura 10s ease-in-out infinite;
+}
+
+@keyframes publicSectionDarkAura {
+    0%,
+    100% {
+        opacity: 0.55;
+        transform: translate(-50%, -50%) scale(0.98);
+    }
+
+    50% {
+        opacity: 0.92;
+        transform: translate(-50%, -50%) scale(1.025);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .public-theme .public-section-theme-dark::before {
+        animation: none !important;
+    }
+}
+
+@media (max-width: 767px) {
+    .public-theme .public-section-theme-dark::before {
+        width: 100vw;
+        height: 92%;
+        border-radius: 28px;
+    }
+}
+
+
+
+/* =========================================================
+   PUBLIC WEBSITE — CINEMATIC TECH EXPERIENCE V4
+   ---------------------------------------------------------
+   FINAL VISUAL ENHANCEMENT LAYER
+   - Public website only
+   - CMS untouched
+   - Header untouched
+   - Light sections remain light
+   - Dark sections reveal the animated technology canvas
+   ========================================================= */
+
+
+/* =========================================================
+   1. MASTER PUBLIC CANVAS
+   ========================================================= */
+
+.public-theme {
+    position: relative;
+    overflow-x: clip;
+    background: #01060b !important;
+    isolation: isolate;
+}
+
+
+/* =========================================================
+   2. DEEP MULTI-LAYER AURORA
+   ========================================================= */
+
+.public-theme .public-background {
+    position: fixed;
+    inset: -12%;
+    z-index: -40;
+    pointer-events: none;
+
+    background:
+        radial-gradient(
+            42% 36% at 12% 16%,
+            rgba(24, 145, 214, 0.30) 0%,
+            rgba(24, 145, 214, 0.10) 42%,
+            transparent 74%
+        ),
+        radial-gradient(
+            40% 34% at 88% 18%,
+            rgba(75, 180, 235, 0.18) 0%,
+            rgba(75, 180, 235, 0.05) 44%,
+            transparent 72%
+        ),
+        radial-gradient(
+            36% 34% at 76% 72%,
+            rgba(215, 25, 32, 0.14) 0%,
+            rgba(215, 25, 32, 0.035) 48%,
+            transparent 72%
+        ),
+        radial-gradient(
+            34% 32% at 20% 84%,
+            rgba(8, 101, 164, 0.18) 0%,
+            rgba(8, 101, 164, 0.05) 45%,
+            transparent 74%
+        ),
+        linear-gradient(
+            145deg,
+            #01060b 0%,
+            #03101b 28%,
+            #071a2b 56%,
+            #04111c 78%,
+            #01060b 100%
+        );
+
+    background-size:
+        120% 120%,
+        126% 126%,
+        130% 130%,
+        122% 122%,
+        100% 100%;
+
+    animation:
+        publicV4AuroraDrift 26s ease-in-out infinite alternate;
+
+    will-change:
+        transform,
+        background-position;
+}
+
+
+/* rotating spectral veil */
+
+.public-theme .public-background::before {
+    content: '';
+
+    position: absolute;
+    inset: -28%;
+
+    pointer-events: none;
+
+    opacity: 0.24;
+
+    background:
+        conic-gradient(
+            from 210deg at 50% 50%,
+            transparent 0deg,
+            rgba(34, 153, 220, 0.10) 46deg,
+            transparent 112deg,
+            rgba(215, 25, 32, 0.055) 182deg,
+            transparent 248deg,
+            rgba(70, 183, 238, 0.08) 318deg,
+            transparent 360deg
+        );
+
+    filter: blur(88px);
+
+    animation:
+        publicV4SpectralRotate 58s linear infinite;
+
+    transform: scale(1.10);
+}
+
+
+/* cinematic vignette */
+
+.public-theme .public-background::after {
+    content: '';
+
+    position: absolute;
+    inset: 0;
+
+    pointer-events: none;
+
+    background:
+        radial-gradient(
+            circle at 50% 48%,
+            transparent 26%,
+            rgba(1, 6, 11, 0.08) 60%,
+            rgba(1, 6, 11, 0.56) 100%
+        );
+
+    animation:
+        publicV4VignettePulse 13s ease-in-out infinite;
+}
+
+
+/* =========================================================
+   3. DUAL DEPTH TECHNOLOGY GRID
+   ========================================================= */
+
+.public-theme .public-background-grid {
+    position: fixed;
+    inset: -12% -6%;
+    z-index: -38;
+    pointer-events: none;
+
+    opacity: 0.30;
+
+    transform-origin: 50% 100%;
+
+    background-image:
+        linear-gradient(
+            rgba(76, 170, 225, 0.11) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(76, 170, 225, 0.11) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            rgba(255, 255, 255, 0.025) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.025) 1px,
+            transparent 1px
+        );
+
+    background-size:
+        76px 76px,
+        76px 76px,
+        19px 19px,
+        19px 19px;
+
+    mask-image:
+        linear-gradient(
+            to bottom,
+            transparent 0%,
+            black 16%,
+            black 90%,
+            transparent 100%
+        );
+
+    -webkit-mask-image:
+        linear-gradient(
+            to bottom,
+            transparent 0%,
+            black 16%,
+            black 90%,
+            transparent 100%
+        );
+
+    animation:
+        publicV4GridMove 21s linear infinite;
+
+    will-change:
+        transform,
+        background-position;
+}
+
+
+/* glowing horizon line */
+
+.public-theme .public-background-grid::after {
+    content: '';
+
+    position: absolute;
+
+    left: 7%;
+    right: 7%;
+    top: 22%;
+
+    height: 1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(76, 179, 236, 0.34),
+            rgba(255, 255, 255, 0.10),
+            rgba(215, 25, 32, 0.16),
+            transparent
+        );
+
+    box-shadow:
+        0 0 28px rgba(53, 157, 218, 0.20);
+
+    animation:
+        publicV4HorizonPulse 9s ease-in-out infinite;
+}
+
+
+/* =========================================================
+   4. DATA / STAR FIELD
+   ========================================================= */
+
+.public-theme .public-background-noise {
+    position: fixed;
+    inset: 0;
+
+    z-index: -36;
+
+    pointer-events: none;
+
+    opacity: 0.20;
+
+    background-image:
+        radial-gradient(
+            circle,
+            rgba(109, 202, 250, 0.58) 0 0.7px,
+            transparent 0.95px
+        ),
+        radial-gradient(
+            circle,
+            rgba(255, 255, 255, 0.28) 0 0.55px,
+            transparent 0.85px
+        ),
+        radial-gradient(
+            circle,
+            rgba(215, 25, 32, 0.28) 0 0.65px,
+            transparent 0.9px
+        );
+
+    background-size:
+        92px 92px,
+        139px 139px,
+        183px 183px;
+
+    background-position:
+        18px 26px,
+        67px 43px,
+        31px 119px;
+
+    animation:
+        publicV4StarDrift 36s linear infinite;
+}
+
+
+/* =========================================================
+   5. AMBIENT LIGHT ORBS
+   ========================================================= */
+
+.public-theme .public-ambient-orb {
+    position: fixed;
+
+    z-index: -34;
+
+    pointer-events: none;
+
+    border-radius: 999px;
+
+    filter: blur(118px);
+
+    mix-blend-mode: screen;
+
+    will-change:
+        transform,
+        opacity;
+}
+
+
+.public-theme .public-ambient-orb-one {
+    top: -3%;
+    left: -13%;
+
+    width: 600px;
+    height: 600px;
+
+    opacity: 0.74;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(22, 146, 216, 0.34) 0%,
+            rgba(22, 146, 216, 0.10) 48%,
+            transparent 74%
+        );
+
+    animation:
+        publicV4OrbOne 18s ease-in-out infinite alternate;
+}
+
+
+.public-theme .public-ambient-orb-two {
+    top: 34%;
+    right: -16%;
+
+    width: 690px;
+    height: 690px;
+
+    opacity: 0.60;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(49, 161, 224, 0.26) 0%,
+            rgba(49, 161, 224, 0.08) 50%,
+            transparent 74%
+        );
+
+    animation:
+        publicV4OrbTwo 24s ease-in-out infinite alternate;
+}
+
+
+.public-theme .public-ambient-orb-three {
+    bottom: -20%;
+    left: 20%;
+
+    width: 660px;
+    height: 660px;
+
+    opacity: 0.46;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(215, 25, 32, 0.21) 0%,
+            rgba(215, 25, 32, 0.06) 50%,
+            transparent 74%
+        );
+
+    animation:
+        publicV4OrbThree 28s ease-in-out infinite alternate;
+}
+
+
+/* =========================================================
+   6. CINEMATIC LIGHT SWEEPS
+   ========================================================= */
+
+.public-theme .public-light-beam {
+    position: fixed;
+
+    z-index: -31;
+
+    width: 82vw;
+    height: 200px;
+
+    pointer-events: none;
+
+    border-radius: 999px;
+
+    filter: blur(34px);
+
+    will-change:
+        transform,
+        opacity;
+}
+
+
+.public-theme .public-light-beam-one {
+    top: 16%;
+    left: -90vw;
+
+    opacity: 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(47, 165, 230, 0.02) 16%,
+            rgba(47, 165, 230, 0.28) 47%,
+            rgba(120, 211, 255, 0.13) 58%,
+            transparent 100%
+        );
+
+    transform: rotate(-12deg);
+
+    animation:
+        publicV4BlueSweep 17s cubic-bezier(.45,0,.2,1) infinite;
+}
+
+
+.public-theme .public-light-beam-two {
+    top: 70%;
+    right: -90vw;
+
+    opacity: 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(215, 25, 32, 0.02) 20%,
+            rgba(215, 25, 32, 0.19) 47%,
+            rgba(255, 99, 105, 0.07) 58%,
+            transparent 100%
+        );
+
+    transform: rotate(11deg);
+
+    animation:
+        publicV4RedSweep 24s cubic-bezier(.45,0,.2,1) infinite;
+}
+
+
+/* =========================================================
+   7. PARTICLES + DATA TRAILS
+   ========================================================= */
+
+.public-theme .public-particles {
+    position: fixed;
+    inset: 0;
+
+    z-index: -30;
+
+    pointer-events: none;
+
+    overflow: hidden;
+}
+
+
+.public-theme .public-particle {
+    position: absolute;
+
+    width: 5px;
+    height: 5px;
+
+    border-radius: 999px;
+
+    opacity: 0.52;
+
+    background:
+        rgba(91, 197, 250, 0.92);
+
+    box-shadow:
+        0 0 8px rgba(91, 197, 250, 0.88),
+        0 0 20px rgba(91, 197, 250, 0.26);
+
+    animation:
+        publicV4ParticleFloat 14s ease-in-out infinite;
+
+    will-change:
+        transform,
+        opacity;
+}
+
+
+.public-theme .public-particle::before {
+    content: '';
+
+    position: absolute;
+
+    left: 50%;
+    top: 8px;
+
+    width: 1px;
+    height: 50px;
+
+    transform:
+        translateX(-50%);
+
+    background:
+        linear-gradient(
+            to bottom,
+            rgba(81, 188, 244, 0.36),
+            transparent
+        );
+
+    opacity: 0.72;
+}
+
+
+.public-theme .public-particle::after {
+    content: '';
+
+    position: absolute;
+
+    inset: -6px;
+
+    border:
+        1px solid rgba(100, 199, 249, 0.14);
+
+    border-radius: 999px;
+
+    animation:
+        publicV4ParticlePulse 3s ease-out infinite;
+}
+
+
+.public-theme .public-particle:nth-child(3n) {
+    width: 3px;
+    height: 3px;
+
+    background:
+        rgba(255, 255, 255, 0.78);
+
+    box-shadow:
+        0 0 10px rgba(255, 255, 255, 0.44);
+}
+
+
+.public-theme .public-particle:nth-child(4n) {
+    background:
+        rgba(235, 72, 78, 0.86);
+
+    box-shadow:
+        0 0 11px rgba(215, 25, 32, 0.50),
+        0 0 22px rgba(215, 25, 32, 0.20);
+}
+
+
+/* =========================================================
+   8. FLOATING TECH GEOMETRY
+   ========================================================= */
+
+.public-theme .public-floating-shape {
+    position: fixed;
+
+    z-index: -28;
+
+    pointer-events: none;
+
+    opacity: 0.38;
+
+    border:
+        1px solid rgba(89, 187, 240, 0.18);
+
+    box-shadow:
+        inset 0 0 30px rgba(52, 155, 214, 0.03),
+        0 0 34px rgba(52, 155, 214, 0.03);
+
+    will-change:
+        transform;
+}
+
+
+.public-theme .public-floating-one {
+    top: 14%;
+    right: 7%;
+
+    width: 130px;
+    height: 130px;
+
+    border-radius: 30px;
+
+    animation:
+        publicV4ShapeOne 26s ease-in-out infinite alternate;
+}
+
+
+.public-theme .public-floating-two {
+    bottom: 14%;
+    left: 4%;
+
+    width: 98px;
+    height: 98px;
+
+    border-radius: 50%;
+
+    border-color:
+        rgba(215, 25, 32, 0.16);
+
+    animation:
+        publicV4ShapeTwo 29s ease-in-out infinite alternate;
+}
+
+
+/* =========================================================
+   9. DARK SECTION AURA + PROFESSIONAL DEPTH
+   ========================================================= */
+
+.public-theme .public-section-theme-dark {
+    position: relative;
+
+    background:
+        transparent !important;
+}
+
+
+.public-theme .public-section-theme-dark::before {
+    content: '';
+
+    position: absolute;
+
+    z-index: -1;
+
+    left: 50%;
+    top: 50%;
+
+    width:
+        min(96vw, 1440px);
+
+    height:
+        84%;
+
+    transform:
+        translate(-50%, -50%);
+
+    pointer-events: none;
+
+    border-radius:
+        54px;
+
+    background:
+        radial-gradient(
+            ellipse at 24% 30%,
+            rgba(22, 139, 209, 0.095),
+            transparent 46%
+        ),
+        radial-gradient(
+            ellipse at 78% 72%,
+            rgba(215, 25, 32, 0.045),
+            transparent 44%
+        ),
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.018),
+            rgba(255, 255, 255, 0)
+        );
+
+    filter:
+        blur(10px);
+
+    animation:
+        publicV4SectionAura 10s ease-in-out infinite;
+}
+
+
+/* elegant section separator */
+
+.public-theme .public-section-theme-dark::after {
+    content: '';
+
+    position: absolute;
+
+    left: 50%;
+    bottom: 0;
+
+    width:
+        min(90vw, 1280px);
+
+    height: 1px;
+
+    transform:
+        translateX(-50%);
+
+    pointer-events: none;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(74, 175, 233, 0.06),
+            rgba(74, 175, 233, 0.28),
+            rgba(255, 255, 255, 0.08),
+            rgba(215, 25, 32, 0.16),
+            rgba(215, 25, 32, 0.03),
+            transparent
+        );
+
+    box-shadow:
+        0 0 18px rgba(41, 145, 205, 0.09);
+}
+
+
+/* =========================================================
+   10. FLOATING CARD POLISH
    ========================================================= */
 
 .public-theme .public-card,
-.public-theme .public-certification-card,
 .public-theme .public-grid-card,
+.public-theme .public-stat-card,
+.public-theme .public-certification-card,
 .public-theme .public-location-card,
+.public-theme .public-mission-card,
+.public-theme .public-vision-card,
 .public-theme .careers-job-card {
-    border: 1px solid rgba(11, 94, 156, 0.12) !important;
-    border-radius: 12px !important;
+    position: relative;
+
+    transform:
+        translate3d(0, 0, 0);
+
+    transition:
+        transform 440ms cubic-bezier(.2,.78,.2,1),
+        box-shadow 440ms ease,
+        border-color 440ms ease,
+        filter 440ms ease;
+
+    will-change:
+        transform;
+}
+
+
+.public-theme .public-card::after,
+.public-theme .public-grid-card::after,
+.public-theme .public-stat-card::after,
+.public-theme .public-certification-card::after,
+.public-theme .public-location-card::after,
+.public-theme .public-mission-card::after,
+.public-theme .public-vision-card::after,
+.public-theme .careers-job-card::after {
+    content: '';
+
+    position: absolute;
+
+    z-index: -1;
+
+    inset:
+        14% 8% -14%;
+
+    border-radius:
+        inherit;
+
+    pointer-events: none;
+
+    opacity: 0;
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(43, 155, 219, 0.22),
+            transparent 68%
+        );
+
+    filter:
+        blur(28px);
+
+    transition:
+        opacity 430ms ease,
+        transform 430ms ease;
+
+    transform:
+        scale(0.88);
+}
+
+
+.public-theme .public-card:hover,
+.public-theme .public-grid-card:hover,
+.public-theme .public-stat-card:hover,
+.public-theme .public-certification-card:hover,
+.public-theme .public-location-card:hover,
+.public-theme .public-mission-card:hover,
+.public-theme .public-vision-card:hover,
+.public-theme .careers-job-card:hover {
+    transform:
+        translate3d(0, -11px, 0)
+        scale(1.01);
+
+    border-color:
+        rgba(75, 176, 232, 0.46);
+
+    box-shadow:
+        0 36px 82px rgba(0, 0, 0, 0.40),
+        0 0 0 1px rgba(82, 181, 237, 0.05),
+        0 0 50px rgba(19, 128, 190, 0.10);
+}
+
+
+.public-theme .public-card:hover::after,
+.public-theme .public-grid-card:hover::after,
+.public-theme .public-stat-card:hover::after,
+.public-theme .public-certification-card:hover::after,
+.public-theme .public-location-card:hover::after,
+.public-theme .public-mission-card:hover::after,
+.public-theme .public-vision-card:hover::after,
+.public-theme .careers-job-card:hover::after {
+    opacity: 1;
+    transform: scale(1);
+}
+
+
+/* =========================================================
+   11. DARK GLASS SURFACE
+   ========================================================= */
+
+.public-theme .public-section-theme-dark .public-glass {
+    border:
+        1px solid rgba(124, 190, 229, 0.18);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.075),
+            rgba(255, 255, 255, 0.028)
+        );
+
+    box-shadow:
+        0 30px 86px rgba(0, 0, 0, 0.38),
+        inset 0 1px 0 rgba(255, 255, 255, 0.055);
+
+    backdrop-filter:
+        blur(24px) saturate(1.14);
+
+    -webkit-backdrop-filter:
+        blur(24px) saturate(1.14);
+}
+
+
+/* =========================================================
+   12. LIGHT SECTIONS STAY CLEAN
+   ========================================================= */
+
+.public-theme .public-section-theme-light {
+    position: relative;
 
     background:
         linear-gradient(
             180deg,
             #ffffff 0%,
-            #fbfdff 100%
-        ) !important;
-
-    box-shadow:
-        0 8px 24px rgba(31, 76, 105, 0.055) !important;
-}
-
-.public-theme .public-card:hover,
-.public-theme .public-certification-card:hover,
-.public-theme .public-grid-card:hover,
-.public-theme .public-location-card:hover,
-.public-theme .careers-job-card:hover {
-    transform: translateY(-4px);
-
-    border-color: rgba(11, 94, 156, 0.24) !important;
-
-    box-shadow:
-        0 18px 38px rgba(31, 76, 105, 0.10) !important;
-}
-
-
-/* =========================================================
-   10. GLOBAL PRESENCE / MAP
-   ========================================================= */
-
-.public-theme .public-global-image-wrap {
-    border: 0 !important;
-    border-radius: 14px !important;
-
-    box-shadow:
-        0 16px 38px rgba(31, 76, 105, 0.08) !important;
-}
-
-.public-theme .public-locations-grid {
-    gap: 16px;
-}
-
-
-/* =========================================================
-   11. CTA — MODERN BRAND MOMENT
-   ========================================================= */
-
-.public-theme .public-cta-section {
-    position: relative;
-
-    margin-top: 20px;
-    margin-bottom: 20px;
-
-    padding-top: 72px !important;
-    padding-bottom: 72px !important;
-
-    overflow: hidden;
-
-    background:
-        radial-gradient(
-            circle at 85% 20%,
-            rgba(255, 255, 255, 0.12),
-            transparent 28%
-        ),
-        linear-gradient(
-            135deg,
-            #073b63 0%,
-            #0b5e9c 72%,
-            #0c669f 100%
+            #f8fbfd 52%,
+            #ffffff 100%
         ) !important;
 }
 
-.public-theme .public-cta-section::before {
+
+.public-theme .public-section-theme-light::before {
     content: '';
 
     position: absolute;
+    inset: 0;
 
-    width: 280px;
-    height: 280px;
-
-    right: -100px;
-    bottom: -150px;
-
-    border-radius: 50%;
-
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    z-index: -1;
 
     pointer-events: none;
-}
-
-.public-theme .public-cta {
-    max-width: 860px;
-
-    position: relative;
-    z-index: 1;
-}
-
-.public-theme .public-cta-title {
-    color: #ffffff !important;
-}
-
-.public-theme .public-cta-description {
-    color: rgba(255, 255, 255, 0.78) !important;
-}
-
-.public-theme .public-cta-label {
-    color: rgba(255, 255, 255, 0.78) !important;
-}
-
-
-/* =========================================================
-   12. CONTACT FORM — CLEAN WHITE SURFACE
-   ========================================================= */
-
-.public-theme .public-contact-form-card {
-    max-width: 860px;
-
-    border: 1px solid rgba(11, 94, 156, 0.12) !important;
-    border-radius: 14px !important;
 
     background:
-        linear-gradient(
-            180deg,
-            #ffffff,
-            #fbfdff
-        ) !important;
-
-    box-shadow:
-        0 16px 38px rgba(31, 76, 105, 0.08) !important;
+        radial-gradient(
+            circle at 8% 18%,
+            rgba(10, 95, 158, 0.055),
+            transparent 27%
+        ),
+        radial-gradient(
+            circle at 94% 76%,
+            rgba(215, 25, 32, 0.025),
+            transparent 24%
+        );
 }
 
 
 /* =========================================================
-   13. LINKS / BUTTON MICRO-INTERACTIONS
+   13. SECTION REVEAL
    ========================================================= */
 
-.public-theme .public-button,
-.public-theme .public-contact-submit {
-    border-radius: 7px !important;
+@media (prefers-reduced-motion: no-preference) {
 
-    box-shadow:
-        0 7px 16px rgba(11, 94, 156, 0.16) !important;
-
-    transition:
-        transform 180ms ease,
-        box-shadow 180ms ease,
-        background 180ms ease;
-}
-
-.public-theme .public-button:hover,
-.public-theme .public-contact-submit:hover {
-    transform: translateY(-2px);
-
-    box-shadow:
-        0 11px 24px rgba(11, 94, 156, 0.22) !important;
+    .public-theme .public-section-theme {
+        animation:
+            publicV4SectionReveal 760ms cubic-bezier(.2,.72,.2,1) both;
+    }
 }
 
 
 /* =========================================================
-   14. RESPONSIVE
+   14. KEYFRAMES
    ========================================================= */
 
-@media (max-width: 1024px) {
+@keyframes publicV4AuroraDrift {
 
-    .public-theme .public-main .public-section,
-    .public-theme .public-content-section,
-    .public-theme .public-about-section,
-    .public-theme .public-stats-section,
-    .public-theme .public-vision-section,
-    .public-theme .public-certifications-section,
-    .public-theme .public-global-section,
-    .public-theme .public-grid-section,
-    .public-theme .public-cards-section,
-    .public-theme .public-video-section,
-    .public-theme .public-contact-section,
-    .public-theme .careers-openings-section {
-        padding-top: 62px !important;
-        padding-bottom: 62px !important;
+    0% {
+        background-position:
+            0% 0%,
+            100% 0%,
+            100% 100%,
+            0% 100%,
+            0 0;
+
+        transform:
+            translate3d(-1%, -0.5%, 0)
+            scale(1.025);
     }
 
-    .public-theme .public-hero-container {
-        min-height: auto;
+    50% {
+        background-position:
+            12% 8%,
+            90% 12%,
+            84% 88%,
+            16% 84%,
+            0 0;
 
-        gap: 48px;
-
-        padding-top: 68px !important;
-        padding-bottom: 68px !important;
+        transform:
+            translate3d(1.2%, 0.8%, 0)
+            scale(1.065);
     }
 
-    .public-theme .public-about-layout,
-    .public-theme .public-content-layout {
-        gap: 48px;
-    }
+    100% {
+        background-position:
+            4% 15%,
+            96% 6%,
+            90% 95%,
+            8% 92%,
+            0 0;
 
+        transform:
+            translate3d(-0.5%, 1.2%, 0)
+            scale(1.04);
+    }
 }
 
+
+@keyframes publicV4SpectralRotate {
+
+    from {
+        transform:
+            rotate(0deg)
+            scale(1.10);
+    }
+
+    to {
+        transform:
+            rotate(360deg)
+            scale(1.10);
+    }
+}
+
+
+@keyframes publicV4VignettePulse {
+
+    0%,
+    100% {
+        opacity: 0.72;
+    }
+
+    50% {
+        opacity: 0.92;
+    }
+}
+
+
+@keyframes publicV4GridMove {
+
+    0% {
+        background-position:
+            0 0,
+            0 0,
+            0 0,
+            0 0;
+
+        transform:
+            perspective(900px)
+            rotateX(64deg)
+            translateY(8%);
+    }
+
+    100% {
+        background-position:
+            0 76px,
+            76px 0,
+            0 19px,
+            19px 0;
+
+        transform:
+            perspective(900px)
+            rotateX(64deg)
+            translateY(8%);
+    }
+}
+
+
+@keyframes publicV4HorizonPulse {
+
+    0%,
+    100% {
+        opacity: 0.32;
+    }
+
+    50% {
+        opacity: 0.92;
+    }
+}
+
+
+@keyframes publicV4StarDrift {
+
+    from {
+        background-position:
+            18px 26px,
+            67px 43px,
+            31px 119px;
+    }
+
+    to {
+        background-position:
+            128px 154px,
+            -92px 214px,
+            193px -72px;
+    }
+}
+
+
+@keyframes publicV4OrbOne {
+
+    from {
+        transform:
+            translate3d(0, 0, 0)
+            scale(1);
+    }
+
+    to {
+        transform:
+            translate3d(132px, 86px, 0)
+            scale(1.18);
+    }
+}
+
+
+@keyframes publicV4OrbTwo {
+
+    from {
+        transform:
+            translate3d(0, 0, 0)
+            scale(1);
+    }
+
+    to {
+        transform:
+            translate3d(-156px, 98px, 0)
+            scale(1.13);
+    }
+}
+
+
+@keyframes publicV4OrbThree {
+
+    from {
+        transform:
+            translate3d(0, 0, 0)
+            scale(1);
+    }
+
+    to {
+        transform:
+            translate3d(102px, -124px, 0)
+            scale(1.16);
+    }
+}
+
+
+@keyframes publicV4BlueSweep {
+
+    0%,
+    12% {
+        transform:
+            translate3d(0, 0, 0)
+            rotate(-12deg);
+
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 0.30;
+    }
+
+    56% {
+        opacity: 0.22;
+    }
+
+    68%,
+    100% {
+        transform:
+            translate3d(192vw, 50px, 0)
+            rotate(-12deg);
+
+        opacity: 0;
+    }
+}
+
+
+@keyframes publicV4RedSweep {
+
+    0%,
+    18% {
+        transform:
+            translate3d(0, 0, 0)
+            rotate(11deg);
+
+        opacity: 0;
+    }
+
+    27% {
+        opacity: 0.19;
+    }
+
+    59% {
+        opacity: 0.14;
+    }
+
+    72%,
+    100% {
+        transform:
+            translate3d(-192vw, -40px, 0)
+            rotate(11deg);
+
+        opacity: 0;
+    }
+}
+
+
+@keyframes publicV4ParticleFloat {
+
+    0%,
+    100% {
+        transform:
+            translate3d(0, 18px, 0);
+
+        opacity: 0.20;
+    }
+
+    42% {
+        opacity: 0.90;
+    }
+
+    50% {
+        transform:
+            translate3d(26px, -78px, 0);
+
+        opacity: 0.96;
+    }
+}
+
+
+@keyframes publicV4ParticlePulse {
+
+    0% {
+        transform: scale(0.65);
+        opacity: 0.50;
+    }
+
+    100% {
+        transform: scale(1.95);
+        opacity: 0;
+    }
+}
+
+
+@keyframes publicV4ShapeOne {
+
+    from {
+        transform:
+            translate3d(0, 0, 0)
+            rotate(18deg);
+    }
+
+    to {
+        transform:
+            translate3d(-46px, 54px, 0)
+            rotate(44deg);
+    }
+}
+
+
+@keyframes publicV4ShapeTwo {
+
+    from {
+        transform:
+            translate3d(0, 0, 0)
+            scale(1);
+    }
+
+    to {
+        transform:
+            translate3d(44px, -58px, 0)
+            scale(1.15);
+    }
+}
+
+
+@keyframes publicV4SectionAura {
+
+    0%,
+    100% {
+        opacity: 0.50;
+
+        transform:
+            translate(-50%, -50%)
+            scale(0.98);
+    }
+
+    50% {
+        opacity: 0.90;
+
+        transform:
+            translate(-50%, -50%)
+            scale(1.03);
+    }
+}
+
+
+@keyframes publicV4SectionReveal {
+
+    from {
+        opacity: 0;
+
+        transform:
+            translateY(22px)
+            scale(0.995);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            translateY(0)
+            scale(1);
+    }
+}
+
+
+/* =========================================================
+   15. REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .public-theme .public-background,
+    .public-theme .public-background::before,
+    .public-theme .public-background::after,
+    .public-theme .public-background-grid,
+    .public-theme .public-background-grid::after,
+    .public-theme .public-background-noise,
+    .public-theme .public-ambient-orb,
+    .public-theme .public-light-beam,
+    .public-theme .public-particle,
+    .public-theme .public-particle::after,
+    .public-theme .public-floating-shape,
+    .public-theme .public-section-theme,
+    .public-theme .public-section-theme-dark::before {
+        animation:
+            none !important;
+    }
+}
+
+
+/* =========================================================
+   16. MOBILE PERFORMANCE
+   ========================================================= */
 
 @media (max-width: 767px) {
 
-    .public-theme .public-main .public-section,
-    .public-theme .public-content-section,
-    .public-theme .public-about-section,
-    .public-theme .public-stats-section,
-    .public-theme .public-vision-section,
-    .public-theme .public-certifications-section,
-    .public-theme .public-global-section,
-    .public-theme .public-grid-section,
-    .public-theme .public-cards-section,
-    .public-theme .public-video-section,
-    .public-theme .public-contact-section,
-    .public-theme .careers-openings-section {
-        padding-top: 48px !important;
-        padding-bottom: 48px !important;
+    .public-theme .public-background {
+        inset: -6%;
     }
 
-    .public-theme .public-hero-container {
-        padding-top: 54px !important;
-        padding-bottom: 54px !important;
+    .public-theme .public-background-grid {
+        opacity: 0.18;
+
+        background-size:
+            56px 56px,
+            56px 56px,
+            19px 19px,
+            19px 19px;
     }
 
-    .public-theme .public-hero-title {
-        font-size: 38px;
+    .public-theme .public-ambient-orb {
+        filter: blur(90px);
+        opacity: 0.55;
     }
 
-    .public-theme .public-hero-image {
-        height: 300px;
+    .public-theme .public-light-beam {
+        display: none;
     }
 
-    .public-theme .public-stats-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+    .public-theme .public-particle:nth-child(n + 7) {
+        display: none;
     }
 
-    .public-theme .public-stat-card {
-        border-bottom: 1px solid #dce8ef !important;
+    .public-theme .public-floating-shape {
+        opacity: 0.22;
     }
 
-    .public-theme .public-stat-card:nth-child(2n) {
-        border-right: 0 !important;
+    .public-theme .public-section-theme-dark::before {
+        width: 100vw;
+        height: 92%;
+        border-radius: 30px;
     }
 
-    .public-theme .public-stat-card:nth-last-child(-n + 2) {
-        border-bottom: 0 !important;
+    .public-theme .public-section-theme-dark::after {
+        width: 92vw;
     }
-
-}
-
-
-@media (max-width: 480px) {
-
-    .public-theme .public-hero-title {
-        font-size: 34px;
-    }
-
-    .public-theme .public-stats-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .public-theme .public-stat-card,
-    .public-theme .public-stat-card:nth-child(2n),
-    .public-theme .public-stat-card:nth-last-child(-n + 2) {
-        border-right: 0 !important;
-        border-bottom: 1px solid #dce8ef !important;
-    }
-
-    .public-theme .public-stat-card:last-child {
-        border-bottom: 0 !important;
-    }
-
-}
-
-/* =========================================================
-   FINAL SERVICE CATEGORY DROPDOWN CORRECTION
-   ---------------------------------------------------------
-   IMPORTANT:
-   The previous generic rule:
-       .public-contact-form-card button[type="button"]
-   also affected the CLOSE button and every accordion item.
-   This section corrects that behavior and converts the complete
-   custom Service Category dropdown to the light public theme.
-
-   Additive override only — CMS/admin remains untouched.
-   ========================================================= */
-
-
-/* =========================================================
-   A. MAIN SERVICE SELECT TRIGGER
-   ---------------------------------------------------------
-   The field wrapper is the relative div that directly contains
-   the label + trigger + dropdown. :has() scopes this only to the
-   Service Category field.
-   ========================================================= */
-
-.public-theme .public-contact-form-card
-div.relative:has(.service-category-scroll)
-> button[type="button"] {
-    width: 100% !important;
-    min-height: 46px !important;
-
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-
-    padding: 10px 14px !important;
-
-    border: 1px solid #b9d2e2 !important;
-    border-radius: 7px !important;
-
-    background: #ffffff !important;
-    color: #18324a !important;
-
-    text-align: left !important;
-
-    box-shadow: none !important;
-}
-
-.public-theme .public-contact-form-card
-div.relative:has(.service-category-scroll)
-> button[type="button"]:hover {
-    border-color: #6ea9cf !important;
-    background: #fbfdff !important;
-}
-
-.public-theme .public-contact-form-card
-div.relative:has(.service-category-scroll)
-> button[type="button"]:focus,
-.public-theme .public-contact-form-card
-div.relative:has(.service-category-scroll)
-> button[type="button"]:focus-visible {
-    border-color: #0b5e9c !important;
-    background: #ffffff !important;
-
-    outline: none !important;
-
-    box-shadow:
-        0 0 0 3px rgba(11, 94, 156, 0.09) !important;
-}
-
-.public-theme .public-contact-form-card
-div.relative:has(.service-category-scroll)
-> button[type="button"]
-> span {
-    color: #64748b !important;
-}
-
-.public-theme .public-contact-form-card
-div.relative:has(.service-category-scroll)
-> button[type="button"]
-> span.font-medium {
-    color: #18324a !important;
-}
-
-.public-theme .public-contact-form-card
-div.relative:has(.service-category-scroll)
-> button[type="button"]
-svg {
-    color: #64748b !important;
-}
-
-
-/* =========================================================
-   B. ENTIRE DROPDOWN PANEL
-   ========================================================= */
-
-.public-theme .public-contact-form-card
-div:has(> .service-category-scroll) {
-    border: 1px solid #d5e3ec !important;
-    border-radius: 10px !important;
-
-    background: #ffffff !important;
-    color: #18324a !important;
-
-    box-shadow:
-        0 18px 42px rgba(23, 67, 96, 0.14) !important;
-}
-
-
-/* =========================================================
-   C. DROPDOWN HEADER
-   ========================================================= */
-
-.public-theme .public-contact-form-card
-div:has(> .service-category-scroll)
-> div:first-child {
-    border-bottom: 1px solid #e2ebf1 !important;
-    background: #f8fbfd !important;
-}
-
-.public-theme .public-contact-form-card
-div:has(> .service-category-scroll)
-> div:first-child p:first-child {
-    color: #c90000 !important;
-}
-
-.public-theme .public-contact-form-card
-div:has(> .service-category-scroll)
-> div:first-child p:last-child {
-    color: #64748b !important;
-}
-
-
-/* =========================================================
-   D. CLOSE BUTTON
-   ---------------------------------------------------------
-   Critical fix for the long white bar visible in the screenshot.
-   ========================================================= */
-
-.public-theme .public-contact-form-card
-div:has(> .service-category-scroll)
-> div:first-child
-button[type="button"] {
-    width: 32px !important;
-    min-width: 32px !important;
-    max-width: 32px !important;
-
-    height: 32px !important;
-    min-height: 32px !important;
-
-    padding: 0 !important;
-
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-
-    flex: 0 0 32px !important;
-
-    border: 1px solid #d5e3ec !important;
-    border-radius: 7px !important;
-
-    background: #ffffff !important;
-    color: #64748b !important;
-
-    font-size: 18px !important;
-    line-height: 1 !important;
-
-    box-shadow: none !important;
-}
-
-.public-theme .public-contact-form-card
-div:has(> .service-category-scroll)
-> div:first-child
-button[type="button"]:hover {
-    border-color: #0b5e9c !important;
-
-    background: #edf6fc !important;
-    color: #0b5e9c !important;
-}
-
-
-/* =========================================================
-   E. SCROLL AREA
-   ========================================================= */
-
-.public-theme .public-contact-form-card .service-category-scroll {
-    background: #ffffff !important;
-    color: #18324a !important;
-
-    scrollbar-width: thin;
-    scrollbar-color: #0b5e9c #edf5fa;
-}
-
-
-/* =========================================================
-   F. PARENT CATEGORY CARDS
-   ========================================================= */
-
-.public-theme .public-contact-form-card
-.service-category-scroll
-> div
-> div {
-    border-color: #d8e5ed !important;
-
-    background: #ffffff !important;
-
-    box-shadow: none !important;
-}
-
-.public-theme .public-contact-form-card
-.service-category-scroll
-> div
-> div
-> button[type="button"] {
-    width: 100% !important;
-    min-height: auto !important;
-
-    padding: 12px 14px !important;
-
-    border: 0 !important;
-    border-radius: 0 !important;
-
-    background: #ffffff !important;
-    color: #18324a !important;
-
-    box-shadow: none !important;
-}
-
-.public-theme .public-contact-form-card
-.service-category-scroll
-> div
-> div
-> button[type="button"]:hover {
-    background: #f1f7fb !important;
-}
-
-.public-theme .public-contact-form-card
-.service-category-scroll
-> div
-> div
-> button[type="button"] p:first-child {
-    color: #18324a !important;
-}
-
-.public-theme .public-contact-form-card
-.service-category-scroll
-> div
-> div
-> button[type="button"] p:last-child {
-    color: #8293a2 !important;
-}
-
-.public-theme .public-contact-form-card
-.service-category-scroll
-> div
-> div
-> button[type="button"] svg {
-    color: #0b5e9c !important;
-}
-
-
-/* =========================================================
-   G. SUBMENU PANEL
-   ========================================================= */
-
-.public-theme .public-contact-form-card
-.service-category-scroll
-> div
-> div
-> div {
-    border-color: #e2ebf1 !important;
-
-    background: #f8fbfd !important;
-}
-
-
-/* =========================================================
-   H. CHILD SERVICE BUTTONS
-   ========================================================= */
-
-.public-theme .public-contact-form-card
-.service-category-scroll
-> div
-> div
-> div
-button[type="button"] {
-    width: 100% !important;
-    min-height: auto !important;
-
-    padding: 10px 12px !important;
-
-    border: 1px solid #d7e4ec !important;
-    border-radius: 8px !important;
-
-    background: #ffffff !important;
-    color: #334e63 !important;
-
-    box-shadow: none !important;
-}
-
-.public-theme .public-contact-form-card
-.service-category-scroll
-> div
-> div
-> div
-button[type="button"]:hover {
-    border-color: #8dbbd8 !important;
-
-    background: #edf6fc !important;
-    color: #0b5e9c !important;
-}
-
-.public-theme .public-contact-form-card
-.service-category-scroll
-> div
-> div
-> div
-button[type="button"] p {
-    color: #334e63 !important;
-}
-
-.public-theme .public-contact-form-card
-.service-category-scroll
-> div
-> div
-> div
-button[type="button"]:hover p {
-    color: #0b5e9c !important;
-}
-
-
-/* selected child option */
-
-.public-theme .public-contact-form-card
-.service-category-scroll
-button[type="button"].border-\[\#1976b8\] {
-    border-color: #0b5e9c !important;
-
-    background: #eaf5fc !important;
-}
-
-.public-theme .public-contact-form-card
-.service-category-scroll
-button[type="button"].border-\[\#1976b8\] p {
-    color: #0b5e9c !important;
-}
-
-
-/* =========================================================
-   I. FALLBACK SERVICES
-   ========================================================= */
-
-.public-theme .public-contact-form-card
-.service-category-scroll
-> div
-> p {
-    color: #c90000 !important;
-}
-
-.public-theme .public-contact-form-card
-.service-category-scroll
-> div
-> .grid
-> button[type="button"] {
-    width: 100% !important;
-
-    border: 1px solid #d7e4ec !important;
-
-    background: #ffffff !important;
-    color: #334e63 !important;
-
-    box-shadow: none !important;
-}
-
-.public-theme .public-contact-form-card
-.service-category-scroll
-> div
-> .grid
-> button[type="button"]:hover {
-    border-color: #8dbbd8 !important;
-
-    background: #edf6fc !important;
-    color: #0b5e9c !important;
-}
-
-
-/* =========================================================
-   J. SCROLLBAR
-   ========================================================= */
-
-.public-theme
-.public-contact-form-card
-.service-category-scroll::-webkit-scrollbar {
-    width: 8px;
-}
-
-.public-theme
-.public-contact-form-card
-.service-category-scroll::-webkit-scrollbar-track {
-    background: #edf5fa !important;
-}
-
-.public-theme
-.public-contact-form-card
-.service-category-scroll::-webkit-scrollbar-thumb {
-    border: 2px solid #edf5fa !important;
-    border-radius: 999px;
-
-    background: #0b5e9c !important;
-}
-
-.public-theme
-.public-contact-form-card
-.service-category-scroll::-webkit-scrollbar-thumb:hover {
-    background: #073b63 !important;
-}
-
-
-/* =========================================================
-   K. KEEP SUBMIT BUTTON BLUE
-   ========================================================= */
-
-.public-theme .public-contact-form-card button[type="submit"],
-.public-theme .public-contact-form-card .public-contact-submit {
-    width: 100% !important;
-
-    border: 1px solid #0b5e9c !important;
-
-    background:
-        linear-gradient(
-            135deg,
-            #0b5e9c,
-            #084b7d
-        ) !important;
-
-    color: #ffffff !important;
-
-    box-shadow:
-        0 7px 16px rgba(11, 94, 156, 0.16) !important;
 }
 

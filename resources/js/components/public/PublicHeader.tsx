@@ -136,10 +136,10 @@ export default function PublicHeader() {
      */
 
     const navigationHeightClass =
-        'min-h-[68px]';
+        'min-h-[74px]';
 
     const logoWidthClass =
-        'w-[142px] xl:w-[150px] 2xl:w-[158px]';
+        'w-[148px] xl:w-[158px] 2xl:w-[168px]';
 
     const menuMetrics = useMemo(() => {
         const itemCount = menuItems.length;
@@ -215,7 +215,7 @@ export default function PublicHeader() {
                     gap:
                         'gap-5 2xl:gap-7',
                     text:
-                        'text-[11.5px] 2xl:text-[11.5px]',
+                        'text-[11.75px] 2xl:text-[12px]',
                     padding:
                         'px-2.5 2xl:px-3',
                     maxWidth:
@@ -229,7 +229,7 @@ export default function PublicHeader() {
                     gap:
                         'gap-0.5',
                     text:
-                        'text-[11.5px] 2xl:text-[11.5px]',
+                        'text-[11.75px] 2xl:text-[12px]',
                     padding:
                         'px-1.5 2xl:px-2',
                     maxWidth:
@@ -243,7 +243,7 @@ export default function PublicHeader() {
                     gap:
                         'gap-0',
                     text:
-                        'text-[11.5px] 2xl:text-[11.5px]',
+                        'text-[11.75px] 2xl:text-[12px]',
                     padding:
                         'px-1 2xl:px-1.5',
                     maxWidth:
@@ -257,7 +257,7 @@ export default function PublicHeader() {
                     gap:
                         'gap-1 2xl:gap-1.5',
                     text:
-                        'text-[11.5px] 2xl:text-[11.5px]',
+                        'text-[11.75px] 2xl:text-[12px]',
                     padding:
                         'px-1.5 2xl:px-2.5',
                     maxWidth:
@@ -274,8 +274,8 @@ export default function PublicHeader() {
      */
     const desktopLanguageTypography =
         uiLanguage === 'ta'
-            ? 'tracking-[-0.015em] font-bold'
-            : 'tracking-[0.005em] font-bold';
+            ? 'tracking-[-0.012em] font-semibold'
+            : 'tracking-[0.015em] font-semibold';
 
     const menuLineHeightClass =
         'leading-none';
@@ -507,22 +507,22 @@ export default function PublicHeader() {
 
     return (
 
-        <header className="sticky top-0 z-50 w-full">
+        <header className="sticky top-0 z-50 w-full border-b border-[#DCE7EF]/70 bg-white/95 shadow-[0_8px_30px_rgba(11,45,77,0.07)] backdrop-blur-xl">
 
 
             {/* =====================================================
                 TOP INFORMATION BAR
             ====================================================== */}
 
-            <div className="w-full bg-[#0A5F9E] text-white">
+            <div className="w-full bg-[linear-gradient(90deg,#0B2D4D_0%,#0A5F9E_60%,#0B2D4D_100%)] text-white">
 
                 <div
                     className="
                         mx-auto
                         flex
-                        min-h-[36px]
+                        min-h-[34px]
                         w-full
-                        max-w-[1500px]
+                        max-w-[1480px]
                         items-center
                         justify-between
                         gap-6
@@ -557,13 +557,13 @@ export default function PublicHeader() {
                                 h-1.5
                                 w-1.5
                                 shrink-0
-                                rounded-full
-                                bg-white/90
+                                rounded-2xl
+                                bg-[#7CC5F2]
                             "
                         />
 
 
-                        <span className="truncate text-[11px] font-bold tracking-[0.045em] text-white/95 sm:text-[11.5px] xl:text-[12px]">
+                        <span className="truncate text-[11px] font-bold tracking-[0.045em] text-white sm:text-[11.5px] xl:text-[12px]">
                             SYSNET SYSTEM AND SOLUTIONS PTE LTD
                         </span>
 
@@ -611,20 +611,20 @@ export default function PublicHeader() {
                                         className="
                                             group/social
                                             flex
-                                            h-7
-                                            w-7
+                                            h-7.5
+                                            w-7.5
                                             items-center
                                             justify-center
-                                            rounded-md
+                                            rounded-2xl
                                             border
-                                            border-white/15
-                                            bg-white/5
+                                            border-white/20
+                                            bg-white/10
                                             text-white/90
                                             transition-all
                                             duration-200
 
                                             hover:-translate-y-[1px]
-                                            hover:border-white/40
+                                            hover:border-white/60
                                             hover:bg-white
                                             hover:text-[#0A5F9E]
                                         "
@@ -660,9 +660,9 @@ export default function PublicHeader() {
                     relative
                     w-full
                     border-b
-                    border-[#E2E8F0]
+                    border-[#DCE7EF]
                     bg-white
-                    shadow-[0_3px_14px_rgba(15,23,42,0.05)]
+                    shadow-[0_10px_30px_rgba(11,45,77,0.06)]
                 "
             >
 
@@ -674,9 +674,10 @@ export default function PublicHeader() {
                         absolute
                         bottom-0
                         left-0
-                        h-[2px]
-                        w-[72px]
-                        bg-[#C90000]
+                        h-[3px]
+                        w-[92px]
+                        rounded-r-full
+                        bg-[linear-gradient(90deg,#D71920_0%,#EF3B40_100%)]
                     "
                 />
 
@@ -712,9 +713,9 @@ export default function PublicHeader() {
                             items-center
                             justify-start
                             bg-transparent
-                            mr-3
-                            xl:mr-4
-                            2xl:mr-5
+                            mr-4
+                            xl:mr-5
+                            2xl:mr-6
                             ${logoWidthClass}
                         `}
                     >
@@ -724,7 +725,7 @@ export default function PublicHeader() {
                             className="
                                 group
                                 flex
-                                h-[65px]
+                                h-[72px]
                                 items-center
                                 justify-start
                                 bg-transparent
@@ -735,7 +736,7 @@ export default function PublicHeader() {
                                 src="/images/Sys.png"
                                 alt="Sysnet Group of Companies"
                                 className="
-                                    h-[100px]
+                                    h-[82px]
                                     w-auto
                                     max-w-full
                                     bg-transparent
@@ -743,7 +744,7 @@ export default function PublicHeader() {
                                     object-left
                                     transition-transform
                                     duration-200
-                                    group-hover:scale-[1.015]
+                                    group-hover:scale-[1.02]
                                 "
                             />
 
@@ -755,10 +756,10 @@ export default function PublicHeader() {
                     <div
                         className="
                             hidden
-                            h-8
+                            h-9
                             w-px
                             shrink-0
-                            bg-[#E2E8F0]
+                            bg-[#DCE7EF]
                             xl:block
                             mr-4
                             2xl:mr-5
@@ -839,19 +840,19 @@ export default function PublicHeader() {
                                                         className={`
                                                             relative
                                                             flex
-                                                            h-10
+                                                            h-11
                                                             items-center
                                                             justify-center
                                                             gap-1
-                                                            rounded-md
+                                                            rounded-2xl
                                                             text-center
                                                             whitespace-nowrap
-                                                            text-[#24384A]
+                                                            text-[#20384D]
                                                             ${desktopLanguageTypography}
                                                             transition-all
                                                             duration-200
 
-                                                            hover:bg-[#F3F8FC]
+                                                            hover:bg-[#EEF6FB]
                                                             hover:text-[#0A5F9E]
 
                                                             ${desktopMenuLayout.padding}
@@ -912,16 +913,16 @@ export default function PublicHeader() {
                                                         <span
                                                             className="
                                                                 absolute
-                                                                bottom-[3px]
+                                                                bottom-[2px]
                                                                 left-1/2
                                                                 h-[2px]
                                                                 w-0
                                                                 -translate-x-1/2
-                                                                rounded-full
-                                                                bg-[#C90000]
+                                                                rounded-2xl
+                                                                bg-[#D71920]
                                                                 transition-all
                                                                 duration-200
-                                                                group-hover:w-5
+                                                                group-hover:w-7
                                                             "
                                                         />
 
@@ -951,24 +952,24 @@ export default function PublicHeader() {
                                                         className={`
                                                             invisible
                                                             absolute
-                                                            top-[calc(100%+6px)]
+                                                            top-[calc(100%+10px)]
                                                             z-[9999]
 
-                                                            w-[min(610px,calc(100vw-40px))]
+                                                            w-[min(640px,calc(100vw-40px))]
                                                             max-w-[calc(100vw-40px)]
 
                                                             translate-y-2
                                                             overflow-hidden
 
-                                                            rounded-md
+                                                            rounded-2xl
 
                                                             border
-                                                            border-[#D8E8F3]
+                                                            border-[#D6E4EE]
 
                                                             bg-white
                                                             opacity-0
 
-                                                            shadow-[0_12px_28px_rgba(11,45,77,0.13)]
+                                                            shadow-[0_22px_55px_rgba(11,45,77,0.16)]
 
                                                             transition-all
                                                             duration-200
@@ -990,7 +991,7 @@ export default function PublicHeader() {
                                                                 relative
                                                                 border-b
                                                                 border-[#E4EDF4]
-                                                                bg-[#F8FAFC]
+                                                                bg-[linear-gradient(180deg,#F8FBFD_0%,#F3F8FC_100%)]
                                                                 px-4
                                                                 py-2.5
                                                             "
@@ -1003,7 +1004,7 @@ export default function PublicHeader() {
                                                                     top-0
                                                                     h-full
                                                                     w-[3px]
-                                                                    bg-[#C90000]
+                                                                    bg-[#D71920]
                                                                 "
                                                             />
 
@@ -1014,7 +1015,7 @@ export default function PublicHeader() {
                                                                     font-bold
                                                                     uppercase
                                                                     tracking-[0.16em]
-                                                                    text-[#1769AA]
+                                                                    text-[#0A5F9E]
                                                                 "
                                                             >
                                                                 {item.title}
@@ -1061,7 +1062,7 @@ export default function PublicHeader() {
                                                                     top-3
                                                                     w-px
                                                                     -translate-x-1/2
-                                                                    bg-[#DCE6EE]
+                                                                    bg-[#E0EAF1]
                                                                 "
                                                             />
 
@@ -1089,12 +1090,12 @@ export default function PublicHeader() {
                                                                             flex
                                                                             min-w-0
                                                                             items-start
-                                                                            rounded-lg
+                                                                            rounded-xl
                                                                             px-3.5
                                                                             py-2
                                                                             transition-all
                                                                             duration-200
-                                                                            hover:bg-[#F3F8FC]
+                                                                            hover:bg-[#EEF6FB]
                                                                         "
                                                                     >
 
@@ -1105,12 +1106,12 @@ export default function PublicHeader() {
                                                                                 h-1
                                                                                 w-1
                                                                                 shrink-0
-                                                                                rounded-full
-                                                                                bg-[#1769AA]
+                                                                                rounded-2xl
+                                                                                bg-[#0A5F9E]
                                                                                 transition-all
                                                                                 duration-200
                                                                                 group-hover/item:scale-125
-                                                                                group-hover/item:bg-[#C90000]
+                                                                                group-hover/item:bg-[#D71920]
                                                                             "
                                                                         />
 
@@ -1128,7 +1129,7 @@ export default function PublicHeader() {
                                                                                     text-[#18324A]
                                                                                     transition-colors
                                                                                     duration-200
-                                                                                    group-hover/item:text-[#1769AA]
+                                                                                    group-hover/item:text-[#0A5F9E]
                                                                                 "
                                                                             >
                                                                                 {child.title}
@@ -1166,18 +1167,18 @@ export default function PublicHeader() {
                                                     className={`
                                                         relative
                                                         flex
-                                                        h-10
+                                                        h-11
                                                         items-center
                                                         justify-center
-                                                        rounded-md
+                                                        rounded-2xl
                                                         text-center
-                                                        text-[#24384A]
+                                                        text-[#20384D]
                                                         ${desktopLanguageTypography}
                                                         transition-all
                                                         duration-200
                                                         whitespace-nowrap
 
-                                                        hover:bg-[#F3F8FC]
+                                                        hover:bg-[#EEF6FB]
                                                         hover:text-[#0A5F9E]
 
                                                         ${desktopMenuLayout.padding}
@@ -1203,16 +1204,16 @@ export default function PublicHeader() {
                                                     <span
                                                         className="
                                                             absolute
-                                                            bottom-[3px]
+                                                            bottom-[2px]
                                                             left-1/2
                                                             h-[2px]
                                                             w-0
                                                             -translate-x-1/2
-                                                            rounded-full
-                                                            bg-[#C90000]
+                                                            rounded-2xl
+                                                            bg-[#D71920]
                                                             transition-all
                                                             duration-200
-                                                            group-hover:w-5
+                                                            group-hover:w-7
                                                         "
                                                     />
 
@@ -1273,24 +1274,24 @@ export default function PublicHeader() {
                                     group/language
                                     relative
                                     flex
-                                    h-8
-                                    w-8
+                                    h-9
+                                    w-9
                                     shrink-0
                                     items-center
                                     justify-center
-                                    rounded-full
+                                    rounded-2xl
                                     border
-                                    border-[#CFE0EC]
+                                    border-[#C9DCE9]
                                     bg-white
                                     text-[#0A5F9E]
-                                    shadow-[0_2px_8px_rgba(15,23,42,0.06)]
+                                    shadow-[0_5px_16px_rgba(11,45,77,0.08)]
                                     transition-all
                                     duration-200
 
                                     hover:-translate-y-[1px]
                                     hover:border-[#8FBAD5]
-                                    hover:bg-[#F4FAFD]
-                                    hover:shadow-[0_4px_12px_rgba(11,94,156,0.12)]
+                                    hover:bg-[#EEF7FC]
+                                    hover:shadow-[0_8px_22px_rgba(11,94,156,0.14)]
 
                                     focus:outline-none
                                     focus:ring-2
@@ -1338,7 +1339,7 @@ export default function PublicHeader() {
                                         min-w-3
                                         items-center
                                         justify-center
-                                        rounded-full
+                                        rounded-2xl
                                         border
                                         border-white
                                         bg-[#0A5F9E]
@@ -1365,13 +1366,13 @@ export default function PublicHeader() {
                                         right-0
                                         top-[calc(100%+8px)]
                                         z-[10000]
-                                        w-[190px]
+                                        w-[220px]
                                         overflow-hidden
-                                        rounded-xl
+                                        rounded-2xl
                                         border
-                                        border-[#D8E8F3]
+                                        border-[#D6E4EE]
                                         bg-white
-                                        shadow-[0_18px_45px_rgba(11,45,77,0.16)]
+                                        shadow-[0_22px_55px_rgba(11,45,77,0.18)]
                                     "
                                 >
 
@@ -1379,7 +1380,7 @@ export default function PublicHeader() {
                                         className="
                                             border-b
                                             border-[#E4EDF4]
-                                            bg-[#F8FAFC]
+                                            bg-[linear-gradient(180deg,#F8FBFD_0%,#F3F8FC_100%)]
                                             px-3
                                             py-2.5
                                         "
@@ -1441,7 +1442,7 @@ export default function PublicHeader() {
                                                             items-center
                                                             justify-between
                                                             gap-2
-                                                            rounded-md
+                                                            rounded-2xl
                                                             px-2.5
                                                             py-2
                                                             text-left
@@ -1501,7 +1502,7 @@ export default function PublicHeader() {
                                                                     shrink-0
                                                                     items-center
                                                                     justify-center
-                                                                    rounded-full
+                                                                    rounded-2xl
                                                                     bg-[#0A5F9E]
                                                                     text-white
                                                                 "
@@ -1562,17 +1563,17 @@ export default function PublicHeader() {
                             }
                             className="
                                 flex
-                                h-10
+                                h-11
                                 w-10
                                 items-center
                                 justify-center
-                                rounded-lg
+                                rounded-xl
                                 border
-                                border-[#D8E8F3]
+                                border-[#D6E4EE]
                                 bg-white
-                                text-[#1769AA]
+                                text-[#0A5F9E]
                                 transition
-                                hover:bg-[#F5F9FC]
+                                hover:bg-[#EEF6FB]
                             "
                             aria-label="Toggle navigation"
                         >
@@ -1601,7 +1602,7 @@ export default function PublicHeader() {
                             bg-white
                             px-5
                             py-4
-                            shadow-lg
+                            shadow-[0_18px_40px_rgba(11,45,77,0.10)]
                             xl:hidden
                         "
                     >
@@ -1611,9 +1612,9 @@ export default function PublicHeader() {
                             <div
                                 className="
                                     mb-4
-                                    rounded-xl
+                                    rounded-2xl
                                     border
-                                    border-[#D8E8F3]
+                                    border-[#D6E4EE]
                                     bg-[#F8FBFD]
                                     p-3
                                 "
@@ -1697,7 +1698,7 @@ export default function PublicHeader() {
                                                         )
                                                     }
                                                     className={`
-                                                        rounded-lg
+                                                        rounded-xl
                                                         border
                                                         px-3
                                                         py-2.5
@@ -1707,7 +1708,7 @@ export default function PublicHeader() {
                                                         ${
                                                             selected
                                                                 ? 'border-[#9EC6DE] bg-white text-[#0A5F9E]'
-                                                                : 'border-transparent bg-transparent text-[#64748B] hover:border-[#D8E8F3] hover:bg-white hover:text-[#0A5F9E]'
+                                                                : 'border-transparent bg-transparent text-[#64748B] hover:border-[#D6E4EE] hover:bg-white hover:text-[#0A5F9E]'
                                                         }
                                                     `}
                                                 >
@@ -1783,7 +1784,7 @@ export default function PublicHeader() {
                                             }
                                             className="
                                                 overflow-hidden
-                                                rounded-lg
+                                                rounded-xl
                                             "
                                         >
 
@@ -1805,7 +1806,7 @@ export default function PublicHeader() {
                                                             w-full
                                                             items-center
                                                             justify-between
-                                                            rounded-lg
+                                                            rounded-xl
                                                             px-4
                                                             py-3
                                                             text-left
@@ -1813,7 +1814,7 @@ export default function PublicHeader() {
                                                             font-semibold
                                                             text-[#18324A]
                                                             transition
-                                                            hover:bg-[#F3F8FC]
+                                                            hover:bg-[#EEF6FB]
                                                             hover:text-[#0A5F9E]
                                                         "
                                                     >
@@ -1866,7 +1867,7 @@ export default function PublicHeader() {
                                                                 ml-4
                                                                 space-y-1
                                                                 border-l
-                                                                border-[#D8E8F3]
+                                                                border-[#D6E4EE]
                                                                 pb-2
                                                                 pl-3
                                                             "
@@ -1903,13 +1904,13 @@ export default function PublicHeader() {
                                                                         }}
                                                                         className="
                                                                             block
-                                                                            rounded-md
+                                                                            rounded-2xl
                                                                             px-3
                                                                             py-2
                                                                             text-sm
                                                                             text-[#64748B]
                                                                             transition
-                                                                            hover:bg-[#F5F9FC]
+                                                                            hover:bg-[#EEF6FB]
                                                                             hover:text-[#0A5F9E]
                                                                         "
                                                                     >
@@ -1946,14 +1947,14 @@ export default function PublicHeader() {
                                                     }
                                                     className="
                                                         block
-                                                        rounded-lg
+                                                        rounded-xl
                                                         px-4
                                                         py-3
                                                         text-sm
                                                         font-semibold
                                                         text-[#18324A]
                                                         transition
-                                                        hover:bg-[#F3F8FC]
+                                                        hover:bg-[#EEF6FB]
                                                         hover:text-[#0A5F9E]
                                                     "
                                                 >

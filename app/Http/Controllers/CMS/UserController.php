@@ -33,6 +33,12 @@ class UserController extends Controller
     public function index(
         Request $request
     ) {
+        /*
+        |--------------------------------------------------------------------------
+        | Current Team
+        |--------------------------------------------------------------------------
+        */
+
         $team =
             $this->currentTeam(
                 $request
@@ -41,7 +47,54 @@ class UserController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Get Only Users Belonging To Current Team
+        | Logged-In User
+        |--------------------------------------------------------------------------
+        */
+
+        $currentUser =
+            $request->user();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Logged-In User CMS Roles - CURRENT TEAM ONLY
+        |--------------------------------------------------------------------------
+        */
+
+        $currentUserRoles =
+            $currentUser
+                ->rolesForTeam(
+                    $team->id
+                )
+                ->get([
+                    'roles.id',
+                    'roles.name',
+                ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Is Logged-In User Super Admin?
+        |--------------------------------------------------------------------------
+        */
+
+        $currentUserIsSuperAdmin =
+            $currentUserRoles
+                ->contains(
+                    function ($role) {
+                        return strtolower(
+                            trim(
+                                $role->name
+                            )
+                        ) ===
+                        'super admin';
+                    }
+                );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Get Users Belonging To Current Team Only
         |--------------------------------------------------------------------------
         */
 
@@ -60,14 +113,16 @@ class UserController extends Controller
                     }
                 )
 
-                ->latest('users.created_at')
+                ->latest(
+                    'users.created_at'
+                )
 
                 ->get();
 
 
         /*
         |--------------------------------------------------------------------------
-        | Load CMS Role Specifically For Current Team
+        | Load Each User's CMS Role For Current Team
         |--------------------------------------------------------------------------
         */
 
@@ -78,19 +133,28 @@ class UserController extends Controller
                 $team
             ) {
 
+                /*
+                |--------------------------------------------------------------------------
+                | CMS Roles
+                |--------------------------------------------------------------------------
+                */
+
                 $user->setRelation(
                     'roles',
                     $user
                         ->rolesForTeam(
                             $team->id
                         )
-                        ->get()
+                        ->get([
+                            'roles.id',
+                            'roles.name',
+                        ])
                 );
 
 
                 /*
                 |--------------------------------------------------------------------------
-                | Include Team Membership Role
+                | Team Membership Role
                 |--------------------------------------------------------------------------
                 */
 
@@ -115,11 +179,53 @@ class UserController extends Controller
         );
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | Users Page
+        |--------------------------------------------------------------------------
+        */
+
         return Inertia::render(
             'users/index',
             [
+                /*
+                |--------------------------------------------------------------------------
+                | Current-Team Users
+                |--------------------------------------------------------------------------
+                */
+
                 'users' =>
                     $users,
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Logged-In User ID
+                |--------------------------------------------------------------------------
+                */
+
+                'currentUserId' =>
+                    $currentUser->id,
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Logged-In User Current-Team Roles
+                |--------------------------------------------------------------------------
+                */
+
+                'currentUserRoles' =>
+                    $currentUserRoles,
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Logged-In User Super Admin Status
+                |--------------------------------------------------------------------------
+                */
+
+                'currentUserIsSuperAdmin' =>
+                    $currentUserIsSuperAdmin,
             ]
         );
     }
@@ -494,9 +600,13 @@ class UserController extends Controller
             );
 
 
+        $currentUser =
+            $request->user();
+
+
         /*
         |--------------------------------------------------------------------------
-        | Cross-Team Protection
+        | Target Must Belong To Current Team
         |--------------------------------------------------------------------------
         */
 
@@ -509,13 +619,135 @@ class UserController extends Controller
 
         /*
         |--------------------------------------------------------------------------
+        | Current User Roles
+        |--------------------------------------------------------------------------
+        */
+
+        $currentUserRoles =
+            $currentUser
+                ->rolesForTeam(
+                    $team->id
+                )
+                ->get([
+                    'roles.id',
+                    'roles.name',
+                ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Target User Roles
+        |--------------------------------------------------------------------------
+        */
+
+        $targetUserRoles =
+            $user
+                ->rolesForTeam(
+                    $team->id
+                )
+                ->get([
+                    'roles.id',
+                    'roles.name',
+                ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Super Admin Detection
+        |--------------------------------------------------------------------------
+        */
+
+        $currentUserIsSuperAdmin =
+            $currentUserRoles
+                ->contains(
+                    fn ($role) =>
+                        strtolower(
+                            trim(
+                                $role->name
+                            )
+                        ) ===
+                        'super admin'
+                );
+
+
+        $targetUserIsSuperAdmin =
+            $targetUserRoles
+                ->contains(
+                    fn ($role) =>
+                        strtolower(
+                            trim(
+                                $role->name
+                            )
+                        ) ===
+                        'super admin'
+                );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | users.edit Permission
+        |--------------------------------------------------------------------------
+        */
+
+        $canEditUsers =
+            $currentUser
+                ->rolesForTeam(
+                    $team->id
+                )
+                ->whereHas(
+                    'permissions',
+                    function ($query) {
+                        $query->where(
+                            'permissions.name',
+                            'users.edit'
+                        );
+                    }
+                )
+                ->exists();
+
+
+        if (
+            ! $canEditUsers
+        ) {
+            abort(
+                403,
+                'You do not have permission to edit users.'
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Protect Super Admin
+        |--------------------------------------------------------------------------
+        |
+        | Only a Super Admin can edit a Super Admin.
+        | All other roles are blocked from editing a Super Admin.
+        |
+        */
+
+        if (
+            $targetUserIsSuperAdmin &&
+            ! $currentUserIsSuperAdmin
+        ) {
+            abort(
+                403,
+                'Only a Super Admin can edit another Super Admin.'
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
         | Available CMS Roles
         |--------------------------------------------------------------------------
         */
 
         $roles =
             Role::query()
-                ->orderBy('name')
+                ->orderBy(
+                    'name'
+                )
                 ->get([
                     'id',
                     'name',
@@ -524,17 +756,13 @@ class UserController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Load Role Specifically For Current Team
+        | Target User Current-Team Roles
         |--------------------------------------------------------------------------
         */
 
         $user->setRelation(
             'roles',
-            $user
-                ->rolesForTeam(
-                    $team->id
-                )
-                ->get()
+            $targetUserRoles
         );
 
 
@@ -561,6 +789,13 @@ class UserController extends Controller
 
                 'roles' =>
                     $roles,
+
+                'currentUserIsSuperAdmin' =>
+                    $currentUserIsSuperAdmin,
+
+                'isEditingSelf' =>
+                    $currentUser->id ===
+                    $user->id,
             ]
         );
     }
@@ -585,9 +820,13 @@ class UserController extends Controller
             );
 
 
+        $currentUser =
+            $request->user();
+
+
         /*
         |--------------------------------------------------------------------------
-        | Cross-Team Protection
+        | Target Must Belong To Current Team
         |--------------------------------------------------------------------------
         */
 
@@ -595,6 +834,128 @@ class UserController extends Controller
             $user,
             $team
         );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Current User Roles
+        |--------------------------------------------------------------------------
+        */
+
+        $currentUserRoles =
+            $currentUser
+                ->rolesForTeam(
+                    $team->id
+                )
+                ->get([
+                    'roles.id',
+                    'roles.name',
+                ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Target User Roles
+        |--------------------------------------------------------------------------
+        */
+
+        $targetUserRoles =
+            $user
+                ->rolesForTeam(
+                    $team->id
+                )
+                ->get([
+                    'roles.id',
+                    'roles.name',
+                ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Super Admin Detection
+        |--------------------------------------------------------------------------
+        */
+
+        $currentUserIsSuperAdmin =
+            $currentUserRoles
+                ->contains(
+                    fn ($role) =>
+                        strtolower(
+                            trim(
+                                $role->name
+                            )
+                        ) ===
+                        'super admin'
+                );
+
+
+        $targetUserIsSuperAdmin =
+            $targetUserRoles
+                ->contains(
+                    fn ($role) =>
+                        strtolower(
+                            trim(
+                                $role->name
+                            )
+                        ) ===
+                        'super admin'
+                );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | users.edit Permission
+        |--------------------------------------------------------------------------
+        */
+
+        $canEditUsers =
+            $currentUser
+                ->rolesForTeam(
+                    $team->id
+                )
+                ->whereHas(
+                    'permissions',
+                    function ($query) {
+                        $query->where(
+                            'permissions.name',
+                            'users.edit'
+                        );
+                    }
+                )
+                ->exists();
+
+
+        if (
+            ! $canEditUsers
+        ) {
+            return back()
+                ->with(
+                    'error',
+                    'You do not have permission to edit users.'
+                );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Protect Super Admin
+        |--------------------------------------------------------------------------
+        |
+        | Only a Super Admin can update a Super Admin.
+        | All other roles are blocked from updating a Super Admin.
+        |
+        */
+
+        if (
+            $targetUserIsSuperAdmin &&
+            ! $currentUserIsSuperAdmin
+        ) {
+            return back()
+                ->with(
+                    'error',
+                    'Only a Super Admin can edit another Super Admin.'
+                );
+        }
 
 
         /*
@@ -646,13 +1007,6 @@ class UserController extends Controller
                 $user,
                 $team
             ) {
-
-                /*
-                |--------------------------------------------------------------------------
-                | Update User
-                |--------------------------------------------------------------------------
-                */
-
                 $user->name =
                     $validated['name'];
 
@@ -682,24 +1036,21 @@ class UserController extends Controller
 
                 /*
                 |--------------------------------------------------------------------------
-                | Replace CMS Role Only For Current Team
+                | Replace CMS Role For Current Team Only
                 |--------------------------------------------------------------------------
                 */
 
                 DB::table(
                     'role_user'
                 )
-
                     ->where(
                         'user_id',
                         $user->id
                     )
-
                     ->where(
                         'team_id',
                         $team->id
                     )
-
                     ->delete();
 
 
@@ -745,11 +1096,33 @@ class UserController extends Controller
         Request $request,
         User $user
     ) {
+        /*
+        |--------------------------------------------------------------------------
+        | Current Team
+        |--------------------------------------------------------------------------
+        */
+
         $team =
             $this->currentTeam(
                 $request
             );
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Logged-In User
+        |--------------------------------------------------------------------------
+        */
+
+        $currentUser =
+            $request->user();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Target User Must Belong To Current Team
+        |--------------------------------------------------------------------------
+        */
 
         $membership =
             $this->membershipForTeam(
@@ -760,18 +1133,188 @@ class UserController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Cannot Remove Yourself
+        | Check users.delete Permission
+        |--------------------------------------------------------------------------
+        */
+
+        $canDeleteUsers =
+            $currentUser
+                ->rolesForTeam(
+                    $team->id
+                )
+                ->whereHas(
+                    'permissions',
+                    function ($query) {
+                        $query->where(
+                            'permissions.name',
+                            'users.delete'
+                        );
+                    }
+                )
+                ->exists();
+
+
+        if (
+            ! $canDeleteUsers
+        ) {
+            return back()
+                ->with(
+                    'error',
+                    'You do not have permission to remove users.'
+                );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Current User CMS Roles
+        |--------------------------------------------------------------------------
+        */
+
+        $currentUserRoles =
+            $currentUser
+                ->rolesForTeam(
+                    $team->id
+                )
+                ->get([
+                    'roles.id',
+                    'roles.name',
+                ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Target User CMS Roles
+        |--------------------------------------------------------------------------
+        */
+
+        $targetUserRoles =
+            $user
+                ->rolesForTeam(
+                    $team->id
+                )
+                ->get([
+                    'roles.id',
+                    'roles.name',
+                ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Super Admin Detection
+        |--------------------------------------------------------------------------
+        */
+
+        $currentUserIsSuperAdmin =
+            $currentUserRoles
+                ->contains(
+                    fn ($role) =>
+                        strtolower(
+                            trim(
+                                $role->name
+                            )
+                        ) ===
+                        'super admin'
+                );
+
+
+        $targetUserIsSuperAdmin =
+            $targetUserRoles
+                ->contains(
+                    fn ($role) =>
+                        strtolower(
+                            trim(
+                                $role->name
+                            )
+                        ) ===
+                        'super admin'
+                );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cannot Delete Yourself
         |--------------------------------------------------------------------------
         */
 
         if (
-            $request->user()->id ===
+            $currentUser->id ===
             $user->id
         ) {
-            return back()->with(
-                'error',
-                'You cannot remove your own account from the active team.'
-            );
+            return back()
+                ->with(
+                    'error',
+                    'You cannot remove your own account from the active team.'
+                );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Non-Super Admin Cannot Delete Super Admin
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            ! $currentUserIsSuperAdmin &&
+            $targetUserIsSuperAdmin
+        ) {
+            return back()
+                ->with(
+                    'error',
+                    'You cannot remove a Super Admin.'
+                );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Same Role Protection
+        |--------------------------------------------------------------------------
+        |
+        | Example:
+        |
+        | Administrator cannot delete Administrator.
+        | Editor cannot delete Editor.
+        |
+        | Super Admin is excluded from this restriction.
+        |
+        */
+
+        if (
+            ! $currentUserIsSuperAdmin
+        ) {
+            $currentRoleIds =
+                $currentUserRoles
+                    ->pluck(
+                        'id'
+                    );
+
+
+            $targetRoleIds =
+                $targetUserRoles
+                    ->pluck(
+                        'id'
+                    );
+
+
+            $sameRoleExists =
+                $currentRoleIds
+                    ->intersect(
+                        $targetRoleIds
+                    )
+                    ->isNotEmpty();
+
+
+            if (
+                $sameRoleExists
+            ) {
+                return back()
+                    ->with(
+                        'error',
+                        'You cannot remove another user with the same CMS role as your own.'
+                    );
+            }
         }
 
 
@@ -785,16 +1328,17 @@ class UserController extends Controller
             $membership->role ===
             TeamRole::Owner
         ) {
-            return back()->with(
-                'error',
-                'The team owner cannot be removed from the team.'
-            );
+            return back()
+                ->with(
+                    'error',
+                    'The team owner cannot be removed from the team.'
+                );
         }
 
 
         /*
         |--------------------------------------------------------------------------
-        | Remove From Current Team
+        | Remove User From Current Team
         |--------------------------------------------------------------------------
         */
 
@@ -807,24 +1351,21 @@ class UserController extends Controller
 
                 /*
                 |--------------------------------------------------------------------------
-                | Remove CMS Roles For Team
+                | Remove CMS Roles For Current Team
                 |--------------------------------------------------------------------------
                 */
 
                 DB::table(
                     'role_user'
                 )
-
                     ->where(
                         'user_id',
                         $user->id
                     )
-
                     ->where(
                         'team_id',
                         $team->id
                     )
-
                     ->delete();
 
 
@@ -839,7 +1380,7 @@ class UserController extends Controller
 
                 /*
                 |--------------------------------------------------------------------------
-                | Handle Active Team
+                | Handle Current Team Of Removed User
                 |--------------------------------------------------------------------------
                 */
 
@@ -847,17 +1388,50 @@ class UserController extends Controller
                     $user->current_team_id ===
                     $team->id
                 ) {
+                    $user
+                        ->forceFill([
+                            'current_team_id' =>
+                                null,
+                        ])
+                        ->save();
+
 
                     $fallbackTeam =
-                        $user->fallbackTeam();
+                        $user
+                            ->teams()
+                            ->first();
 
 
-                    $user->forceFill([
-                        'current_team_id' =>
-                            $fallbackTeam
-                                ?->id,
-                    ])->save();
+                    if (
+                        $fallbackTeam
+                    ) {
+                        $user
+                            ->forceFill([
+                                'current_team_id' =>
+                                    $fallbackTeam->id,
+                            ])
+                            ->save();
+                    }
                 }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Clear Relations
+                |--------------------------------------------------------------------------
+                */
+
+                $user->unsetRelation(
+                    'roles'
+                );
+
+                $user->unsetRelation(
+                    'teams'
+                );
+
+                $user->unsetRelation(
+                    'currentTeam'
+                );
             }
         );
 
