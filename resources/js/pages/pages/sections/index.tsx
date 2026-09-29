@@ -5,6 +5,15 @@ import {
     usePage,
 } from '@inertiajs/react';
 
+import {
+    useEffect,
+    useState,
+} from 'react';
+
+import type {
+    DragEvent,
+} from 'react';
+
 import CMSLayout from '@/layouts/CMSLayout';
 import { can } from '@/lib/permissions';
 
@@ -60,16 +69,11 @@ const sectionLabels: Record<string, string> = {
     contact_form: 'Contact Form',
 };
 
-/* =========================================================
-   COMPONENT
-   ========================================================= */
-
 export default function Index({
     page,
     sections,
     copiedSection,
 }: PageSectionsProps) {
-
     const { flash } = usePage().props as {
         flash?: {
             success?: string;
@@ -78,146 +82,163 @@ export default function Index({
         };
     };
 
+    const [orderedSections, setOrderedSections] = useState<PageSection[]>(sections);
+    const [draggedSectionId, setDraggedSectionId] = useState<number | null>(null);
+    const [dragOverSectionId, setDragOverSectionId] = useState<number | null>(null);
+    const [isReordering, setIsReordering] = useState(false);
+
+    useEffect(() => {
+        setOrderedSections(sections);
+    }, [sections]);
+
     /* =====================================================
-       DELETE SECTION
+        DRAG HANDLERS
        ===================================================== */
 
-    const deleteSection = (
-        id: number,
-    ) => {
+    const handleDragStart = (e: DragEvent, sectionId: number) => {
+        setDraggedSectionId(sectionId);
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', String(sectionId));
+    };
 
-        const confirmed =
-            confirm(
-                'Are you sure you want to move this section to Trash?',
-            );
+    const handleDragOver = (e: DragEvent, sectionId: number) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        if (draggedSectionId !== null && draggedSectionId !== sectionId) {
+            setDragOverSectionId(sectionId);
+        }
+    };
 
-        if (!confirmed) {
+    const handleDragLeave = (e: DragEvent) => {
+        const currentTarget = e.currentTarget;
+        const relatedTarget = e.relatedTarget as Node | null;
+        if (relatedTarget && currentTarget.contains(relatedTarget)) {
+            return;
+        }
+        setDragOverSectionId(null);
+    };
+
+    const handleDrop = (e: DragEvent, targetSectionId: number) => {
+        e.preventDefault();
+
+        if (draggedSectionId === null || draggedSectionId === targetSectionId) {
+            setDraggedSectionId(null);
+            setDragOverSectionId(null);
             return;
         }
 
-        router.delete(
-            `/admin/pages/${page.id}/sections/${id}`,
+        const sourceIndex = orderedSections.findIndex((s) => s.id === draggedSectionId);
+        const targetIndex = orderedSections.findIndex((s) => s.id === targetSectionId);
+
+        if (sourceIndex === -1 || targetIndex === -1) {
+            setDraggedSectionId(null);
+            setDragOverSectionId(null);
+            return;
+        }
+
+        const reordered = [...orderedSections];
+        const [moved] = reordered.splice(sourceIndex, 1);
+        reordered.splice(targetIndex, 0, moved);
+
+        const updatedNewOrder = reordered.map((section, index) => ({
+            ...section,
+            sort_order: index,
+        }));
+
+        setOrderedSections(updatedNewOrder);
+        setDraggedSectionId(null);
+        setDragOverSectionId(null);
+
+        setIsReordering(true);
+
+        router.post(
+            `/admin/pages/${page.id}/sections/reorder`,
+            {
+                section_ids: updatedNewOrder.map((section) => section.id),
+            },
             {
                 preserveScroll: true,
-            },
+                preserveState: true,
+                onFinish: () => setIsReordering(false),
+                onError: () => setOrderedSections(sections),
+            }
         );
     };
 
+    /* =====================================================
+        UP / DOWN BUTTON FALLBACK (IF DRAG FAILS)
+       ===================================================== */
+
+    const moveSection = (index: number, direction: 'up' | 'down') => {
+        const targetIndex = direction === 'up' ? index - 1 : index + 1;
+        if (targetIndex < 0 || targetIndex >= orderedSections.length) return;
+
+        const reordered = [...orderedSections];
+        const [moved] = reordered.splice(index, 1);
+        reordered.splice(targetIndex, 0, moved);
+
+        const updatedNewOrder = reordered.map((section, idx) => ({
+            ...section,
+            sort_order: idx,
+        }));
+
+        setOrderedSections(updatedNewOrder);
+        setIsReordering(true);
+
+        router.post(
+            `/admin/pages/${page.id}/sections/reorder`,
+            { section_ids: updatedNewOrder.map((s) => s.id) },
+            {
+                preserveScroll: true,
+                preserveState: true,
+                onFinish: () => setIsReordering(false),
+                onError: () => setOrderedSections(sections),
+            }
+        );
+    };
 
     /* =====================================================
-    UNDO SECTION DELETE
-    ===================================================== */
+        ACTIONS
+       ===================================================== */
+
+    const deleteSection = (id: number) => {
+        if (!confirm('Are you sure you want to move this section to Trash?')) return;
+        router.delete(`/admin/pages/${page.id}/sections/${id}`, { preserveScroll: true });
+    };
 
     const undoDelete = () => {
-
-        const batchId =
-            flash?.undo_deletion_batch_id;
-
-        if (!batchId) {
-            return;
-        }
-
-        router.post(
-            `/admin/trash/${batchId}/restore`,
-            {},
-            {
-                preserveScroll: true,
-            },
-        );
+        if (!flash?.undo_deletion_batch_id) return;
+        router.post(`/admin/trash/${flash.undo_deletion_batch_id}/restore`, {}, { preserveScroll: true });
     };
-
-    /* =====================================================
-       COPY SECTION
-       ===================================================== */
 
     const copySection = (id: number) => {
-        router.post(
-            `/admin/pages/${page.id}/sections/${id}/copy`,
-            {},
-            {
-                preserveScroll: true,
-            },
-        );
+        router.post(`/admin/pages/${page.id}/sections/${id}/copy`, {}, { preserveScroll: true });
     };
-
-    /* =====================================================
-       DUPLICATE SECTION
-       ===================================================== */
 
     const duplicateSection = (id: number) => {
-        if (
-            !confirm(
-                'Duplicate this section on the current page?',
-            )
-        ) {
-            return;
-        }
-
-        router.post(
-            `/admin/pages/${page.id}/sections/${id}/duplicate`,
-            {},
-            {
-                preserveScroll: true,
-            },
-        );
+        if (!confirm('Duplicate this section on the current page?')) return;
+        router.post(`/admin/pages/${page.id}/sections/${id}/duplicate`, {}, { preserveScroll: true });
     };
-
-    /* =====================================================
-       PASTE SECTION
-       ===================================================== */
 
     const pasteSection = () => {
-        if (!copiedSection) {
-            return;
-        }
-
-        router.post(
-            `/admin/pages/${page.id}/sections/paste`,
-            {},
-            {
-                preserveScroll: true,
-            },
-        );
+        if (!copiedSection) return;
+        router.post(`/admin/pages/${page.id}/sections/paste`, {}, { preserveScroll: true });
     };
-
-    /* =====================================================
-       CLEAR CLIPBOARD
-       ===================================================== */
 
     const clearClipboard = () => {
-        router.delete(
-            '/admin/section-clipboard',
-            {
-                preserveScroll: true,
-            },
-        );
+        router.delete('/admin/section-clipboard', { preserveScroll: true });
     };
-
-    /* =====================================================
-       RENDER
-       ===================================================== */
 
     return (
         <CMSLayout>
-            <Head
-                title={`${page.title} - Sections`}
-            />
+            <Head title={`${page.title} - Sections`} />
 
             <div className="space-y-6">
-                {/* =================================================
-                    FLASH MESSAGES
-                ================================================== */}
-
+                {/* FLASH MESSAGES */}
                 {flash?.success && (
-
                     <div className="flex items-center justify-between gap-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3">
-
-                        <p className="text-sm font-medium text-green-700">
-                            {flash.success}
-                        </p>
-
+                        <p className="text-sm font-medium text-green-700">{flash.success}</p>
                         {flash.undo_deletion_batch_id && (
-
                             <button
                                 type="button"
                                 onClick={undoDelete}
@@ -225,11 +246,8 @@ export default function Index({
                             >
                                 Undo
                             </button>
-
                         )}
-
                     </div>
-
                 )}
 
                 {flash?.error && (
@@ -238,22 +256,12 @@ export default function Index({
                     </div>
                 )}
 
-                {/* =================================================
-                    PAGE HEADER
-                ================================================== */}
-
+                {/* HEADER */}
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-2xl font-semibold text-gray-900">
-                            Page Sections
-                        </h1>
-
+                        <h1 className="text-2xl font-semibold text-gray-900">Page Sections</h1>
                         <p className="mt-1 text-sm text-gray-600">
-                            Manage sections for{' '}
-                            <span className="font-medium text-gray-900">
-                                {page.title}
-                            </span>
-                            .
+                            Manage sections for <span className="font-medium text-gray-900">{page.title}</span>.
                         </p>
                     </div>
 
@@ -276,84 +284,46 @@ export default function Index({
                     </div>
                 </div>
 
-                {/* =================================================
-                    SECTION CLIPBOARD
-                ================================================== */}
+                {/* INFO BANNER */}
+                {orderedSections.length > 1 && can('pages.edit') && (
+                    <div className="flex items-center gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-700">
+                            ↕
+                        </div>
+                        <div className="min-w-0">
+                            <p className="text-sm font-semibold text-blue-900">
+                                Drag handles or use ↑ ↓ buttons to reorder
+                            </p>
+                            <p className="text-xs text-blue-700">The new order is saved automatically.</p>
+                        </div>
 
-                {copiedSection && can('pages.edit') && (
-                    <div className="overflow-hidden rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 via-white to-sky-50 shadow-sm">
-                        <div className="flex flex-wrap items-center justify-between gap-5 px-5 py-4">
-                            <div className="flex min-w-0 items-start gap-4">
-                                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#0A5F9E] text-white shadow-sm">
-                                    <svg
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="1.8"
-                                        className="h-5 w-5"
-                                        aria-hidden="true"
-                                    >
-                                        <rect
-                                            x="7"
-                                            y="5"
-                                            width="10"
-                                            height="14"
-                                            rx="2"
-                                        />
-                                        <path
-                                            d="M9 5V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1"
-                                            strokeLinecap="round"
-                                        />
-                                    </svg>
-                                </div>
-
-                                <div className="min-w-0">
-                                    <div className="flex flex-wrap items-center gap-2">
-                                        <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#0A5F9E]">
-                                            Section Clipboard
-                                        </p>
-
-                                        <span className="rounded-full border border-blue-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-blue-700">
-                                            {sectionLabels[
-                                                copiedSection
-                                                    .type
-                                            ] ||
-                                                copiedSection.type}
-                                        </span>
-                                    </div>
-
-                                    <p className="mt-2 truncate text-sm font-semibold text-gray-900">
-                                        {copiedSection.title ||
-                                            sectionLabels[
-                                                copiedSection
-                                                    .type
-                                            ] ||
-                                            'Untitled Section'}
-                                    </p>
-
-                                    <p className="mt-1 text-xs leading-5 text-gray-500">
-                                        This copied section is ready to be pasted into the current page.
-                                    </p>
-                                </div>
+                        {isReordering && (
+                            <div className="ml-auto flex items-center gap-2 text-xs font-medium text-blue-700">
+                                <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-blue-200 border-t-blue-600" />
+                                Saving order...
                             </div>
+                        )}
+                    </div>
+                )}
 
-                            <div className="flex flex-wrap items-center gap-2">
+                {/* CLIPBOARD */}
+                {copiedSection && can('pages.edit') && (
+                    <div className="overflow-hidden rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 via-white to-sky-50 p-4 shadow-sm">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-xs font-bold text-[#0A5F9E]">SECTION CLIPBOARD</p>
+                                <p className="text-sm font-semibold text-gray-900">{copiedSection.title || copiedSection.type}</p>
+                            </div>
+                            <div className="flex gap-2">
                                 <button
-                                    type="button"
-                                    onClick={
-                                        pasteSection
-                                    }
-                                    className="rounded-lg bg-[#0A5F9E] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#084F84]"
+                                    onClick={pasteSection}
+                                    className="rounded-lg bg-[#0A5F9E] px-4 py-2 text-sm font-semibold text-white hover:bg-[#084F84]"
                                 >
                                     Paste Section
                                 </button>
-
                                 <button
-                                    type="button"
-                                    onClick={
-                                        clearClipboard
-                                    }
-                                    className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                                    onClick={clearClipboard}
+                                    className="rounded-lg border bg-white px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                                 >
                                     Clear
                                 </button>
@@ -362,263 +332,149 @@ export default function Index({
                     </div>
                 )}
 
-                {/* =================================================
-                    SECTIONS TABLE
-                ================================================== */}
-
+                {/* TABLE */}
                 <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
                     <div className="overflow-x-auto">
                         <table className="w-full min-w-[900px] text-left text-sm">
                             <thead className="border-b bg-gray-50">
                                 <tr>
-                                    <th className="px-6 py-4 font-medium text-gray-700">
-                                        Section
-                                    </th>
-
-                                    <th className="px-6 py-4 font-medium text-gray-700">
-                                        Type
-                                    </th>
-
-                                    <th className="px-6 py-4 font-medium text-gray-700">
-                                        Order
-                                    </th>
-
-                                    <th className="px-6 py-4 font-medium text-gray-700">
-                                        Status
-                                    </th>
-
-                                    <th className="px-6 py-4 font-medium text-gray-700">
-                                        Actions
-                                    </th>
+                                    <th className="w-20 px-3 py-4 font-medium text-gray-700">Reorder</th>
+                                    <th className="px-6 py-4 font-medium text-gray-700">Section</th>
+                                    <th className="px-6 py-4 font-medium text-gray-700">Type</th>
+                                    <th className="px-6 py-4 font-medium text-gray-700">Order</th>
+                                    <th className="px-6 py-4 font-medium text-gray-700">Status</th>
+                                    <th className="px-6 py-4 font-medium text-gray-700">Actions</th>
                                 </tr>
                             </thead>
 
                             <tbody className="divide-y divide-gray-100">
-                                {sections.map(
-                                    (section) => {
-                                        const displayTitle =
-                                            section.title ||
-                                            sectionLabels[
-                                                section
-                                                    .type
-                                            ] ||
-                                            section.type;
+                                {orderedSections.map((section, index) => {
+                                    const displayTitle = section.title || sectionLabels[section.type] || section.type;
+                                    const displayType = sectionLabels[section.type] || section.type;
+                                    const isDragging = draggedSectionId === section.id;
+                                    const isDragTarget = dragOverSectionId === section.id;
 
-                                        const displayType =
-                                            sectionLabels[
-                                                section
-                                                    .type
-                                            ] ||
-                                            section.type;
-
-                                        const isCopied =
-                                            copiedSection?.id ===
-                                            section.id;
-
-                                        return (
-                                            <tr
-                                                key={
-                                                    section.id
-                                                }
-                                                className={`
-                                                    transition
-                                                    hover:bg-gray-50/70
-                                                    ${
-                                                        isCopied
-                                                            ? 'bg-blue-50/40'
-                                                            : ''
-                                                    }
-                                                `}
-                                            >
-                                                {/* SECTION */}
-
-                                                <td className="px-6 py-4">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-xs font-bold uppercase text-gray-600">
-                                                            {section.type
-                                                                .slice(
-                                                                    0,
-                                                                    2,
-                                                                )
-                                                                .toUpperCase()}
-                                                        </div>
-
-                                                        <div>
-                                                            <div className="flex flex-wrap items-center gap-2">
-                                                                <span className="font-medium text-gray-900">
-                                                                    {
-                                                                        displayTitle
-                                                                    }
-                                                                </span>
-
-                                                                {isCopied && (
-                                                                    <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-blue-700">
-                                                                        Copied
-                                                                    </span>
-                                                                )}
-                                                            </div>
-
-                                                            <p className="mt-1 text-xs text-gray-400">
-                                                                ID:{' '}
-                                                                {
-                                                                    section.id
-                                                                }
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </td>
-
-                                                {/* TYPE */}
-
-                                                <td className="px-6 py-4 text-gray-600">
-                                                    {
-                                                        displayType
-                                                    }
-                                                </td>
-
-                                                {/* ORDER */}
-
-                                                <td className="px-6 py-4 text-gray-600">
-                                                    {
-                                                        section.sort_order
-                                                    }
-                                                </td>
-
-                                                {/* STATUS */}
-
-                                                <td className="px-6 py-4">
-                                                    <span
-                                                        className={
-                                                            section.status ===
-                                                            'active'
-                                                                ? 'inline-flex rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700'
-                                                                : 'inline-flex rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600'
-                                                        }
-                                                    >
-                                                        {
-                                                            section.status
-                                                        }
-                                                    </span>
-                                                </td>
-
-                                                {/* ACTIONS */}
-
-                                                <td className="px-6 py-4">
-                                                    <div className="flex flex-wrap items-center gap-2">
-                                                        {can(
-                                                            'pages.edit',
-                                                        ) && (
-                                                            <Link
-                                                                href={`/admin/pages/${page.id}/sections/${section.id}/edit`}
-                                                                className="rounded-md px-2.5 py-1.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-100 hover:text-gray-900"
-                                                            >
-                                                                Edit
-                                                            </Link>
-                                                        )}
-
-                                                        {can(
-                                                            'pages.edit',
-                                                        ) && (
-                                                            <button
-                                                                type="button"
-                                                                onClick={() =>
-                                                                    duplicateSection(
-                                                                        section.id,
-                                                                    )
-                                                                }
-                                                                className="rounded-md px-2.5 py-1.5 text-xs font-semibold text-violet-600 transition hover:bg-violet-50 hover:text-violet-700"
-                                                            >
-                                                                Duplicate
-                                                            </button>
-                                                        )}
-
-                                                        {can(
-                                                            'pages.edit',
-                                                        ) && (
-                                                            <button
-                                                                type="button"
-                                                                onClick={() =>
-                                                                    copySection(
-                                                                        section.id,
-                                                                    )
-                                                                }
-                                                                className="rounded-md px-2.5 py-1.5 text-xs font-semibold text-emerald-600 transition hover:bg-emerald-50 hover:text-emerald-700"
-                                                            >
-                                                                Copy
-                                                            </button>
-                                                        )}
-
-                                                        {can(
-                                                            'pages.delete',
-                                                        ) && (
-                                                            <button
-                                                                type="button"
-                                                                onClick={() =>
-                                                                    deleteSection(
-                                                                        section.id,
-                                                                    )
-                                                                }
-                                                                className="rounded-md px-2.5 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50 hover:text-red-700"
-                                                            >
-                                                                Delete
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        );
-                                    },
-                                )}
-
-                                {sections.length ===
-                                    0 && (
-                                    <tr>
-                                        <td
-                                            colSpan={
-                                                5
-                                            }
-                                            className="px-6 py-14 text-center"
+                                    return (
+                                        <tr
+                                            key={section.id}
+                                            draggable={can('pages.edit')}
+                                            onDragStart={(e) => handleDragStart(e, section.id)}
+                                            onDragOver={(e) => handleDragOver(e, section.id)}
+                                            onDragLeave={handleDragLeave}
+                                            onDrop={(e) => handleDrop(e, section.id)}
+                                            className={`transition-all ${isDragging ? 'opacity-40' : ''} ${
+                                                isDragTarget ? 'bg-blue-50' : 'hover:bg-gray-50/70'
+                                            }`}
                                         >
-                                            <div className="mx-auto max-w-sm">
-                                                <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-gray-100 text-gray-500">
-                                                    +
-                                                </div>
+                                            {/* DRAG HANDLE & UP/DOWN BUTTONS */}
+                                            <td className="px-3 py-4">
+                                                {can('pages.edit') && (
+                                                    <div className="flex items-center gap-1">
+                                                        <div
+                                                            className="flex h-8 w-8 cursor-grab items-center justify-center rounded-lg border border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100 active:cursor-grabbing"
+                                                            title="Drag to reorder"
+                                                        >
+                                                            ⋮⋮
+                                                        </div>
 
-                                                <p className="mt-3 text-sm font-medium text-gray-700">
-                                                    No sections have been created for this page yet.
-                                                </p>
-
-                                                {can(
-                                                    'pages.edit',
-                                                ) && (
-                                                    <Link
-                                                        href={`/admin/pages/${page.id}/sections/create`}
-                                                        className="mt-4 inline-flex rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
-                                                    >
-                                                        Add First Section
-                                                    </Link>
+                                                        <div className="flex flex-col gap-0.5">
+                                                            <button
+                                                                type="button"
+                                                                disabled={index === 0}
+                                                                onClick={() => moveSection(index, 'up')}
+                                                                className="rounded px-1 text-[10px] bg-gray-100 hover:bg-gray-200 disabled:opacity-30"
+                                                            >
+                                                                ▲
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                disabled={index === orderedSections.length - 1}
+                                                                onClick={() => moveSection(index, 'down')}
+                                                                className="rounded px-1 text-[10px] bg-gray-100 hover:bg-gray-200 disabled:opacity-30"
+                                                            >
+                                                                ▼
+                                                            </button>
+                                                        </div>
+                                                    </div>
                                                 )}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                )}
+                                            </td>
+
+                                            {/* SECTION DETAILS */}
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-xs font-bold text-gray-600 uppercase">
+                                                        {section.type.slice(0, 2)}
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-medium text-gray-900">{displayTitle}</p>
+                                                        <p className="text-xs text-gray-400">ID: {section.id}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            <td className="px-6 py-4 text-gray-600">{displayType}</td>
+
+                                            <td className="px-6 py-4">
+                                                <span className="inline-flex items-center justify-center rounded-md bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-600">
+                                                    {section.sort_order}
+                                                </span>
+                                            </td>
+
+                                            <td className="px-6 py-4">
+                                                <span
+                                                    className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${
+                                                        section.status === 'active'
+                                                            ? 'bg-green-100 text-green-700'
+                                                            : 'bg-gray-100 text-gray-600'
+                                                    }`}
+                                                >
+                                                    {section.status}
+                                                </span>
+                                            </td>
+
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center gap-2">
+                                                    {can('pages.edit') && (
+                                                        <Link
+                                                            href={`/admin/pages/${page.id}/sections/${section.id}/edit`}
+                                                            className="rounded-md px-2 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-100"
+                                                        >
+                                                            Edit
+                                                        </Link>
+                                                    )}
+                                                    {can('pages.edit') && (
+                                                        <button
+                                                            onClick={() => duplicateSection(section.id)}
+                                                            className="rounded-md px-2 py-1 text-xs font-semibold text-violet-600 hover:bg-violet-50"
+                                                        >
+                                                            Duplicate
+                                                        </button>
+                                                    )}
+                                                    {can('pages.edit') && (
+                                                        <button
+                                                            onClick={() => copySection(section.id)}
+                                                            className="rounded-md px-2 py-1 text-xs font-semibold text-emerald-600 hover:bg-emerald-50"
+                                                        >
+                                                            Copy
+                                                        </button>
+                                                    )}
+                                                    {can('pages.delete') && (
+                                                        <button
+                                                            onClick={() => deleteSection(section.id)}
+                                                            className="rounded-md px-2 py-1 text-xs font-semibold text-red-600 hover:bg-red-50"
+                                                        >
+                                                            Delete
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>
                 </div>
-
-                {/* =================================================
-                    SMALL HELP TEXT
-                ================================================== */}
-
-                {sections.length > 0 && (
-                    <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-xs leading-5 text-gray-500">
-                        <span className="font-semibold text-gray-700">
-                            Tip:
-                        </span>{' '}
-                        Use <strong>Duplicate</strong> to copy a section on the same page. Use <strong>Copy</strong> and then <strong>Paste Section</strong> to reuse a section on another page or website.
-                    </div>
-                )}
             </div>
         </CMSLayout>
     );

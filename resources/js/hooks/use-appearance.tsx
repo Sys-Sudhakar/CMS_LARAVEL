@@ -1,115 +1,421 @@
-import { useSyncExternalStore } from 'react';
+import {
+    useCallback,
+    useEffect,
+    useSyncExternalStore,
+} from 'react';
 
 export type ResolvedAppearance = 'light' | 'dark';
-export type Appearance = ResolvedAppearance | 'system';
+
+export type Appearance =
+    | ResolvedAppearance
+    | 'system';
 
 export type UseAppearanceReturn = {
     readonly appearance: Appearance;
     readonly resolvedAppearance: ResolvedAppearance;
-    readonly updateAppearance: (mode: Appearance) => void;
+    readonly updateAppearance: (
+        mode: Appearance
+    ) => void;
 };
 
-const listeners = new Set<() => void>();
+/*
+|--------------------------------------------------------------------------
+| Shared appearance state
+|--------------------------------------------------------------------------
+|
+| This state is intentionally kept outside React so multiple components
+| can subscribe to the same appearance value.
+|
+| IMPORTANT:
+| Do not access window, document, localStorage, or matchMedia here.
+| This module is also evaluated during SSR.
+|
+*/
+
 let currentAppearance: Appearance = 'system';
 
-const prefersDark = (): boolean => {
-    if (typeof window === 'undefined') {
-        return false;
-    }
+const listeners = new Set<() => void>();
 
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+/*
+|--------------------------------------------------------------------------
+| Server snapshot
+|--------------------------------------------------------------------------
+|
+| This must remain deterministic during SSR.
+|
+*/
+
+const getServerSnapshot = (): Appearance => {
+    return 'system';
 };
 
-const setCookie = (name: string, value: string, days = 365): void => {
-    if (typeof document === 'undefined') {
-        return;
+
+/*
+|--------------------------------------------------------------------------
+| Browser helpers
+|--------------------------------------------------------------------------
+*/
+
+const isBrowser = (): boolean => {
+    return typeof window !== 'undefined';
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| System appearance
+|--------------------------------------------------------------------------
+*/
+
+const getSystemAppearance = (): ResolvedAppearance => {
+    if (!isBrowser()) {
+        return 'light';
     }
 
-    const maxAge = days * 24 * 60 * 60;
-    document.cookie = `${name}=${value};path=/;max-age=${maxAge};SameSite=Lax`;
+    return window.matchMedia(
+        '(prefers-color-scheme: dark)'
+    ).matches
+        ? 'dark'
+        : 'light';
 };
+
+
+/*
+|--------------------------------------------------------------------------
+| Resolve appearance
+|--------------------------------------------------------------------------
+*/
+
+const resolveAppearance = (
+    appearance: Appearance
+): ResolvedAppearance => {
+    if (appearance === 'dark') {
+        return 'dark';
+    }
+
+    if (appearance === 'light') {
+        return 'light';
+    }
+
+    return getSystemAppearance();
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| Local storage
+|--------------------------------------------------------------------------
+*/
 
 const getStoredAppearance = (): Appearance => {
-    if (typeof window === 'undefined') {
+    if (!isBrowser()) {
         return 'system';
     }
 
-    return (localStorage.getItem('appearance') as Appearance) || 'system';
+    try {
+        const stored =
+            window.localStorage.getItem(
+                'appearance'
+            );
+
+        if (
+            stored === 'light' ||
+            stored === 'dark' ||
+            stored === 'system'
+        ) {
+            return stored;
+        }
+    } catch {
+        /*
+         * localStorage may be unavailable in some
+         * browser privacy modes.
+         */
+    }
+
+    return 'system';
 };
 
-const isDarkMode = (appearance: Appearance): boolean => {
-    return appearance === 'dark' || (appearance === 'system' && prefersDark());
-};
 
-const applyTheme = (appearance: Appearance): void => {
-    if (typeof document === 'undefined') {
+/*
+|--------------------------------------------------------------------------
+| Cookie
+|--------------------------------------------------------------------------
+*/
+
+const setAppearanceCookie = (
+    appearance: Appearance
+): void => {
+    if (
+        typeof document === 'undefined'
+    ) {
         return;
     }
 
-    const isDark = isDarkMode(appearance);
+    try {
+        const maxAge =
+            365 * 24 * 60 * 60;
 
-    document.documentElement.classList.toggle('dark', isDark);
-    document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
-};
-
-const subscribe = (callback: () => void) => {
-    listeners.add(callback);
-
-    return () => listeners.delete(callback);
-};
-
-const notify = (): void => listeners.forEach((listener) => listener());
-
-const mediaQuery = (): MediaQueryList | null => {
-    if (typeof window === 'undefined') {
-        return null;
+        document.cookie =
+            `appearance=${appearance};` +
+            `path=/;` +
+            `max-age=${maxAge};` +
+            `SameSite=Lax`;
+    } catch {
+        /*
+         * Ignore cookie failures.
+         */
     }
-
-    return window.matchMedia('(prefers-color-scheme: dark)');
 };
 
-const handleSystemThemeChange = (): void => applyTheme(currentAppearance);
 
-export function initializeTheme(): void {
-    if (typeof window === 'undefined') {
+/*
+|--------------------------------------------------------------------------
+| Apply appearance to document
+|--------------------------------------------------------------------------
+*/
+
+const applyAppearanceToDocument = (
+    appearance: Appearance
+): void => {
+    if (
+        typeof document === 'undefined'
+    ) {
         return;
     }
 
-    if (!localStorage.getItem('appearance')) {
-        localStorage.setItem('appearance', 'system');
-        setCookie('appearance', 'system');
-    }
+    const resolved =
+        resolveAppearance(appearance);
 
-    currentAppearance = getStoredAppearance();
-    applyTheme(currentAppearance);
-
-    // Set up system theme change listener
-    mediaQuery()?.addEventListener('change', handleSystemThemeChange);
-}
-
-export function useAppearance(): UseAppearanceReturn {
-    const appearance: Appearance = useSyncExternalStore(
-        subscribe,
-        () => currentAppearance,
-        () => 'system',
+    document.documentElement.classList.toggle(
+        'dark',
+        resolved === 'dark'
     );
 
-    const resolvedAppearance: ResolvedAppearance = isDarkMode(appearance)
-        ? 'dark'
-        : 'light';
+    document.documentElement.style.colorScheme =
+        resolved;
+};
 
-    const updateAppearance = (mode: Appearance): void => {
-        currentAppearance = mode;
 
-        // Store in localStorage for client-side persistence...
-        localStorage.setItem('appearance', mode);
+/*
+|--------------------------------------------------------------------------
+| External store subscription
+|--------------------------------------------------------------------------
+*/
 
-        // Store in cookie for SSR...
-        setCookie('appearance', mode);
+const subscribe = (
+    callback: () => void
+): (() => void) => {
+    listeners.add(callback);
 
-        applyTheme(mode);
-        notify();
+    return () => {
+        listeners.delete(callback);
     };
+};
 
-    return { appearance, resolvedAppearance, updateAppearance } as const;
+
+/*
+|--------------------------------------------------------------------------
+| Notify subscribers
+|--------------------------------------------------------------------------
+*/
+
+const notify = (): void => {
+    listeners.forEach(
+        (listener) => listener()
+    );
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| Current appearance
+|--------------------------------------------------------------------------
+*/
+
+const getAppearance = (): Appearance => {
+    return currentAppearance;
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| System theme listener
+|--------------------------------------------------------------------------
+*/
+
+let mediaQueryList: MediaQueryList | null = null;
+
+const handleSystemThemeChange = (): void => {
+    /*
+     * Only notify when the current mode is actually
+     * using the system appearance.
+     */
+    if (
+        currentAppearance === 'system'
+    ) {
+        applyAppearanceToDocument(
+            currentAppearance
+        );
+
+        notify();
+    }
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| Initialize theme
+|--------------------------------------------------------------------------
+|
+| Call this from the client only.
+|
+*/
+
+export function initializeTheme(): void {
+    if (!isBrowser()) {
+        return;
+    }
+
+    const stored =
+        getStoredAppearance();
+
+    currentAppearance = stored;
+
+    /*
+     * Store a default value if nothing exists yet.
+     */
+    try {
+        if (
+            !window.localStorage.getItem(
+                'appearance'
+            )
+        ) {
+            window.localStorage.setItem(
+                'appearance',
+                'system'
+            );
+        }
+    } catch {
+        /*
+         * Ignore localStorage errors.
+         */
+    }
+
+    setAppearanceCookie(
+        currentAppearance
+    );
+
+    applyAppearanceToDocument(
+        currentAppearance
+    );
+
+    /*
+     * Remove an existing listener before
+     * creating a new one.
+     */
+    if (mediaQueryList) {
+        mediaQueryList.removeEventListener(
+            'change',
+            handleSystemThemeChange
+        );
+    }
+
+    mediaQueryList =
+        window.matchMedia(
+            '(prefers-color-scheme: dark)'
+        );
+
+    mediaQueryList.addEventListener(
+        'change',
+        handleSystemThemeChange
+    );
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Appearance hook
+|--------------------------------------------------------------------------
+*/
+
+export function useAppearance(): UseAppearanceReturn {
+    const appearance =
+        useSyncExternalStore(
+            subscribe,
+            getAppearance,
+            getServerSnapshot
+        );
+
+    /*
+     * Resolve the appearance after hydration.
+     *
+     * During SSR the server snapshot is always
+     * "system", keeping SSR deterministic.
+     */
+    const [resolvedAppearance, setResolvedAppearance] =
+        useSyncExternalStore(
+            subscribe,
+            () =>
+                resolveAppearance(
+                    currentAppearance
+                ),
+            () => 'light'
+        );
+
+    /*
+     * Ensure the browser document reflects
+     * the current appearance after hydration.
+     */
+    useEffect(() => {
+        if (!isBrowser()) {
+            return;
+        }
+
+        applyAppearanceToDocument(
+            appearance
+        );
+    }, [appearance]);
+
+
+    /*
+     * Update appearance.
+     */
+
+    const updateAppearance = useCallback(
+        (mode: Appearance): void => {
+            currentAppearance = mode;
+
+            if (isBrowser()) {
+                try {
+                    window.localStorage.setItem(
+                        'appearance',
+                        mode
+                    );
+                } catch {
+                    /*
+                     * Ignore localStorage errors.
+                     */
+                }
+
+                setAppearanceCookie(
+                    mode
+                );
+
+                applyAppearanceToDocument(
+                    mode
+                );
+            }
+
+            notify();
+        },
+        []
+    );
+
+
+    return {
+        appearance,
+        resolvedAppearance,
+        updateAppearance,
+    };
 }

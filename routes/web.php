@@ -496,6 +496,12 @@ Route::middleware(['auth'])
                     'store',
                 ])->name('store');
 
+
+                Route::post('/reorder', [
+                    PageSectionController::class,
+                    'reorder',
+                ])->name('reorder');
+
                 /*
                 |--------------------------------------------------------------------------
                 | Section Clipboard / Duplication
@@ -507,6 +513,8 @@ Route::middleware(['auth'])
                     'paste',
                 ])->name('paste');
 
+                
+
                 Route::post('/{section}/copy', [
                     PageSectionController::class,
                     'copy',
@@ -516,6 +524,7 @@ Route::middleware(['auth'])
                     PageSectionController::class,
                     'duplicate',
                 ])->name('duplicate');
+
 
                 Route::get('/{section}/edit', [
                     PageSectionController::class,
@@ -1028,6 +1037,36 @@ require __DIR__.'/settings.php';
 |
 */
 
+
+Route::get('/careers', [
+    WebsitePageController::class,
+    'careers',
+])->name('careers.index');
+
+Route::get('/careers/{slug}', [
+    CareerController::class,
+    'show',
+])->name('careers.show');
+
+Route::get('/careers/{slug}/apply', [
+    CareerController::class,
+    'apply',
+])->name('careers.apply');
+
+Route::post('/careers/{slug}/apply', [
+    CareerController::class,
+    'storeApplication',
+])
+    ->middleware('throttle:5,1')
+    ->name('careers.apply.store');
+
+Route::get('/job-openings', [
+    CareerController::class,
+    'index',
+])->name('job-openings.index');
+
+
+/*
 Route::get('/careers', [CareerController::class, 'index'])
     ->name('careers.index');
 
@@ -1040,6 +1079,8 @@ Route::get('/careers/{slug}/apply', [CareerController::class, 'apply'])
 Route::post('/careers/{slug}/apply', [CareerController::class, 'storeApplication'])
     ->middleware('throttle:5,1')
     ->name('careers.apply.store');
+
+*/
 
 /*
 |--------------------------------------------------------------------------

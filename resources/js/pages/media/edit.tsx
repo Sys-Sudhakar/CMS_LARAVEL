@@ -1,7 +1,14 @@
 import { Head, Link, useForm } from '@inertiajs/react';
 import React from 'react';
+
 import CMSLayout from '@/layouts/CMSLayout';
 
+
+/*
+|--------------------------------------------------------------------------
+| Website
+|--------------------------------------------------------------------------
+*/
 
 interface Website {
     id: number;
@@ -9,20 +16,53 @@ interface Website {
 }
 
 
+/*
+|--------------------------------------------------------------------------
+| Media
+|--------------------------------------------------------------------------
+|
+| website_ids
+|     New many-to-many relationship data.
+|
+| websites
+|     Loaded website relationships.
+|
+| website_id
+|     Legacy fallback for older media records.
+|
+*/
+
 interface Media {
     id: number;
-    website_id: number | null;
+
+    website_ids?: number[];
+
+    /*
+    |--------------------------------------------------------------------------
+    | Legacy website ID
+    |--------------------------------------------------------------------------
+    */
+
+    website_id?: number | null;
+
     name: string;
     file_name: string;
     file_path: string;
     mime_type: string;
     file_size: number;
+
     alt_text: string | null;
     description: string | null;
 
-    website?: Website | null;
+    websites?: Website[];
 }
 
+
+/*
+|--------------------------------------------------------------------------
+| Page Props
+|--------------------------------------------------------------------------
+*/
 
 interface EditMediaProps {
     media: Media;
@@ -30,10 +70,52 @@ interface EditMediaProps {
 }
 
 
+/*
+|--------------------------------------------------------------------------
+| Component
+|--------------------------------------------------------------------------
+*/
+
 export default function Edit({
     media,
     websites,
 }: EditMediaProps) {
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Existing Website IDs
+    |--------------------------------------------------------------------------
+    |
+    | Priority:
+    |
+    | 1. website_ids
+    | 2. websites relationship
+    | 3. legacy website_id
+    |
+    | This allows both new and older media records to work.
+    |
+    */
+
+    const existingWebsiteIds =
+        media.website_ids &&
+        media.website_ids.length > 0
+            ? media.website_ids
+            : media.websites &&
+                media.websites.length > 0
+                ? media.websites.map(
+                    (website) => website.id
+                )
+                : media.website_id
+                    ? [media.website_id]
+                    : [];
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Form
+    |--------------------------------------------------------------------------
+    */
 
     const {
         data,
@@ -41,12 +123,16 @@ export default function Edit({
         put,
         processing,
         errors,
-    } = useForm({
-
-        website_id:
-            media.website_id
-                ? String(media.website_id)
-                : '',
+    } = useForm<{
+        website_ids: string[];
+        name: string;
+        alt_text: string;
+        description: string;
+    }>({
+        website_ids:
+            existingWebsiteIds.map(
+                (id) => String(id)
+            ),
 
         name:
             media.name ?? '',
@@ -59,18 +145,101 @@ export default function Edit({
     });
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | Toggle Website
+    |--------------------------------------------------------------------------
+    */
+
+    const toggleWebsite = (
+        websiteId: number
+    ) => {
+        const id =
+            String(websiteId);
+
+
+        if (
+            data.website_ids.includes(id)
+        ) {
+            setData(
+                'website_ids',
+                data.website_ids.filter(
+                    (selectedId) =>
+                        selectedId !== id
+                )
+            );
+
+            return;
+        }
+
+
+        setData(
+            'website_ids',
+            [
+                ...data.website_ids,
+                id,
+            ]
+        );
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Select All Websites
+    |--------------------------------------------------------------------------
+    */
+
+    const selectAllWebsites = () => {
+        setData(
+            'website_ids',
+            websites.map(
+                (website) =>
+                    String(website.id)
+            )
+        );
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Clear All Websites
+    |--------------------------------------------------------------------------
+    */
+
+    const clearAllWebsites = () => {
+        setData(
+            'website_ids',
+            []
+        );
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Submit
+    |--------------------------------------------------------------------------
+    */
+
     const submit = (
         e: React.FormEvent
     ) => {
-
         e.preventDefault();
 
-        put(
-            `/admin/media/${media.id}`
-        );
 
+        put(
+            `/admin/media/${media.id}`,
+            {
+                preserveScroll: true,
+            }
+        );
     };
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | File Size
+    |--------------------------------------------------------------------------
+    */
 
     const formatFileSize = (
         bytes: number
@@ -81,12 +250,13 @@ export default function Edit({
         }
 
 
-        if (bytes < 1024 * 1024) {
-
+        if (
+            bytes <
+            1024 * 1024
+        ) {
             return `${(
                 bytes / 1024
             ).toFixed(2)} KB`;
-
         }
 
 
@@ -94,9 +264,14 @@ export default function Edit({
             bytes /
             (1024 * 1024)
         ).toFixed(2)} MB`;
-
     };
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Image Check
+    |--------------------------------------------------------------------------
+    */
 
     const isImage =
         media.mime_type?.startsWith(
@@ -104,8 +279,13 @@ export default function Edit({
         );
 
 
-    return (
+    /*
+    |--------------------------------------------------------------------------
+    | Render
+    |--------------------------------------------------------------------------
+    */
 
+    return (
         <CMSLayout>
 
             <Head title="Edit Media" />
@@ -126,9 +306,8 @@ export default function Edit({
                             Edit Media
                         </h1>
 
-
                         <p className="mt-1 text-sm text-gray-600">
-                            Update the media information, website assignment, and metadata.
+                            Update the media information, website assignments, and metadata.
                         </p>
 
                     </div>
@@ -228,6 +407,8 @@ export default function Edit({
                         <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
 
 
+                            {/* File Name */}
+
                             <div>
 
                                 <p className="text-xs font-medium text-gray-500">
@@ -241,24 +422,81 @@ export default function Edit({
                             </div>
 
 
+                            {/* Websites */}
+
                             <div>
 
                                 <p className="text-xs font-medium text-gray-500">
-                                    Website
+                                    Websites
                                 </p>
 
 
-                                <div className="mt-1">
+                                <div className="mt-1 flex flex-wrap gap-1">
 
-                                    {media.website ? (
+                                    {media.websites &&
+                                    media.websites.length > 0 ? (
 
-                                        <span className="inline-flex rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
-                                            {media.website.name}
+                                        media.websites.map(
+                                            (website) => (
+
+                                                <span
+                                                    key={
+                                                        website.id
+                                                    }
+                                                    className="
+                                                        inline-flex
+                                                        rounded-full
+                                                        border
+                                                        border-blue-100
+                                                        bg-blue-50
+                                                        px-3
+                                                        py-1
+                                                        text-xs
+                                                        font-medium
+                                                        text-blue-700
+                                                    "
+                                                >
+                                                    {website.name}
+                                                </span>
+
+                                            )
+                                        )
+
+                                    ) : media.website_id ? (
+
+                                        <span
+                                            className="
+                                                inline-flex
+                                                rounded-full
+                                                border
+                                                border-blue-100
+                                                bg-blue-50
+                                                px-3
+                                                py-1
+                                                text-xs
+                                                font-medium
+                                                text-blue-700
+                                            "
+                                        >
+                                            Legacy Website Assignment
                                         </span>
 
                                     ) : (
 
-                                        <span className="inline-flex rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700">
+                                        <span
+                                            className="
+                                                inline-flex
+                                                rounded-full
+                                                border
+                                                border-amber-200
+                                                bg-amber-50
+                                                px-3
+                                                py-1
+                                                text-xs
+                                                font-medium
+                                                text-amber-700
+                                            "
+                                        >
                                             Not Assigned
                                         </span>
 
@@ -268,6 +506,8 @@ export default function Edit({
 
                             </div>
 
+
+                            {/* File Type */}
 
                             <div>
 
@@ -281,6 +521,8 @@ export default function Edit({
 
                             </div>
 
+
+                            {/* File Size */}
 
                             <div>
 
@@ -296,6 +538,8 @@ export default function Edit({
 
                             </div>
 
+
+                            {/* Public URL */}
 
                             <div>
 
@@ -335,84 +579,275 @@ export default function Edit({
 
                 <form
                     onSubmit={submit}
-                    className="space-y-6 rounded-xl border border-gray-200 bg-white p-6"
+                    className="
+                        space-y-6
+                        rounded-xl
+                        border
+                        border-gray-200
+                        bg-white
+                        p-6
+                    "
                 >
 
 
                     {/* =================================================
-                        WEBSITE
+                        WEBSITES
                     ================================================== */}
 
                     <div>
 
-                        <label
-                            htmlFor="website_id"
-                            className="block text-sm font-medium text-gray-700"
-                        >
-                            Website
+                        <div className="flex items-center justify-between">
 
-                            <span className="ml-1 text-red-500">
-                                *
-                            </span>
+                            <label
+                                htmlFor="website_ids"
+                                className="
+                                    block
+                                    text-sm
+                                    font-medium
+                                    text-gray-700
+                                "
+                            >
+                                Websites
 
-                        </label>
+                                <span className="ml-1 text-red-500">
+                                    *
+                                </span>
 
-
-                        <select
-                            id="website_id"
-                            value={data.website_id}
-                            onChange={(e) =>
-                                setData(
-                                    'website_id',
-                                    e.target.value
-                                )
-                            }
-                            className="
-                                mt-2
-                                w-full
-                                rounded-lg
-                                border
-                                border-gray-300
-                                bg-white
-                                px-4
-                                py-2
-                                text-sm
-                                text-gray-900
-                                focus:border-black
-                                focus:outline-none
-                            "
-                        >
-
-                            <option value="">
-                                Select Website
-                            </option>
+                            </label>
 
 
-                            {websites.map(
-                                (website) => (
+                            <div className="flex items-center gap-3">
 
-                                    <option
-                                        key={website.id}
-                                        value={website.id}
-                                    >
-                                        {website.name}
-                                    </option>
+                                <button
+                                    type="button"
+                                    onClick={
+                                        selectAllWebsites
+                                    }
+                                    disabled={
+                                        websites.length === 0
+                                    }
+                                    className="
+                                        text-xs
+                                        font-medium
+                                        text-blue-600
+                                        transition
+                                        hover:text-blue-800
+                                        hover:underline
+                                        disabled:cursor-not-allowed
+                                        disabled:opacity-50
+                                    "
+                                >
+                                    Select All
+                                </button>
 
-                                )
-                            )}
 
-                        </select>
+                                <button
+                                    type="button"
+                                    onClick={
+                                        clearAllWebsites
+                                    }
+                                    disabled={
+                                        data.website_ids.length === 0
+                                    }
+                                    className="
+                                        text-xs
+                                        font-medium
+                                        text-gray-500
+                                        transition
+                                        hover:text-gray-700
+                                        hover:underline
+                                        disabled:cursor-not-allowed
+                                        disabled:opacity-50
+                                    "
+                                >
+                                    Clear All
+                                </button>
+
+                            </div>
+
+                        </div>
 
 
                         <p className="mt-1 text-xs text-gray-500">
-                            Select the website this media file belongs to.
+                            Select one or more websites where this media file should be available.
                         </p>
 
 
-                        {errors.website_id && (
+                        {/* =================================================
+                            WEBSITE LIST
+                        ================================================== */}
+
+                        <div
+                            id="website_ids"
+                            className="
+                                mt-3
+                                space-y-2
+                                rounded-xl
+                                border
+                                border-gray-200
+                                bg-gray-50
+                                p-3
+                            "
+                        >
+
+                            {websites.length > 0 ? (
+
+                                websites.map(
+                                    (website) => {
+
+                                        const selected =
+                                            data.website_ids.includes(
+                                                String(
+                                                    website.id
+                                                )
+                                            );
+
+
+                                        return (
+
+                                            <button
+                                                key={
+                                                    website.id
+                                                }
+                                                type="button"
+                                                onClick={() =>
+                                                    toggleWebsite(
+                                                        website.id
+                                                    )
+                                                }
+                                                className={`
+                                                    flex
+                                                    w-full
+                                                    items-center
+                                                    justify-between
+                                                    rounded-lg
+                                                    border
+                                                    px-3
+                                                    py-3
+                                                    text-left
+                                                    text-sm
+                                                    transition
+
+                                                    ${
+                                                        selected
+                                                            ? `
+                                                                border-blue-500
+                                                                bg-blue-50
+                                                                text-blue-900
+                                                            `
+                                                            : `
+                                                                border-gray-200
+                                                                bg-white
+                                                                text-gray-700
+                                                                hover:border-gray-300
+                                                                hover:bg-gray-50
+                                                            `
+                                                    }
+                                                `}
+                                            >
+
+                                                <span className="flex items-center gap-3">
+
+
+                                                    {/* Checkbox */}
+
+                                                    <span
+                                                        className={`
+                                                            flex
+                                                            h-5
+                                                            w-5
+                                                            items-center
+                                                            justify-center
+                                                            rounded
+                                                            border
+                                                            text-xs
+                                                            font-bold
+
+                                                            ${
+                                                                selected
+                                                                    ? `
+                                                                        border-blue-600
+                                                                        bg-blue-600
+                                                                        text-white
+                                                                    `
+                                                                    : `
+                                                                        border-gray-300
+                                                                        bg-white
+                                                                    `
+                                                            }
+                                                        `}
+                                                    >
+                                                        {selected
+                                                            ? '✓'
+                                                            : ''}
+                                                    </span>
+
+
+                                                    <span className="font-medium">
+                                                        {website.name}
+                                                    </span>
+
+                                                </span>
+
+
+                                                {selected && (
+
+                                                    <span
+                                                        className="
+                                                            rounded-full
+                                                            bg-blue-100
+                                                            px-2
+                                                            py-1
+                                                            text-xs
+                                                            font-medium
+                                                            text-blue-700
+                                                        "
+                                                    >
+                                                        Selected
+                                                    </span>
+
+                                                )}
+
+                                            </button>
+
+                                        );
+                                    }
+                                )
+
+                            ) : (
+
+                                <p className="px-2 py-3 text-sm text-gray-500">
+                                    No websites are available for the current team.
+                                </p>
+
+                            )}
+
+                        </div>
+
+
+                        {/* Selection Count */}
+
+                        <div className="mt-2 flex items-center justify-between">
+
+                            <p className="text-xs text-gray-500">
+
+                                {data.website_ids.length === 0
+                                    ? 'No websites selected'
+                                    : `${data.website_ids.length} website${
+                                        data.website_ids.length === 1
+                                            ? ''
+                                            : 's'
+                                    } selected`}
+
+                            </p>
+
+                        </div>
+
+
+                        {errors.website_ids && (
 
                             <p className="mt-1 text-sm text-red-600">
-                                {errors.website_id}
+                                {errors.website_ids}
                             </p>
 
                         )}
@@ -428,7 +863,12 @@ export default function Edit({
 
                         <label
                             htmlFor="media-name"
-                            className="block text-sm font-medium text-gray-700"
+                            className="
+                                block
+                                text-sm
+                                font-medium
+                                text-gray-700
+                            "
                         >
                             Media Name
                         </label>
@@ -437,7 +877,9 @@ export default function Edit({
                         <input
                             id="media-name"
                             type="text"
-                            value={data.name || ''}
+                            value={
+                                data.name
+                            }
                             onChange={(e) =>
                                 setData(
                                     'name',
@@ -453,8 +895,11 @@ export default function Edit({
                                 px-4
                                 py-2
                                 text-sm
+                                text-gray-900
                                 focus:border-black
                                 focus:outline-none
+                                focus:ring-1
+                                focus:ring-black
                             "
                             placeholder="Enter media name"
                         />
@@ -479,7 +924,12 @@ export default function Edit({
 
                         <label
                             htmlFor="alt-text"
-                            className="block text-sm font-medium text-gray-700"
+                            className="
+                                block
+                                text-sm
+                                font-medium
+                                text-gray-700
+                            "
                         >
                             Alt Text
                         </label>
@@ -488,7 +938,9 @@ export default function Edit({
                         <input
                             id="alt-text"
                             type="text"
-                            value={data.alt_text || ''}
+                            value={
+                                data.alt_text
+                            }
                             onChange={(e) =>
                                 setData(
                                     'alt_text',
@@ -504,8 +956,11 @@ export default function Edit({
                                 px-4
                                 py-2
                                 text-sm
+                                text-gray-900
                                 focus:border-black
                                 focus:outline-none
+                                focus:ring-1
+                                focus:ring-black
                             "
                             placeholder="Describe the image for accessibility"
                         />
@@ -535,7 +990,12 @@ export default function Edit({
 
                         <label
                             htmlFor="media-description"
-                            className="block text-sm font-medium text-gray-700"
+                            className="
+                                block
+                                text-sm
+                                font-medium
+                                text-gray-700
+                            "
                         >
                             Description
                         </label>
@@ -543,7 +1003,9 @@ export default function Edit({
 
                         <textarea
                             id="media-description"
-                            value={data.description || ''}
+                            value={
+                                data.description
+                            }
                             onChange={(e) =>
                                 setData(
                                     'description',
@@ -560,8 +1022,11 @@ export default function Edit({
                                 px-4
                                 py-2
                                 text-sm
+                                text-gray-900
                                 focus:border-black
                                 focus:outline-none
+                                focus:ring-1
+                                focus:ring-black
                             "
                             placeholder="Enter a description for this media file"
                         />
@@ -582,11 +1047,23 @@ export default function Edit({
                         ACTIONS
                     ================================================== */}
 
-                    <div className="flex items-center gap-3 border-t border-gray-200 pt-6">
+                    <div
+                        className="
+                            flex
+                            items-center
+                            gap-3
+                            border-t
+                            border-gray-200
+                            pt-6
+                        "
+                    >
 
                         <button
                             type="submit"
-                            disabled={processing}
+                            disabled={
+                                processing ||
+                                data.website_ids.length === 0
+                            }
                             className="
                                 rounded-lg
                                 bg-black
@@ -601,11 +1078,9 @@ export default function Edit({
                                 disabled:opacity-50
                             "
                         >
-
                             {processing
                                 ? 'Updating...'
                                 : 'Update Media'}
-
                         </button>
 
 
@@ -634,6 +1109,5 @@ export default function Edit({
             </div>
 
         </CMSLayout>
-
     );
 }

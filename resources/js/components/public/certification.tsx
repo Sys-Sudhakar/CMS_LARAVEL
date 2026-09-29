@@ -1,4 +1,16 @@
-import { useEffect, useRef, useState } from 'react';
+import {
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+    type ReactNode,
+} from 'react';
+
+
+/* =========================================================
+   TYPES
+   ========================================================= */
 
 interface CertificationItem {
     name?: string;
@@ -15,11 +27,7 @@ interface CertificationItem {
 }
 
 interface CertificationsContent {
-    variant?:
-        | 'grid'
-        | 'carousel'
-        | 'gallery'
-        | string;
+    variant?: 'grid' | 'carousel' | 'gallery' | string;
 
     heading?: string;
     description?: string;
@@ -31,13 +39,22 @@ interface CertificationsSectionProps {
     content?: CertificationsContent;
 }
 
+interface VariantProps {
+    title?: string | null;
+    heading: string;
+    description?: string;
+    items: CertificationItem[];
+}
+
+
 /* =========================================================
-   IMAGE HELPER
+   HELPERS & CONSTANTS
    ========================================================= */
 
-const getImageUrl = (
-    image?: string | null,
-): string | null => {
+const cx = (...parts: Array<string | false | null | undefined>) =>
+    parts.filter(Boolean).join(' ');
+
+const getImageUrl = (image?: string | null): string | null => {
     if (!image) {
         return null;
     }
@@ -53,127 +70,156 @@ const getImageUrl = (
     return `/storage/${image}`;
 };
 
+const itemLabel = (item: CertificationItem, index: number) =>
+    item.name || item.title || `Certification ${index + 1}`;
+
+const documentLink = (item: CertificationItem) =>
+    item.document_url || item.url || null;
+
+const SECTION_CLASS =
+    'relative overflow-hidden bg-[#F5F8FB] px-5 py-14 sm:px-6 lg:px-8 lg:py-20';
+
+const CONTAINER_CLASS = 'mx-auto max-w-[1200px]';
+
+const FOCUS_RING =
+    'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A5F9E] focus-visible:ring-offset-2';
+
+function usePrefersReducedMotion() {
+    const [reduced, setReduced] = useState(false);
+
+    useEffect(() => {
+        const query = window.matchMedia('(prefers-reduced-motion: reduce)');
+        const update = () => setReduced(query.matches);
+
+        update();
+        query.addEventListener('change', update);
+
+        return () => query.removeEventListener('change', update);
+    }, []);
+
+    return reduced;
+}
+
+
 /* =========================================================
-   SHARED ICONS
+   ICONS
    ========================================================= */
 
-function ShieldIcon() {
+const iconProps = {
+    viewBox: '0 0 24 24',
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: 1.8,
+    strokeLinecap: 'round',
+    strokeLinejoin: 'round',
+    'aria-hidden': true,
+} as const;
+
+function ShieldIcon({ className = 'h-6 w-6' }: { className?: string }) {
     return (
-        <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            className="h-6 w-6"
-            aria-hidden="true"
-        >
-            <path
-                d="M12 3 19 6v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6l7-3Z"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-            />
-            <path
-                d="m9 12 2 2 4-4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-            />
+        <svg {...iconProps} className={className}>
+            <path d="M12 3 19 6v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6l7-3Z" />
+            <path d="m9 12 2 2 4-4" />
         </svg>
     );
 }
 
 function ArrowIcon() {
     return (
-        <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            className="h-4 w-4"
-            aria-hidden="true"
-        >
-            <path
-                d="M5 12h14M13 6l6 6-6 6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-            />
+        <svg {...iconProps} strokeWidth={2} className="h-4 w-4">
+            <path d="M5 12h14M13 6l6 6-6 6" />
         </svg>
     );
 }
 
+function ChevronIcon({ direction }: { direction: 'left' | 'right' }) {
+    return (
+        <svg {...iconProps} strokeWidth={2} className="h-5 w-5">
+            <path d={direction === 'left' ? 'm15 18-6-6 6-6' : 'm9 18 6-6-6-6'} />
+        </svg>
+    );
+}
+
+function ExpandIcon() {
+    return (
+        <svg {...iconProps} strokeWidth={2} className="h-4 w-4">
+            <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+        </svg>
+    );
+}
+
+function CloseIcon() {
+    return (
+        <svg {...iconProps} strokeWidth={2} className="h-5 w-5">
+            <path d="M6 6l12 12M18 6 6 18" />
+        </svg>
+    );
+}
+
+
 /* =========================================================
-   SHARED SECTION INTRO
+   SECTION HEADER
    ========================================================= */
 
-function SectionIntro({
+function SectionHeader({
     title,
     heading,
     description,
-    align = 'center',
 }: {
     title?: string | null;
     heading: string;
     description?: string;
-    align?: 'left' | 'center';
 }) {
-    const centered = align === 'center';
-
     return (
-        <div
-            className={
-                centered
-                    ? 'mx-auto max-w-3xl text-center'
-                    : 'max-w-2xl text-left'
-            }
-        >
-            <div
-                className={`flex ${
-                    centered
-                        ? 'justify-center'
-                        : 'justify-start'
-                }`}
-            >
-                <div className="inline-flex items-center gap-3">
-                    <span className="h-[2px] w-7 bg-[#D71920]" />
-                    <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#0A5F9E] sm:text-xs">
-                        {title || 'Certifications'}
-                    </span>
-                </div>
+        <header className="mb-10 w-full text-center lg:mb-12">
+            {/* Eyebrow */}
+            <div className="flex items-center justify-center gap-3">
+                <span
+                    aria-hidden="true"
+                    className="h-[2px] w-10 rounded-full bg-[#D71920]"
+                />
+
+                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#0A5F9E] sm:text-xs">
+                    {title || 'Certifications'}
+                </p>
+
+                <span
+                    aria-hidden="true"
+                    className="h-[2px] w-10 rounded-full bg-[#D71920]"
+                />
             </div>
 
-            <h2 className="mt-5 text-3xl font-extrabold leading-[1.08] tracking-[-0.04em] text-[#0B2D4D] sm:text-4xl lg:text-[48px]">
+            {/* Heading */}
+            <h2 className="mt-4 text-[30px] font-bold leading-[1.12] tracking-[-0.035em] text-[#0B2D4D] sm:text-[36px] lg:mt-5 lg:text-[44px]">
                 {heading}
             </h2>
 
-            <div
-                className={`mt-5 flex items-center gap-2 ${
-                    centered
-                        ? 'justify-center'
-                        : ''
-                }`}
-            >
-                <span className="h-[3px] w-12 rounded-full bg-[#D71920]" />
-                <span className="h-[3px] w-5 rounded-full bg-[#0A5F9E]" />
-            </div>
-
+            {/* Description */}
             {description && (
-                <p className="mt-7 text-base leading-8 text-[#5C6F82] sm:text-[17px]">
+                <p className="mx-auto mt-4 max-w-[680px] text-[14px] leading-7 text-[#5B7083] sm:text-[15px] sm:leading-8">
                     {description}
                 </p>
             )}
-        </div>
+
+            {/* Decorative divider */}
+            <div
+                aria-hidden="true"
+                className="mt-7 flex items-center justify-center gap-2"
+            >
+                <span className="h-[2px] w-10 rounded-full bg-[#0A5F9E]" />
+                <span className="h-1.5 w-1.5 rounded-full bg-[#D71920]" />
+                <span className="h-[2px] w-10 rounded-full bg-[#0A5F9E]" />
+            </div>
+        </header>
     );
 }
 
-/* =========================================================
-   EMPTY STATE
-   ========================================================= */
-
 function EmptyState() {
     return (
-        <div className="rounded-[28px] border border-dashed border-[#BCD0DF] bg-white px-6 py-16 text-center shadow-[0_12px_40px_rgba(11,45,77,0.05)]">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#EAF4FC] text-[#0A5F9E]">
+        <div className="rounded-2xl border border-dashed border-[#B7CADA] bg-white px-6 py-14 text-center">
+            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#EAF4FC] text-[#0A5F9E]">
                 <ShieldIcon />
-            </div>
+            </span>
 
             <p className="mt-4 text-sm font-semibold text-[#607487]">
                 No certifications have been added yet.
@@ -182,1132 +228,764 @@ function EmptyState() {
     );
 }
 
+
 /* =========================================================
-   CERTIFICATIONS SECTION
+   CERTIFICATE ART
+   The certificate is shown as a sheet of paper on a tinted mat,
+   so any image (logo, badge, scanned page) looks intentional.
+   ========================================================= */
+
+const ART_SIZES = {
+    sm: 'max-h-[52px] max-w-[72px]',
+    md: 'max-h-[170px] max-w-full',
+    lg: 'max-h-[min(58vh,460px)] max-w-full',
+} as const;
+
+function CertificateArt({
+    src,
+    alt,
+    size = 'md',
+}: {
+    src: string | null;
+    alt: string;
+    size?: keyof typeof ART_SIZES;
+}) {
+    if (!src) {
+        return (
+            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-[#0A5F9E] shadow-[0_6px_18px_rgba(11,45,77,0.12)] ring-1 ring-[#0B2D4D]/8">
+                <ShieldIcon />
+            </span>
+        );
+    }
+
+    return (
+        <span
+            className={cx(
+                'flex items-center justify-center rounded bg-white shadow-[0_10px_28px_rgba(11,45,77,0.16)] ring-1 ring-[#0B2D4D]/8',
+                size === 'sm' ? 'p-1.5' : 'p-3',
+            )}
+        >
+            <img src={src} alt={alt} className={cx('object-contain', ART_SIZES[size])} />
+        </span>
+    );
+}
+
+
+/* =========================================================
+   DETAIL LIST
+   ========================================================= */
+
+function DetailList({ item }: { item: CertificationItem }) {
+    const rows = [
+        ['Issuer', item.issuer],
+        ['Issued', item.issued_date],
+        ['Certificate number', item.certificate_number],
+    ].filter((row): row is [string, string] => Boolean(row[1]));
+
+    if (rows.length === 0) {
+        return null;
+    }
+
+    return (
+        <dl className="divide-y divide-[#E3EBF1] border-y border-[#E3EBF1]">
+            {rows.map(([label, value]) => (
+                <div
+                    key={label}
+                    className="grid grid-cols-[120px_1fr] gap-4 py-3 text-sm"
+                >
+                    <dt className="text-[#7A8FA2]">{label}</dt>
+                    <dd className="break-words font-semibold text-[#0B2D4D]">{value}</dd>
+                </div>
+            ))}
+        </dl>
+    );
+}
+
+function DocumentLink({ item, label }: { item: CertificationItem; label: string }) {
+    const href = documentLink(item);
+
+    if (!href) {
+        return null;
+    }
+
+    return (
+        <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cx(
+                'inline-flex min-h-[46px] items-center justify-center gap-2 rounded-lg bg-[#0A5F9E] px-5 text-sm font-bold text-white transition hover:bg-[#084F84]',
+                FOCUS_RING,
+            )}
+        >
+            {label}
+            <ArrowIcon />
+        </a>
+    );
+}
+
+
+/* =========================================================
+   CERTIFICATE CARD
+   Used by the grid and the carousel.
+   ========================================================= */
+
+function CertificateCard({
+    item,
+    index,
+    onOpen,
+}: {
+    item: CertificationItem;
+    index: number;
+    onOpen: () => void;
+}) {
+    const label = itemLabel(item, index);
+
+    return (
+        <button
+            type="button"
+            onClick={onOpen}
+            aria-label={`Preview ${label}`}
+            className={cx(
+                'group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border border-[#D9E4EC] bg-white text-left transition duration-300 hover:border-[#0A5F9E] hover:shadow-[0_18px_44px_rgba(11,45,77,0.12)]',
+                FOCUS_RING,
+            )}
+        >
+            <span className="relative flex h-[210px] items-center justify-center bg-[#EEF3F8] p-6">
+                <span className="transition-transform duration-500 group-hover:scale-[1.04] motion-reduce:transition-none">
+                    <CertificateArt src={getImageUrl(item.image)} alt={label} />
+                </span>
+
+                <span className="absolute inset-x-0 bottom-0 h-[3px] origin-left scale-x-0 bg-[#D71920] transition-transform duration-300 group-hover:scale-x-100 motion-reduce:transition-none" />
+            </span>
+
+            <span className="flex flex-1 flex-col p-5">
+                <span className="text-lg font-bold leading-snug tracking-[-0.015em] text-[#0B2D4D]">
+                    {label}
+                </span>
+
+                {item.issuer && (
+                    <span className="mt-1 text-sm font-semibold text-[#0A5F9E]">
+                        {item.issuer}
+                    </span>
+                )}
+
+                {item.description && (
+                    <span className="mt-3 line-clamp-2 text-sm leading-6 text-[#607487]">
+                        {item.description}
+                    </span>
+                )}
+
+                <span className="mt-auto flex items-center justify-between gap-3 pt-5 text-xs">
+                    <span className="text-[#7A8FA2]">
+                        {item.issued_date ? `Issued ${item.issued_date}` : ''}
+                    </span>
+
+                    <span className="flex items-center gap-1.5 font-bold text-[#0B2D4D] transition-colors group-hover:text-[#D71920]">
+                        View
+                        <ArrowIcon />
+                    </span>
+                </span>
+            </span>
+        </button>
+    );
+}
+
+
+/* =========================================================
+   LIGHTBOX
+   Esc closes, ← and → move between certificates, page scroll
+   is locked while open.
+   ========================================================= */
+
+function Lightbox({
+    items,
+    index,
+    onChange,
+    onClose,
+}: {
+    items: CertificationItem[];
+    index: number;
+    onChange: (next: number) => void;
+    onClose: () => void;
+}) {
+    const item = items[index];
+    const closeRef = useRef<HTMLButtonElement | null>(null);
+    const multiple = items.length > 1;
+
+    const go = useCallback(
+        (direction: 1 | -1) => {
+            onChange((index + direction + items.length) % items.length);
+        },
+        [index, items.length, onChange],
+    );
+
+    useEffect(() => {
+        const previous = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        closeRef.current?.focus();
+
+        return () => {
+            document.body.style.overflow = previous;
+        };
+    }, []);
+
+    useEffect(() => {
+        const onKey = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                onClose();
+            } else if (multiple && event.key === 'ArrowLeft') {
+                go(-1);
+            } else if (multiple && event.key === 'ArrowRight') {
+                go(1);
+            }
+        };
+
+        window.addEventListener('keydown', onKey);
+
+        return () => window.removeEventListener('keydown', onKey);
+    }, [go, multiple, onClose]);
+
+    if (!item) {
+        return null;
+    }
+
+    const label = itemLabel(item, index);
+    const navButton =
+        'absolute top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-[#D9E4EC] bg-white text-[#0B2D4D] shadow-md transition hover:bg-[#0B2D4D] hover:text-white';
+
+    return (
+        <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${label} preview`}
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#061523]/85 p-3 backdrop-blur-sm sm:p-6"
+            onClick={onClose}
+        >
+            <div
+                className="relative grid max-h-[92vh] w-full max-w-[1100px] overflow-hidden rounded-2xl bg-white shadow-[0_40px_120px_rgba(0,0,0,0.45)] lg:grid-cols-[1.4fr_0.6fr]"
+                onClick={(event) => event.stopPropagation()}
+            >
+                <button
+                    ref={closeRef}
+                    type="button"
+                    onClick={onClose}
+                    aria-label="Close preview"
+                    className={cx(
+                        'absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-[#D9E4EC] bg-white text-[#0B2D4D] transition hover:bg-[#0B2D4D] hover:text-white',
+                        FOCUS_RING,
+                    )}
+                >
+                    <CloseIcon />
+                </button>
+
+                <div className="relative flex min-h-[300px] items-center justify-center bg-[#EEF3F8] p-6 sm:p-10">
+                    <CertificateArt src={getImageUrl(item.image)} alt={label} size="lg" />
+
+                    {multiple && (
+                        <>
+                            <button
+                                type="button"
+                                onClick={() => go(-1)}
+                                aria-label="Previous certificate"
+                                className={cx(navButton, 'left-3', FOCUS_RING)}
+                            >
+                                <ChevronIcon direction="left" />
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => go(1)}
+                                aria-label="Next certificate"
+                                className={cx(navButton, 'right-3', FOCUS_RING)}
+                            >
+                                <ChevronIcon direction="right" />
+                            </button>
+                        </>
+                    )}
+                </div>
+
+                <aside className="flex flex-col overflow-y-auto p-6 sm:p-8">
+                    <p className="text-sm font-semibold text-[#D71920]">
+                        {multiple ? `Certification ${index + 1} of ${items.length}` : 'Certification'}
+                    </p>
+
+                    <h3 className="mt-2 pr-10 text-2xl font-bold leading-tight tracking-[-0.025em] text-[#0B2D4D] lg:pr-0">
+                        {label}
+                    </h3>
+
+                    {item.description && (
+                        <p className="mt-4 text-sm leading-7 text-[#607487]">{item.description}</p>
+                    )}
+
+                    <div className="mt-6">
+                        <DetailList item={item} />
+                    </div>
+
+                    <div className="mt-auto pt-6">
+                        <DocumentLink item={item} label="Open certificate document" />
+                    </div>
+                </aside>
+            </div>
+        </div>
+    );
+}
+
+
+/* =========================================================
+   GRID VARIANT
+   Uniform cards. When the certificates come from more than one
+   issuer, filter chips appear above the grid.
+   ========================================================= */
+
+function GridVariant({ title, heading, description, items }: VariantProps) {
+    const [issuer, setIssuer] = useState<string | null>(null);
+    const [open, setOpen] = useState<number | null>(null);
+
+    const issuers = useMemo(
+        () =>
+            Array.from(
+                new Set(
+                    items
+                        .map((item) => item.issuer?.trim())
+                        .filter((value): value is string => Boolean(value)),
+                ),
+            ),
+        [items],
+    );
+
+    const activeIssuer = issuer && issuers.includes(issuer) ? issuer : null;
+
+    const visible = useMemo(
+        () =>
+            activeIssuer
+                ? items.filter((item) => item.issuer?.trim() === activeIssuer)
+                : items,
+        [items, activeIssuer],
+    );
+
+    const chip = (selected: boolean) =>
+        cx(
+            'rounded-full border px-4 py-2 text-sm font-semibold transition',
+            selected
+                ? 'border-[#0B2D4D] bg-[#0B2D4D] text-white'
+                : 'border-[#C9D8E4] bg-white text-[#2F465A] hover:border-[#0A5F9E] hover:text-[#0A5F9E]',
+            FOCUS_RING,
+        );
+
+    return (
+        <>
+            <section className={SECTION_CLASS}>
+                <div className={CONTAINER_CLASS}>
+                    <SectionHeader title={title} heading={heading} description={description} />
+
+                    {items.length === 0 ? (
+                        <EmptyState />
+                    ) : (
+                        <>
+                            {issuers.length > 1 && (
+                                <div
+                                    role="group"
+                                    aria-label="Filter by issuer"
+                                    className="mb-6 flex flex-wrap items-center gap-2"
+                                >
+                                    <button
+                                        type="button"
+                                        aria-pressed={!activeIssuer}
+                                        onClick={() => setIssuer(null)}
+                                        className={chip(!activeIssuer)}
+                                    >
+                                        All ({items.length})
+                                    </button>
+
+                                    {issuers.map((name) => (
+                                        <button
+                                            key={name}
+                                            type="button"
+                                            aria-pressed={activeIssuer === name}
+                                            onClick={() => setIssuer(name)}
+                                            className={chip(activeIssuer === name)}
+                                        >
+                                            {name}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+
+                            <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                                {visible.map((item, index) => (
+                                    <li key={`${itemLabel(item, index)}-${index}`}>
+                                        <CertificateCard
+                                            item={item}
+                                            index={index}
+                                            onOpen={() => setOpen(index)}
+                                        />
+                                    </li>
+                                ))}
+                            </ul>
+                        </>
+                    )}
+                </div>
+            </section>
+
+            {open !== null && (
+                <Lightbox
+                    items={visible}
+                    index={open}
+                    onChange={setOpen}
+                    onClose={() => setOpen(null)}
+                />
+            )}
+        </>
+    );
+}
+
+
+/* =========================================================
+   GALLERY VARIANT
+   A spotlight: pick a certificate from the thumbnail rail and it
+   is shown large next to its details. Click the stage to enlarge.
+   ========================================================= */
+
+function GalleryVariant({ title, heading, description, items }: VariantProps) {
+    const [selected, setSelected] = useState(0);
+    const [open, setOpen] = useState<number | null>(null);
+
+    const index = Math.min(selected, Math.max(items.length - 1, 0));
+    const item = items[index];
+
+    return (
+        <>
+            <section className={SECTION_CLASS}>
+                <style>{`
+                    @keyframes cert-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+                    .cert-rise { animation: cert-rise 450ms cubic-bezier(.2,.7,.2,1) both; }
+                    @media (prefers-reduced-motion: reduce) { .cert-rise { animation: none; } }
+                `}</style>
+
+                <div className={CONTAINER_CLASS}>
+                    <SectionHeader title={title} heading={heading} description={description} />
+
+                    {!item ? (
+                        <EmptyState />
+                    ) : (
+                        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)]">
+                            {/* Stage + thumbnails */}
+                            <div>
+                                <button
+                                    type="button"
+                                    onClick={() => setOpen(index)}
+                                    aria-label={`Enlarge ${itemLabel(item, index)}`}
+                                    className={cx(
+                                        'group relative flex min-h-[340px] w-full cursor-zoom-in items-center justify-center rounded-2xl border border-[#D9E4EC] bg-[#EEF3F8] p-8 sm:min-h-[420px] sm:p-12',
+                                        FOCUS_RING,
+                                    )}
+                                >
+                                    <span key={index} className="cert-rise">
+                                        <CertificateArt
+                                            src={getImageUrl(item.image)}
+                                            alt={itemLabel(item, index)}
+                                            size="lg"
+                                        />
+                                    </span>
+
+                                    <span className="absolute bottom-4 right-4 flex items-center gap-2 rounded-full border border-[#D9E4EC] bg-white px-3.5 py-2 text-xs font-bold text-[#0B2D4D] shadow-sm transition group-hover:bg-[#0B2D4D] group-hover:text-white">
+                                        <ExpandIcon />
+                                        Enlarge
+                                    </span>
+                                </button>
+
+                                {items.length > 1 && (
+                                    <ul
+                                        aria-label="Choose a certificate"
+                                        className="mt-4 flex gap-3 overflow-x-auto pb-2 [scrollbar-width:thin]"
+                                    >
+                                        {items.map((thumb, thumbIndex) => {
+                                            const isActive = thumbIndex === index;
+
+                                            return (
+                                                <li key={thumbIndex} className="shrink-0">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setSelected(thumbIndex)}
+                                                        aria-pressed={isActive}
+                                                        aria-label={itemLabel(thumb, thumbIndex)}
+                                                        className={cx(
+                                                            'relative flex h-[84px] w-[112px] items-center justify-center rounded-xl border bg-[#EEF3F8] transition',
+                                                            isActive
+                                                                ? 'border-[#0A5F9E] ring-2 ring-[#0A5F9E]/25'
+                                                                : 'border-[#D9E4EC] opacity-75 hover:opacity-100',
+                                                            FOCUS_RING,
+                                                        )}
+                                                    >
+                                                        <CertificateArt
+                                                            src={getImageUrl(thumb.image)}
+                                                            alt=""
+                                                            size="sm"
+                                                        />
+
+                                                        {isActive && (
+                                                            <span className="absolute inset-x-3 bottom-0 h-[3px] rounded-full bg-[#D71920]" />
+                                                        )}
+                                                    </button>
+                                                </li>
+                                            );
+                                        })}
+                                    </ul>
+                                )}
+                            </div>
+
+                            {/* Details */}
+                            <article
+                                key={index}
+                                className="cert-rise relative flex flex-col rounded-2xl border border-[#D9E4EC] bg-white p-6 sm:p-8"
+                            >
+                                <span className="absolute inset-x-0 top-0 h-1 rounded-t-2xl bg-[#D71920]" />
+
+                                <p className="text-sm font-semibold text-[#0A5F9E]">
+                                    {items.length > 1
+                                        ? `Certification ${index + 1} of ${items.length}`
+                                        : 'Certification'}
+                                </p>
+
+                                <h3 className="mt-2 text-2xl font-bold leading-tight tracking-[-0.025em] text-[#0B2D4D]">
+                                    {itemLabel(item, index)}
+                                </h3>
+
+                                {item.description && (
+                                    <p className="mt-4 text-sm leading-7 text-[#607487]">
+                                        {item.description}
+                                    </p>
+                                )}
+
+                                <div className="mt-6">
+                                    <DetailList item={item} />
+                                </div>
+
+                                <div className="mt-6 flex flex-wrap gap-3">
+                                    <DocumentLink item={item} label="Open document" />
+
+                                    <button
+                                        type="button"
+                                        onClick={() => setOpen(index)}
+                                        className={cx(
+                                            'inline-flex min-h-[46px] items-center justify-center gap-2 rounded-lg border border-[#B7CADA] px-5 text-sm font-bold text-[#0B2D4D] transition hover:border-[#0A5F9E] hover:text-[#0A5F9E]',
+                                            FOCUS_RING,
+                                        )}
+                                    >
+                                        View full size
+                                    </button>
+                                </div>
+                            </article>
+                        </div>
+                    )}
+                </div>
+            </section>
+
+            {open !== null && (
+                <Lightbox
+                    items={items}
+                    index={open}
+                    onChange={(next) => {
+                        setOpen(next);
+                        setSelected(next);
+                    }}
+                    onClose={() => setOpen(null)}
+                />
+            )}
+        </>
+    );
+}
+
+
+/* =========================================================
+   CAROUSEL VARIANT
+   Native scroll-snap rail. Arrows and autoplay wrap around at
+   either end. Autoplay pauses on hover, focus and while the
+   lightbox is open, and is off for reduced-motion users.
+   ========================================================= */
+
+function CarouselVariant({ title, heading, description, items }: VariantProps) {
+    const railRef = useRef<HTMLUListElement | null>(null);
+
+    const [open, setOpen] = useState<number | null>(null);
+    const [paused, setPaused] = useState(false);
+    const [progress, setProgress] = useState(0);
+
+    const reducedMotion = usePrefersReducedMotion();
+
+    const move = useCallback(
+        (direction: 1 | -1) => {
+            const rail = railRef.current;
+
+            if (!rail) {
+                return;
+            }
+
+            const behavior: ScrollBehavior = reducedMotion ? 'auto' : 'smooth';
+            const max = rail.scrollWidth - rail.clientWidth;
+            const card = rail.querySelector<HTMLElement>('[data-card]');
+            const gap = Number.parseFloat(getComputedStyle(rail).columnGap) || 0;
+            const step = card ? card.offsetWidth + gap : rail.clientWidth * 0.8;
+
+            if (direction === 1 && rail.scrollLeft >= max - 4) {
+                rail.scrollTo({ left: 0, behavior });
+            } else if (direction === -1 && rail.scrollLeft <= 4) {
+                rail.scrollTo({ left: max, behavior });
+            } else {
+                rail.scrollBy({ left: direction * step, behavior });
+            }
+        },
+        [reducedMotion],
+    );
+
+    const handleScroll = () => {
+        const rail = railRef.current;
+
+        if (!rail) {
+            return;
+        }
+
+        const max = rail.scrollWidth - rail.clientWidth;
+        setProgress(max > 0 ? rail.scrollLeft / max : 0);
+    };
+
+    useEffect(() => {
+        if (items.length <= 1 || paused || reducedMotion || open !== null) {
+            return;
+        }
+
+        const timer = window.setInterval(() => move(1), 4500);
+
+        return () => window.clearInterval(timer);
+    }, [items.length, paused, reducedMotion, open, move]);
+
+    const arrowClass = cx(
+        'flex h-11 w-11 items-center justify-center rounded-full border border-[#B7CADA] bg-white text-[#0B2D4D] transition hover:border-[#0B2D4D] hover:bg-[#0B2D4D] hover:text-white',
+        FOCUS_RING,
+    );
+
+    const controls =
+        items.length > 1 ? (
+            <div className="flex items-center gap-2">
+                <button
+                    type="button"
+                    onClick={() => move(-1)}
+                    aria-label="Previous certifications"
+                    className={arrowClass}
+                >
+                    <ChevronIcon direction="left" />
+                </button>
+
+                <button
+                    type="button"
+                    onClick={() => move(1)}
+                    aria-label="Next certifications"
+                    className={arrowClass}
+                >
+                    <ChevronIcon direction="right" />
+                </button>
+            </div>
+        ) : null;
+
+    return (
+        <>
+            <section className={SECTION_CLASS}>
+                <div className={CONTAINER_CLASS}>
+                    <SectionHeader
+                        title={title}
+                        heading={heading}
+                        description={description}
+                        aside={controls}
+                    />
+
+                    {items.length === 0 ? (
+                        <EmptyState />
+                    ) : (
+                        <div
+                            onMouseEnter={() => setPaused(true)}
+                            onMouseLeave={() => setPaused(false)}
+                            onFocusCapture={() => setPaused(true)}
+                            onBlurCapture={() => setPaused(false)}
+                        >
+                            <ul
+                                ref={railRef}
+                                onScroll={handleScroll}
+                                aria-label="Certifications"
+                                className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-4 pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                            >
+                                {items.map((item, index) => (
+                                    <li
+                                        key={`${itemLabel(item, index)}-${index}`}
+                                        data-card
+                                        className="flex w-[80vw] max-w-[340px] shrink-0 snap-start sm:w-[320px]"
+                                    >
+                                        <CertificateCard
+                                            item={item}
+                                            index={index}
+                                            onOpen={() => setOpen(index)}
+                                        />
+                                    </li>
+                                ))}
+                            </ul>
+
+                            {items.length > 1 && (
+                                <div
+                                    aria-hidden="true"
+                                    className="relative mt-3 h-[3px] rounded-full bg-[#D9E4EC]"
+                                >
+                                    <span
+                                        className="absolute inset-y-0 w-1/4 rounded-full bg-[#0A5F9E] transition-[left] duration-200"
+                                        style={{ left: `${progress * 75}%` }}
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            </section>
+
+            {open !== null && (
+                <Lightbox
+                    items={items}
+                    index={open}
+                    onChange={setOpen}
+                    onClose={() => setOpen(null)}
+                />
+            )}
+        </>
+    );
+}
+
+
+/* =========================================================
+   MAIN COMPONENT
    ========================================================= */
 
 export default function CertificationsSection({
     title,
     content = {},
 }: CertificationsSectionProps) {
-    const variant =
-        content.variant ?? 'grid';
+    const items = useMemo(
+        () => (Array.isArray(content.items) ? content.items : []),
+        [content.items],
+    );
 
-    const items = Array.isArray(
-        content.items,
-    )
-        ? content.items
-        : [];
-
-    const heading =
-        content.heading ||
-        title ||
-        'Certifications & Standards';
-
-    const [previewIndex, setPreviewIndex] =
-        useState<number | null>(null);
-
-    const carouselRef =
-        useRef<HTMLDivElement | null>(null);
-
-    const [carouselPaused, setCarouselPaused] =
-        useState(false);
-
-    const getCarouselStep = () => {
-        const container = carouselRef.current;
-
-        if (!container) {
-            return 0;
-        }
-
-        const firstCard =
-            container.querySelector<HTMLElement>(
-                '[data-certificate-card]',
-            );
-
-        if (!firstCard) {
-            return 0;
-        }
-
-        const styles =
-            window.getComputedStyle(container);
-
-        const gap =
-            Number.parseFloat(
-                styles.columnGap || styles.gap || '0',
-            ) || 0;
-
-        return firstCard.offsetWidth + gap;
+    const props: VariantProps = {
+        title,
+        heading: content.heading || title || 'Certifications and standards',
+        description: content.description,
+        items,
     };
 
-    const moveCarousel = (
-        direction: 'previous' | 'next',
-    ) => {
-        const container =
-            carouselRef.current;
-
-        if (!container) {
-            return;
-        }
-
-        const step =
-            getCarouselStep();
-
-        if (!step) {
-            return;
-        }
-
-        const loopLength =
-            step * items.length;
-
-        if (
-            direction === 'previous' &&
-            container.scrollLeft <= 8
-        ) {
-            /*
-             * Jump to the duplicated first card before moving back.
-             * Because the duplicated card is visually identical, the user
-             * does not see the reset. The movement then continues 1 → 5.
-             */
-            container.scrollLeft =
-                loopLength;
-
-            window.requestAnimationFrame(
-                () => {
-                    container.scrollBy({
-                        left: -step,
-                        behavior: 'smooth',
-                    });
-                },
-            );
-
-            return;
-        }
-
-        if (direction === 'next') {
-            const target =
-                container.scrollLeft +
-                step;
-
-            container.scrollBy({
-                left: step,
-                behavior: 'smooth',
-            });
-
-            /*
-             * The second copy starts with certificate 01 immediately after
-             * the last original card, producing 04 → 05 → 01 naturally.
-             * After the smooth movement reaches the duplicate 01 we silently
-             * reset to the original 01 so the rail can continue forever.
-             */
-            if (
-                target >=
-                loopLength - 4
-            ) {
-                window.setTimeout(
-                    () => {
-                        if (
-                            carouselRef.current
-                        ) {
-                            carouselRef.current.scrollLeft =
-                                0;
-                        }
-                    },
-                    650,
-                );
-            }
-
-            return;
-        }
-
-        container.scrollBy({
-            left: -step,
-            behavior: 'smooth',
-        });
-    };
-
-    useEffect(() => {
-        if (
-            content.variant !== 'carousel' ||
-            items.length <= 1 ||
-            carouselPaused
-        ) {
-            return;
-        }
-
-        const timer = window.setInterval(() => {
-            moveCarousel('next');
-        }, 3600);
-
-        return () => window.clearInterval(timer);
-    }, [
-        content.variant,
-        items.length,
-        carouselPaused,
-    ]);
-
-    const previewItem =
-        previewIndex !== null
-            ? items[previewIndex]
-            : null;
-
-    const previewImage =
-        previewItem
-            ? getImageUrl(
-                  previewItem.image,
-              )
-            : null;
-
-    const closePreview = () =>
-        setPreviewIndex(null);
-
-    const previousPreview = () => {
-        if (
-            previewIndex === null ||
-            items.length <= 1
-        ) {
-            return;
-        }
-
-        setPreviewIndex(
-            previewIndex <= 0
-                ? items.length - 1
-                : previewIndex - 1,
-        );
-    };
-
-    const nextPreview = () => {
-        if (
-            previewIndex === null ||
-            items.length <= 1
-        ) {
-            return;
-        }
-
-        setPreviewIndex(
-            previewIndex >=
-            items.length - 1
-                ? 0
-                : previewIndex + 1,
-        );
-    };
-
-    /* =====================================================
-       PREVIEW MODAL
-       ===================================================== */
-
-    const previewModal = previewItem ? (
-        <div
-            className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#061523]/88 p-3 backdrop-blur-xl sm:p-5"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Certificate preview"
-            onClick={closePreview}
-        >
-            {/* Ambient lightbox decoration */}
-
-            <div className="pointer-events-none absolute inset-0 overflow-hidden">
-                <div className="absolute -left-32 top-[10%] h-[420px] w-[420px] rounded-full bg-[#0A5F9E]/20 blur-[150px]" />
-                <div className="absolute -right-32 bottom-[5%] h-[420px] w-[420px] rounded-full bg-[#D71920]/14 blur-[150px]" />
-            </div>
-
-
-            <div
-                className="relative max-h-[94vh] w-full max-w-[1240px] overflow-hidden rounded-[34px] border border-white/12 bg-white shadow-[0_40px_120px_rgba(0,0,0,0.48)]"
-                onClick={(e) =>
-                    e.stopPropagation()
-                }
-            >
-                {/* Top bar */}
-
-                <div className="flex items-center justify-between gap-5 border-b border-[#E2EAF0] bg-[linear-gradient(180deg,#FFFFFF_0%,#F7FAFC_100%)] px-5 py-4 sm:px-7 sm:py-5">
-                    <div className="min-w-0">
-                        <div className="flex flex-wrap items-center gap-2.5">
-                            <span className="inline-flex items-center gap-2 rounded-full border border-[#CFE0EC] bg-[#EEF7FC] px-3 py-1.5 text-[9px] font-bold uppercase tracking-[0.14em] text-[#0A5F9E]">
-                                <span className="h-1.5 w-1.5 rounded-full bg-[#2EA66A]" />
-                                Verified Certification
-                            </span>
-
-                            {previewIndex !== null && (
-                                <span className="text-[10px] font-bold uppercase tracking-[0.13em] text-[#94A3B8]">
-                                    {String(previewIndex + 1).padStart(2, '0')} / {String(items.length).padStart(2, '0')}
-                                </span>
-                            )}
-                        </div>
-
-                        <h3 className="mt-2 truncate text-lg font-extrabold tracking-[-0.025em] text-[#0B2D4D] sm:text-xl">
-                            {previewItem.name ||
-                                previewItem.title ||
-                                'Certification'}
-                        </h3>
-                    </div>
-
-                    <button
-                        type="button"
-                        onClick={closePreview}
-                        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#D9E5EE] bg-white text-xl text-[#607487] shadow-sm transition duration-300 hover:border-[#A9CDE7] hover:bg-[#EEF7FC] hover:text-[#0A5F9E]"
-                        aria-label="Close certificate preview"
-                    >
-                        ×
-                    </button>
-                </div>
-
-
-                <div className="grid max-h-[calc(94vh-82px)] overflow-y-auto lg:grid-cols-[1.38fr_0.62fr] lg:overflow-hidden">
-                    {/* Certificate canvas */}
-
-                    <div className="relative flex min-h-[470px] items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_50%_36%,#FFFFFF_0%,#F1F6F9_48%,#DFE9F0_100%)] p-5 sm:p-8 lg:min-h-[650px] lg:p-10">
-                        <div className="pointer-events-none absolute inset-0 opacity-[0.30] [background-image:linear-gradient(#D7E4EC_1px,transparent_1px),linear-gradient(90deg,#D7E4EC_1px,transparent_1px)] [background-size:38px_38px]" />
-
-                        <div className="absolute left-6 top-6 hidden items-center gap-2 rounded-full border border-[#D9E5EE] bg-white/88 px-3 py-2 shadow-sm backdrop-blur sm:flex">
-                            <ShieldIcon />
-                            <span className="text-[9px] font-bold uppercase tracking-[0.13em] text-[#607487]">
-                                Authenticity Preview
-                            </span>
-                        </div>
-
-                        <div className="relative flex h-full w-full items-center justify-center">
-                            {previewImage ? (
-                                <div className="relative flex max-h-[69vh] w-full max-w-[760px] items-center justify-center rounded-[26px] border border-[#D4E2EB] bg-white p-4 shadow-[0_28px_70px_rgba(11,45,77,0.18)] sm:p-6">
-                                    <div className="absolute -inset-3 -z-10 rotate-[1.5deg] rounded-[28px] bg-[#0A5F9E]/7" />
-                                    <div className="absolute -inset-3 -z-20 -rotate-[1.5deg] rounded-[28px] bg-[#D71920]/6" />
-
-                                    <img
-                                        src={previewImage}
-                                        alt={
-                                            previewItem.name ||
-                                            previewItem.title ||
-                                            'Certification'
-                                        }
-                                        className="max-h-[64vh] max-w-full object-contain"
-                                    />
-                                </div>
-                            ) : (
-                                <div className="flex flex-col items-center text-center">
-                                    <div className="flex h-20 w-20 items-center justify-center rounded-[24px] border border-[#DCE7EF] bg-white text-[#0A5F9E] shadow-md">
-                                        <ShieldIcon />
-                                    </div>
-
-                                    <p className="mt-4 text-sm font-semibold text-[#607487]">
-                                        No certificate image available.
-                                    </p>
-                                </div>
-                            )}
-                        </div>
-
-
-                        {items.length > 1 && (
-                            <>
-                                <button
-                                    type="button"
-                                    onClick={previousPreview}
-                                    className="absolute left-3 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-2xl border border-[#D4E1EA] bg-white/92 text-2xl text-[#0B2D4D] shadow-[0_12px_30px_rgba(11,45,77,0.14)] backdrop-blur transition duration-300 hover:-translate-y-[52%] hover:bg-[#0A5F9E] hover:text-white sm:left-5"
-                                    aria-label="Previous certificate"
-                                >
-                                    ‹
-                                </button>
-
-                                <button
-                                    type="button"
-                                    onClick={nextPreview}
-                                    className="absolute right-3 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-2xl border border-[#D4E1EA] bg-white/92 text-2xl text-[#0B2D4D] shadow-[0_12px_30px_rgba(11,45,77,0.14)] backdrop-blur transition duration-300 hover:-translate-y-[52%] hover:bg-[#0A5F9E] hover:text-white sm:right-5"
-                                    aria-label="Next certificate"
-                                >
-                                    ›
-                                </button>
-                            </>
-                        )}
-                    </div>
-
-
-                    {/* Certificate details panel */}
-
-                    <aside className="relative overflow-hidden border-t border-[#E5EDF2] bg-white p-6 sm:p-8 lg:max-h-[650px] lg:overflow-y-auto lg:border-l lg:border-t-0">
-                        <div className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-[#0A5F9E]/5" />
-                        <div className="pointer-events-none absolute -bottom-24 -left-20 h-52 w-52 rounded-full bg-[#D71920]/4" />
-
-                        <div className="relative">
-                            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#D71920]">
-                                Certification Profile
-                            </p>
-
-                            <h4 className="mt-3 text-2xl font-extrabold leading-tight tracking-[-0.03em] text-[#0B2D4D]">
-                                {previewItem.name ||
-                                    previewItem.title ||
-                                    'Certification'}
-                            </h4>
-
-                            {previewItem.description && (
-                                <p className="mt-4 text-sm leading-7 text-[#607487]">
-                                    {previewItem.description}
-                                </p>
-                            )}
-
-                            <div className="mt-7 overflow-hidden rounded-[22px] border border-[#E1EAF0] bg-[#F9FCFD]">
-                                {previewItem.issuer && (
-                                    <DetailRow
-                                        label="Issuer"
-                                        value={previewItem.issuer}
-                                    />
-                                )}
-
-                                {previewItem.issued_date && (
-                                    <DetailRow
-                                        label="Issued Date"
-                                        value={previewItem.issued_date}
-                                    />
-                                )}
-
-                                {previewItem.certificate_number && (
-                                    <DetailRow
-                                        label="Certificate Number"
-                                        value={previewItem.certificate_number}
-                                    />
-                                )}
-                            </div>
-
-                            <div className="mt-7 flex items-start gap-3 rounded-[18px] border border-[#D9E8F1] bg-[#F2F8FC] p-4">
-                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-[#0A5F9E] shadow-sm">
-                                    <ShieldIcon />
-                                </div>
-
-                                <div>
-                                    <p className="text-xs font-bold text-[#0B2D4D]">
-                                        Verified standard
-                                    </p>
-                                    <p className="mt-1 text-xs leading-5 text-[#718395]">
-                                        This item is presented as part of the organization&apos;s certification portfolio.
-                                    </p>
-                                </div>
-                            </div>
-
-                            {(previewItem.document_url ||
-                                previewItem.url) && (
-                                <a
-                                    href={
-                                        previewItem.document_url ||
-                                        previewItem.url ||
-                                        '#'
-                                    }
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="mt-7 inline-flex min-h-[50px] w-full items-center justify-center gap-2 rounded-xl bg-[linear-gradient(135deg,#0A5F9E_0%,#084F84_100%)] px-5 py-3 text-sm font-bold text-white shadow-[0_12px_28px_rgba(10,95,158,0.20)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_36px_rgba(10,95,158,0.26)]"
-                                >
-                                    Open Certificate Document
-                                    <ArrowIcon />
-                                </a>
-                            )}
-                        </div>
-                    </aside>
-                </div>
-            </div>
-        </div>
-    ) : null;
-
-    /* =====================================================
-       GALLERY VARIANT — CERTIFICATE SHOWCASE
-       ===================================================== */
-
-    if (variant === 'gallery') {
-        const featured =
-            items[0] ?? null;
-
-        const featuredImage =
-            featured
-                ? getImageUrl(
-                      featured.image,
-                  )
-                : null;
-
-        return (
-            <>
-                <section className="relative overflow-hidden bg-[#F7FAFD] px-5 py-20 sm:px-6 lg:px-8 lg:py-28">
-                    <div className="pointer-events-none absolute inset-0">
-                        <div className="absolute left-[-9%] top-[10%] h-[360px] w-[360px] rounded-full bg-[#0A5F9E]/7 blur-[125px]" />
-                        <div className="absolute bottom-[-3%] right-[-7%] h-[340px] w-[340px] rounded-full bg-[#D71920]/5 blur-[125px]" />
-                    </div>
-
-                    <div className="relative z-10 mx-auto max-w-[1400px]">
-                        {/* Gallery heading */}
-
-                        <div className="mb-12 grid gap-8 lg:grid-cols-[0.84fr_1.16fr] lg:items-end">
-                            <SectionIntro
-                                title={title}
-                                heading={heading}
-                                description={content.description}
-                                align="left"
-                            />
-
-                            {items.length > 0 && (
-                                <div className="hidden justify-self-end lg:block">
-                                    <div className="flex items-center gap-4 rounded-[22px] border border-[#D9E5EE] bg-white px-5 py-4 shadow-[0_12px_34px_rgba(11,45,77,0.06)]">
-                                        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[linear-gradient(145deg,#EAF4FC,#F8FCFE)] text-[#0A5F9E]">
-                                            <ShieldIcon />
-                                        </div>
-
-                                        <div>
-                                            <p className="text-xs font-bold text-[#0B2D4D]">
-                                                Certification Portfolio
-                                            </p>
-                                            <p className="mt-1 text-[11px] text-[#718395]">
-                                                {items.length} verified standards · select any certificate to inspect
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-
-
-                        {items.length === 0 ? (
-                            <EmptyState />
-                        ) : (
-                            <div className="relative overflow-hidden rounded-[38px] border border-[#D9E5EE] bg-white p-5 shadow-[0_24px_75px_rgba(11,45,77,0.09)] sm:p-7 lg:p-8">
-                                <div className="pointer-events-none absolute inset-x-0 top-0 h-[3px] bg-[linear-gradient(90deg,#0A5F9E,#55A9DF,#D71920)]" />
-
-                                <div className="grid gap-6 lg:grid-cols-[1.12fr_0.88fr]">
-                                    {/* Featured certificate */}
-
-                                    {featured && (
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                setPreviewIndex(0)
-                                            }
-                                            className="group relative min-h-[520px] overflow-hidden rounded-[30px] border border-[#D8E5EE] bg-[linear-gradient(145deg,#F7FBFD_0%,#EDF5F9_100%)] text-left shadow-[0_18px_50px_rgba(11,45,77,0.08)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_28px_68px_rgba(11,45,77,0.13)]"
-                                        >
-                                            <div className="pointer-events-none absolute -left-20 -top-20 h-60 w-60 rounded-full bg-[#0A5F9E]/7 blur-3xl" />
-                                            <div className="pointer-events-none absolute -bottom-20 -right-20 h-56 w-56 rounded-full bg-[#D71920]/6 blur-3xl" />
-
-                                            <div className="relative grid h-full gap-7 p-7 sm:p-9 lg:grid-rows-[auto_1fr_auto]">
-                                                <div className="flex flex-wrap items-center justify-between gap-4">
-                                                    <span className="inline-flex items-center gap-2 rounded-full bg-[#0B2D4D] px-3.5 py-2 text-[9px] font-bold uppercase tracking-[0.14em] text-white shadow-sm">
-                                                        <span className="h-1.5 w-1.5 rounded-full bg-[#6EE7A8]" />
-                                                        Featured Standard
-                                                    </span>
-
-                                                    <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#9AABB8]">
-                                                        01 / {String(items.length).padStart(2, '0')}
-                                                    </span>
-                                                </div>
-
-                                                <div className="grid items-center gap-8 lg:grid-cols-[0.72fr_1.28fr]">
-                                                    <div>
-                                                        <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#D71920]">
-                                                            Certification
-                                                        </p>
-
-                                                        <h3 className="mt-3 text-3xl font-extrabold leading-[1.05] tracking-[-0.04em] text-[#0B2D4D] sm:text-[36px]">
-                                                            {featured.name ||
-                                                                featured.title ||
-                                                                'Certification'}
-                                                        </h3>
-
-                                                        {featured.issuer && (
-                                                            <p className="mt-4 text-sm font-bold text-[#0A5F9E]">
-                                                                {featured.issuer}
-                                                            </p>
-                                                        )}
-
-                                                        {featured.description && (
-                                                            <p className="mt-5 line-clamp-5 text-sm leading-7 text-[#607487]">
-                                                                {featured.description}
-                                                            </p>
-                                                        )}
-
-                                                        <div className="mt-7 inline-flex items-center gap-2 text-sm font-bold text-[#0A5F9E] transition group-hover:text-[#D71920]">
-                                                            Open lightbox
-                                                            <ArrowIcon />
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="relative flex min-h-[300px] items-center justify-center">
-                                                        <div className="absolute h-[85%] w-[78%] rotate-[4deg] rounded-[28px] bg-[#D71920]/8" />
-                                                        <div className="absolute h-[89%] w-[82%] -rotate-[4deg] rounded-[28px] bg-[#0A5F9E]/9" />
-
-                                                        <div className="relative flex h-[300px] w-full items-center justify-center rounded-[24px] border border-[#D4E2EB] bg-white p-5 shadow-[0_22px_55px_rgba(11,45,77,0.14)]">
-                                                            {featuredImage ? (
-                                                                <img
-                                                                    src={featuredImage}
-                                                                    alt={
-                                                                        featured.name ||
-                                                                        featured.title ||
-                                                                        'Certification'
-                                                                    }
-                                                                    className="max-h-[255px] max-w-[94%] object-contain transition duration-500 group-hover:scale-[1.025]"
-                                                                />
-                                                            ) : (
-                                                                <div className="flex h-20 w-20 items-center justify-center rounded-[22px] bg-[#EAF4FC] text-[#0A5F9E]">
-                                                                    <ShieldIcon />
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div className="flex flex-wrap items-center gap-3 border-t border-[#DFE8EE] pt-5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#7B8D9D]">
-                                                    <span>Verified</span>
-                                                    <span className="h-1 w-1 rounded-full bg-[#B7C5CF]" />
-                                                    <span>Professional Standard</span>
-                                                    {featured.issued_date && (
-                                                        <>
-                                                            <span className="h-1 w-1 rounded-full bg-[#B7C5CF]" />
-                                                            <span>{featured.issued_date}</span>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </button>
-                                    )}
-
-
-                                    {/* Secondary gallery */}
-
-                                    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-1">
-                                        {items
-                                            .slice(1)
-                                            .map(
-                                                (
-                                                    item,
-                                                    index,
-                                                ) => {
-                                                    const actualIndex =
-                                                        index + 1;
-
-                                                    const imageUrl =
-                                                        getImageUrl(
-                                                            item.image,
-                                                        );
-
-                                                    const itemName =
-                                                        item.name ||
-                                                        item.title ||
-                                                        `Certification ${actualIndex + 1}`;
-
-                                                    return (
-                                                        <button
-                                                            key={actualIndex}
-                                                            type="button"
-                                                            onClick={() =>
-                                                                setPreviewIndex(
-                                                                    actualIndex,
-                                                                )
-                                                            }
-                                                            className="group relative grid min-h-[150px] overflow-hidden rounded-[24px] border border-[#DCE7EF] bg-white text-left shadow-[0_10px_30px_rgba(11,45,77,0.05)] transition duration-300 hover:-translate-y-1 hover:border-[#A9CDE7] hover:shadow-[0_18px_42px_rgba(11,45,77,0.10)] sm:grid-cols-[150px_1fr] lg:grid-cols-[160px_1fr]"
-                                                        >
-                                                            <div className="relative flex min-h-[150px] items-center justify-center overflow-hidden border-b border-[#E7EEF3] bg-[linear-gradient(145deg,#F9FCFD,#EFF6FA)] p-4 sm:border-b-0 sm:border-r">
-                                                                {imageUrl ? (
-                                                                    <div className="flex h-[120px] w-full items-center justify-center rounded-[16px] border border-[#DDE7EE] bg-white p-3 shadow-sm">
-                                                                        <img
-                                                                            src={imageUrl}
-                                                                            alt={itemName}
-                                                                            className="max-h-[100px] max-w-[96%] object-contain transition duration-500 group-hover:scale-[1.03]"
-                                                                        />
-                                                                    </div>
-                                                                ) : (
-                                                                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#0A5F9E] shadow-sm">
-                                                                        <ShieldIcon />
-                                                                    </div>
-                                                                )}
-
-                                                                <span className="absolute left-3 top-3 flex h-7 min-w-7 items-center justify-center rounded-full bg-[#0B2D4D] px-2 text-[8px] font-bold text-white">
-                                                                    {String(actualIndex + 1).padStart(2, '0')}
-                                                                </span>
-                                                            </div>
-
-                                                            <div className="flex flex-col justify-center p-5">
-                                                                <div className="flex items-center gap-2">
-                                                                    <span className="h-1.5 w-1.5 rounded-full bg-[#2EA66A]" />
-                                                                    <span className="text-[9px] font-bold uppercase tracking-[0.13em] text-[#0A5F9E]">
-                                                                        Verified
-                                                                    </span>
-                                                                </div>
-
-                                                                <h3 className="mt-2 text-base font-extrabold tracking-[-0.02em] text-[#0B2D4D]">
-                                                                    {itemName}
-                                                                </h3>
-
-                                                                {item.issuer && (
-                                                                    <p className="mt-1.5 text-xs font-semibold text-[#607487]">
-                                                                        {item.issuer}
-                                                                    </p>
-                                                                )}
-
-                                                                <div className="mt-4 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.12em] text-[#D71920]">
-                                                                    View certificate
-                                                                    <ArrowIcon />
-                                                                </div>
-                                                            </div>
-                                                        </button>
-                                                    );
-                                                },
-                                            )}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </section>
-
-                {previewModal}
-            </>
-        );
+    switch (content.variant ?? 'grid') {
+        case 'gallery':
+            return <GalleryVariant {...props} />;
+
+        case 'grid':
+            return <GridVariant {...props} />;
+
+        default:
+            return <CarouselVariant {...props} />;
     }
-
-    /* =====================================================
-       GRID VARIANT — CERTIFICATION TRUST WALL
-       ===================================================== */
-
-    if (variant === 'grid') {
-        return (
-            <section className="relative overflow-hidden bg-[#F7FAFD] px-5 py-20 sm:px-6 lg:px-8 lg:py-28">
-                <div className="mx-auto max-w-[1400px]">
-                    <div className="rounded-[36px] border border-[#DDE8F0] bg-white px-6 py-10 shadow-[0_20px_65px_rgba(11,45,77,0.075)] sm:px-8 lg:px-12 lg:py-14">
-                        <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
-                            <SectionIntro
-                                title={title}
-                                heading={heading}
-                                description={content.description}
-                                align="left"
-                            />
-
-                            <div className="hidden justify-self-end lg:block">
-                                <div className="grid grid-cols-2 gap-3">
-                                    <MetricBadge
-                                        value={`${items.length}`}
-                                        label="Standards"
-                                    />
-                                    <MetricBadge
-                                        value="Verified"
-                                        label="Status"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        {items.length === 0 ? (
-                            <div className="mt-12">
-                                <EmptyState />
-                            </div>
-                        ) : (
-                            <div className="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-                                {items.map(
-                                    (
-                                        item,
-                                        index,
-                                    ) => {
-                                        const imageUrl =
-                                            getImageUrl(
-                                                item.image,
-                                            );
-
-                                        const itemName =
-                                            item.name ||
-                                            item.title ||
-                                            `Certification ${
-                                                index +
-                                                1
-                                            }`;
-
-                                        const documentUrl =
-                                            item.document_url ||
-                                            item.url;
-
-                                        const card = (
-                                            <article className="group relative h-full overflow-hidden rounded-[26px] border border-[#DCE7EF] bg-[#FBFDFE] p-6 transition duration-300 hover:-translate-y-1 hover:border-[#A9CDE7] hover:bg-white hover:shadow-[0_20px_48px_rgba(11,45,77,0.10)]">
-                                                <div className="absolute right-[-42px] top-[-42px] h-28 w-28 rounded-full bg-[#0A5F9E]/5 transition duration-500 group-hover:scale-150" />
-
-                                                <div className="relative">
-                                                    <div className="flex items-start justify-between gap-5">
-                                                        <div className="flex h-20 min-w-[120px] items-center">
-                                                            {imageUrl ? (
-                                                                <img
-                                                                    src={
-                                                                        imageUrl
-                                                                    }
-                                                                    alt={
-                                                                        itemName
-                                                                    }
-                                                                    className="max-h-16 max-w-[145px] object-contain"
-                                                                />
-                                                            ) : (
-                                                                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#EAF4FC] text-[#0A5F9E]">
-                                                                    <ShieldIcon />
-                                                                </div>
-                                                            )}
-                                                        </div>
-
-                                                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#EAF4FC] text-sm font-black text-[#0A5F9E]">
-                                                            ✓
-                                                        </div>
-                                                    </div>
-
-                                                    <p className="mt-5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#D71920]">
-                                                        Certified Standard
-                                                    </p>
-
-                                                    <h3 className="mt-2 text-xl font-extrabold tracking-[-0.025em] text-[#0B2D4D]">
-                                                        {
-                                                            itemName
-                                                        }
-                                                    </h3>
-
-                                                    {item.issuer && (
-                                                        <p className="mt-2 text-xs font-semibold text-[#0A5F9E]">
-                                                            Issued by{' '}
-                                                            {
-                                                                item.issuer
-                                                            }
-                                                        </p>
-                                                    )}
-
-                                                    {item.description && (
-                                                        <p className="mt-4 line-clamp-3 text-sm leading-7 text-[#617588]">
-                                                            {
-                                                                item.description
-                                                            }
-                                                        </p>
-                                                    )}
-
-                                                    <div className="mt-7 flex items-center justify-between border-t border-[#E8EFF4] pt-4">
-                                                        <div>
-                                                            {item.issued_date && (
-                                                                <>
-                                                                    <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-[#9AABB8]">
-                                                                        Issued
-                                                                    </p>
-                                                                    <p className="mt-0.5 text-xs font-semibold text-[#526A7D]">
-                                                                        {
-                                                                            item.issued_date
-                                                                        }
-                                                                    </p>
-                                                                </>
-                                                            )}
-                                                        </div>
-
-                                                        {documentUrl && (
-                                                            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F0F6FA] text-[#0A5F9E] transition group-hover:bg-[#0A5F9E] group-hover:text-white">
-                                                                <ArrowIcon />
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </article>
-                                        );
-
-                                        return documentUrl ? (
-                                            <a
-                                                key={
-                                                    index
-                                                }
-                                                href={
-                                                    documentUrl
-                                                }
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="block h-full"
-                                            >
-                                                {card}
-                                            </a>
-                                        ) : (
-                                            <div
-                                                key={
-                                                    index
-                                                }
-                                            >
-                                                {card}
-                                            </div>
-                                        );
-                                    },
-                                )}
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </section>
-        );
-    }
-
-    const circularCarouselItems =
-        items.length > 1
-            ? [...items, ...items]
-            : items;
-
-    /* =====================================================
-       CAROUSEL VARIANT — AUTOMATED CERTIFICATION SHOWCASE
-       ===================================================== */
-
-    return (
-        <>
-            <section className="relative overflow-hidden bg-[#F7FAFD] px-5 py-20 sm:px-6 lg:px-8 lg:py-28">
-                <div className="pointer-events-none absolute inset-0">
-                    <div className="absolute left-[-7%] top-[8%] h-[340px] w-[340px] rounded-full bg-[#0A5F9E]/6 blur-[120px]" />
-                    <div className="absolute bottom-[-5%] right-[-5%] h-[320px] w-[320px] rounded-full bg-[#D71920]/5 blur-[120px]" />
-                </div>
-
-                <div className="relative z-10 mx-auto max-w-[1400px]">
-                    <div className="mb-12 grid gap-8 lg:grid-cols-[0.86fr_1.14fr] lg:items-end">
-                        <SectionIntro
-                            title={title}
-                            heading={heading}
-                            description={content.description}
-                            align="left"
-                        />
-
-                        <div className="flex flex-col items-start gap-5 lg:items-end">
-                            <div className="hidden max-w-md text-right lg:block">
-                                <p className="text-sm leading-7 text-[#718395]">
-                                    Browse our verified certifications and standards.
-                                    The showcase moves automatically and can also be
-                                    controlled manually.
-                                </p>
-                            </div>
-
-                            {items.length > 0 && (
-                                <div className="flex items-center gap-3">
-                                    <div className="hidden items-center gap-2 rounded-full border border-[#DCE7EF] bg-white px-4 py-2 shadow-[0_8px_24px_rgba(11,45,77,0.05)] sm:flex">
-                                        <span className="h-2 w-2 rounded-full bg-[#2EA66A]" />
-                                        <span className="text-[10px] font-bold uppercase tracking-[0.13em] text-[#607487]">
-                                            {items.length} Verified Standards
-                                        </span>
-                                    </div>
-
-                                    <button
-                                        type="button"
-                                        onClick={() => moveCarousel('previous')}
-                                        className="flex h-11 w-11 items-center justify-center rounded-xl border border-[#D6E3EC] bg-white text-xl text-[#0B2D4D] shadow-[0_8px_24px_rgba(11,45,77,0.07)] transition duration-300 hover:-translate-y-0.5 hover:border-[#0A5F9E] hover:bg-[#0A5F9E] hover:text-white"
-                                        aria-label="Previous certifications"
-                                    >
-                                        ‹
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        onClick={() => moveCarousel('next')}
-                                        className="flex h-11 w-11 items-center justify-center rounded-xl border border-[#D6E3EC] bg-white text-xl text-[#0B2D4D] shadow-[0_8px_24px_rgba(11,45,77,0.07)] transition duration-300 hover:-translate-y-0.5 hover:border-[#0A5F9E] hover:bg-[#0A5F9E] hover:text-white"
-                                        aria-label="Next certifications"
-                                    >
-                                        ›
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    {items.length === 0 ? (
-                        <EmptyState />
-                    ) : (
-                        <div
-                            className="relative"
-                            onMouseEnter={() => setCarouselPaused(true)}
-                            onMouseLeave={() => setCarouselPaused(false)}
-                        >
-                            <div className="relative overflow-hidden rounded-[34px] border border-[#D9E5EE] bg-white/70 px-4 py-5 shadow-[0_20px_65px_rgba(11,45,77,0.08)] backdrop-blur-sm sm:px-5 sm:py-6">
-                                <div className="pointer-events-none absolute inset-x-0 top-0 h-[3px] bg-[linear-gradient(90deg,#0A5F9E_0%,#56A6D8_45%,#D71920_100%)]" />
-                                <div className="pointer-events-none absolute bottom-5 left-0 top-5 z-20 w-10 bg-gradient-to-r from-white via-white/85 to-transparent sm:w-14" />
-                                <div className="pointer-events-none absolute bottom-5 right-0 top-5 z-20 w-10 bg-gradient-to-l from-white via-white/85 to-transparent sm:w-14" />
-
-                                <div
-                                    ref={carouselRef}
-                                    className="flex snap-x snap-mandatory gap-5 overflow-x-auto px-2 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:px-5"
-                                >
-                                    {circularCarouselItems.map((item, index) => {
-                                        const sourceIndex =
-                                            index % items.length;
-
-                                        const imageUrl = getImageUrl(item.image);
-                                        const itemName =
-                                            item.name ||
-                                            item.title ||
-                                            `Certification ${sourceIndex + 1}`;
-                                        const documentUrl =
-                                            item.document_url || item.url;
-
-                                        return (
-                                            <article
-                                                key={`${sourceIndex}-${index}`}
-                                                data-certificate-card
-                                                className="group relative w-[82vw] max-w-[360px] shrink-0 snap-start overflow-hidden rounded-[28px] border border-[#DCE7EF] bg-white shadow-[0_12px_36px_rgba(11,45,77,0.065)] transition duration-300 hover:-translate-y-1.5 hover:border-[#A9CDE7] hover:shadow-[0_24px_55px_rgba(11,45,77,0.12)] sm:w-[330px] lg:w-[315px]"
-                                            >
-                                                <div className="absolute left-4 top-4 z-10 flex h-8 min-w-8 items-center justify-center rounded-full bg-[#0B2D4D] px-2.5 text-[9px] font-extrabold tracking-[0.08em] text-white shadow-md">
-                                                    {String(sourceIndex + 1).padStart(2, '0')}
-                                                </div>
-
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setPreviewIndex(sourceIndex)}
-                                                    className="relative flex h-[245px] w-full items-center justify-center overflow-hidden border-b border-[#E8EFF4] bg-[linear-gradient(145deg,#FBFDFE_0%,#EEF5F9_100%)] p-6 text-left"
-                                                    aria-label={`Preview ${itemName}`}
-                                                >
-                                                    <div className="absolute left-[-45px] top-[-45px] h-32 w-32 rounded-full bg-[#0A5F9E]/5 blur-2xl" />
-                                                    <div className="absolute bottom-[-50px] right-[-40px] h-32 w-32 rounded-full bg-[#D71920]/5 blur-2xl" />
-
-                                                    {imageUrl ? (
-                                                        <div className="relative flex h-[190px] w-full items-center justify-center rounded-[20px] border border-[#D7E3EC] bg-white p-4 shadow-[0_12px_30px_rgba(11,45,77,0.08)]">
-                                                            <img
-                                                                src={imageUrl}
-                                                                alt={itemName}
-                                                                className="max-h-[165px] max-w-[92%] object-contain transition duration-500 group-hover:scale-[1.035]"
-                                                            />
-                                                        </div>
-                                                    ) : (
-                                                        <div className="flex h-20 w-20 items-center justify-center rounded-[22px] border border-[#DCE7EF] bg-white text-[#0A5F9E] shadow-sm">
-                                                            <ShieldIcon />
-                                                        </div>
-                                                    )}
-
-                                                    <span className="absolute bottom-4 right-4 inline-flex items-center gap-1.5 rounded-full border border-[#CFE0EC] bg-white/95 px-3 py-1.5 text-[9px] font-bold uppercase tracking-[0.12em] text-[#0A5F9E] shadow-sm backdrop-blur">
-                                                        <span className="h-1.5 w-1.5 rounded-full bg-[#2EA66A]" />
-                                                        Verified
-                                                    </span>
-                                                </button>
-
-                                                <div className="p-6">
-                                                    <div className="flex min-h-[126px] flex-col">
-                                                        <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-[#D71920]">
-                                                            Certified Standard
-                                                        </p>
-
-                                                        <h3 className="mt-2 text-xl font-extrabold leading-tight tracking-[-0.025em] text-[#0B2D4D]">
-                                                            {itemName}
-                                                        </h3>
-
-                                                        {item.issuer && (
-                                                            <p className="mt-2 text-xs font-semibold text-[#0A5F9E]">
-                                                                {item.issuer}
-                                                            </p>
-                                                        )}
-
-                                                        {item.description && (
-                                                            <p className="mt-3 line-clamp-2 text-sm leading-6 text-[#607487]">
-                                                                {item.description}
-                                                            </p>
-                                                        )}
-                                                    </div>
-
-                                                    <div className="mt-5 flex items-center justify-between gap-4 border-t border-[#EDF2F6] pt-4">
-                                                        <div className="min-w-0">
-                                                            {item.issued_date ? (
-                                                                <>
-                                                                    <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-[#9AABB8]">
-                                                                        Issued
-                                                                    </p>
-                                                                    <p className="mt-0.5 truncate text-xs font-semibold text-[#526A7D]">
-                                                                        {item.issued_date}
-                                                                    </p>
-                                                                </>
-                                                            ) : (
-                                                                <p className="text-[9px] font-bold uppercase tracking-[0.13em] text-[#8A9AA8]">
-                                                                    Certification
-                                                                </p>
-                                                            )}
-                                                        </div>
-
-                                                        <div className="flex items-center gap-2">
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => setPreviewIndex(sourceIndex)}
-                                                                className="inline-flex h-9 items-center justify-center rounded-xl border border-[#DCE7EF] bg-[#F7FAFD] px-3 text-[10px] font-bold uppercase tracking-[0.11em] text-[#0A5F9E] transition hover:border-[#0A5F9E] hover:bg-[#EAF4FC]"
-                                                            >
-                                                                Preview
-                                                            </button>
-
-                                                            {documentUrl && (
-                                                                <a
-                                                                    href={documentUrl}
-                                                                    target="_blank"
-                                                                    rel="noopener noreferrer"
-                                                                    className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#0A5F9E] text-white shadow-[0_8px_18px_rgba(10,95,158,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#084F84]"
-                                                                    aria-label={`Open ${itemName}`}
-                                                                >
-                                                                    <ArrowIcon />
-                                                                </a>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </article>
-                                        );
-                                    })}
-                                </div>
-
-                                <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-[#E9F0F4] px-3 pt-4 sm:px-5">
-                                    <div className="flex items-center gap-2">
-                                        <span
-                                            className={`h-2 w-2 rounded-full ${
-                                                carouselPaused
-                                                    ? 'bg-[#F4B942]'
-                                                    : 'bg-[#2EA66A]'
-                                            }`}
-                                        />
-
-                                        <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#7B8D9D]">
-                                            {carouselPaused
-                                                ? 'Paused while viewing'
-                                                : 'Auto rotating'}
-                                        </span>
-                                    </div>
-
-                                    <p className="text-[10px] font-semibold text-[#94A3B8]">
-                                        Hover to pause · use arrows for manual navigation
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </section>
-
-            {previewModal}
-        </>
-    );
-
-}
-
-/* =========================================================
-   DETAIL ROW
-   ========================================================= */
-
-function DetailRow({
-    label,
-    value,
-}: {
-    label: string;
-    value: string;
-}) {
-    return (
-        <div className="border-b border-[#E5EDF2] px-5 py-4 last:border-b-0">
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#8193A3]">
-                {label}
-            </p>
-
-            <p className="mt-2 break-words text-sm font-bold leading-6 text-[#0B2D4D]">
-                {value}
-            </p>
-        </div>
-    );
-}
-
-/* =========================================================
-   METRIC BADGE
-   ========================================================= */
-
-function MetricBadge({
-    value,
-    label,
-}: {
-    value: string;
-    label: string;
-}) {
-    return (
-        <div className="min-w-[130px] rounded-2xl border border-[#DCE8F0] bg-[#F8FBFD] px-4 py-3 text-center">
-            <p className="text-sm font-extrabold text-[#0B2D4D]">
-                {value}
-            </p>
-
-            <p className="mt-1 text-[9px] font-bold uppercase tracking-[0.13em] text-[#8193A3]">
-                {label}
-            </p>
-        </div>
-    );
 }

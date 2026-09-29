@@ -4,11 +4,19 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Media extends Model
 {
     use SoftDeletes;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Mass Assignment
+    |--------------------------------------------------------------------------
+    */
 
     protected $fillable = [
         'website_id',
@@ -21,6 +29,13 @@ class Media extends Model
         'description',
     ];
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Casts
+    |--------------------------------------------------------------------------
+    */
+
     protected $casts = [
         'deleted_at' => 'datetime',
     ];
@@ -28,25 +43,36 @@ class Media extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | Website
+    | Legacy / Primary Website
     |--------------------------------------------------------------------------
+    |
+    | IMPORTANT:
+    |
+    | The CMS previously stored one website using website_id.
+    |
+    | We are keeping this field and relationship for compatibility
+    | with existing media records and existing CMS functionality.
+    |
+    | The new multi-website system uses the media_website pivot
+    | through the websites() relationship below.
+    |
     */
 
     public function website(): BelongsTo
     {
         return $this->belongsTo(
-            Website::class
+            Website::class,
+            'website_id'
         );
     }
 
 
     /*
     |--------------------------------------------------------------------------
-    | Website Including Trashed
+    | Legacy Website Including Trashed
     |--------------------------------------------------------------------------
     |
-    | Used by Trash / Audit services so the historical relationship
-    | remains available even if the Website itself is in Trash.
+    | Used by existing Trash / deletion functionality.
     |
     */
 
@@ -54,6 +80,53 @@ class Media extends Model
     {
         return $this->belongsTo(
             Website::class,
+            'website_id'
+        )->withTrashed();
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Multiple Websites
+    |--------------------------------------------------------------------------
+    |
+    | A single media file can now belong to multiple websites.
+    |
+    | Media
+    |   ↓
+    | media_website
+    |   ↓
+    | Websites
+    |
+    */
+
+    public function websites(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Website::class,
+            'media_website',
+            'media_id',
+            'website_id'
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Multiple Websites Including Trashed
+    |--------------------------------------------------------------------------
+    |
+    | Used when working with Trash / Audit functionality where
+    | an assigned website may itself have been soft deleted.
+    |
+    */
+
+    public function websitesWithTrashed(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Website::class,
+            'media_website',
+            'media_id',
             'website_id'
         )->withTrashed();
     }

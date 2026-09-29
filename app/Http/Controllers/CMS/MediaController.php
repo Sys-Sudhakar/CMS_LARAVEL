@@ -8,6 +8,8 @@ use App\Models\Team;
 use App\Models\Website;
 use App\Services\CMS\CmsDeletionService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
@@ -17,52 +19,78 @@ class MediaController extends Controller
     |--------------------------------------------------------------------------
     | Display Media For Current Team
     |--------------------------------------------------------------------------
+    |
+    | A media item can now belong to multiple websites.
+    |
+    | The media_website pivot table is the primary relationship.
+    |
+    | The old website_id relationship is also checked for backwards
+    | compatibility with existing media records.
+    |
     */
 
-    public function index(
-        Request $request
-    ) {
-        $team =
-            $this->currentTeam(
-                $request
-            );
+    public function index(Request $request)
+    {
+        $team = $this->currentTeam($request);
 
+        $media = Media::query()
+            ->where(function ($query) use ($team) {
 
-        /*
-        |--------------------------------------------------------------------------
-        | Only Media From Current Team Websites
-        |--------------------------------------------------------------------------
-        */
+                /*
+                |--------------------------------------------------------------------------
+                | New Many-To-Many Relationship
+                |--------------------------------------------------------------------------
+                */
 
-        $media =
-            Media::query()
-
-                ->whereHas(
-                    'website',
-                    function ($query) use (
-                        $team
-                    ) {
-                        $query->where(
+                $query->whereHas(
+                    'websites',
+                    function ($websiteQuery) use ($team) {
+                        $websiteQuery->where(
                             'team_id',
                             $team->id
                         );
                     }
                 )
 
-                ->with([
-                    'website:id,name,team_id',
-                ])
+                /*
+                |--------------------------------------------------------------------------
+                | Legacy website_id Relationship
+                |--------------------------------------------------------------------------
+                |
+                | Keeps older media records visible until they are migrated
+                | completely to the pivot table.
+                |
+                */
 
-                ->latest()
+                ->orWhereHas(
+                    'website',
+                    function ($websiteQuery) use ($team) {
+                        $websiteQuery->where(
+                            'team_id',
+                            $team->id
+                        );
+                    }
+                );
+            })
 
-                ->get();
+            /*
+            |--------------------------------------------------------------------------
+            | Load Website Relationships
+            |--------------------------------------------------------------------------
+            */
 
+            ->with([
+                'websites:id,name,team_id',
+                'website:id,name,team_id',
+            ])
+
+            ->latest()
+            ->get();
 
         return Inertia::render(
             'media/index',
             [
-                'media' =>
-                    $media,
+                'media' => $media,
             ]
         );
     }
@@ -74,44 +102,25 @@ class MediaController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function create(
-        Request $request
-    ) {
-        $team =
-            $this->currentTeam(
-                $request
-            );
+    public function create(Request $request)
+    {
+        $team = $this->currentTeam($request);
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Only Current Team Websites
-        |--------------------------------------------------------------------------
-        */
-
-        $websites =
-            Website::query()
-
-                ->where(
-                    'team_id',
-                    $team->id
-                )
-
-                ->orderBy(
-                    'name'
-                )
-
-                ->get([
-                    'id',
-                    'name',
-                ]);
-
+        $websites = Website::query()
+            ->where(
+                'team_id',
+                $team->id
+            )
+            ->orderBy('name')
+            ->get([
+                'id',
+                'name',
+            ]);
 
         return Inertia::render(
             'media/create',
             [
-                'websites' =>
-                    $websites,
+                'websites' => $websites,
             ]
         );
     }
@@ -121,131 +130,291 @@ class MediaController extends Controller
     |--------------------------------------------------------------------------
     | Upload Media
     |--------------------------------------------------------------------------
+    |
+    | One physical file can be assigned to:
+    |
+    | - One website
+    | - Two websites
+    | - Three websites
+    | - Any number of websites belonging to the current team
+    |
+    | Example:
+    |
+    | website_ids = [1, 2, 3]
+    |
+    | One Media record is created.
+    |
+    | The media_website pivot table then contains:
+    |
+    | media_id | website_id
+    | --------------------
+    |    10    |     1
+    |    10    |     2
+    |    10    |     3
+    |
+    | The physical file is stored only once.
+    |
     */
 
-    public function store(
-        Request $request
-    ) {
-        $team =
-            $this->currentTeam(
-                $request
-            );
-
-
-        $validated =
-            $request->validate([
-
-                /*
-                |--------------------------------------------------------------------------
-                | Website Must Belong To Current Team
-                |--------------------------------------------------------------------------
-                */
-
-                'website_id' => [
-                    'required',
-                    'integer',
-
-                    Rule::exists(
-                        'websites',
-                        'id'
-                    )->where(
-                        fn ($query) =>
-                            $query->where(
-                                'team_id',
-                                $team->id
-                            )
-                    ),
-                ],
-
-
-                'file' => [
-                    'required',
-                    'file',
-                    'max:10240',
-                    'mimes:jpg,jpeg,png,gif,webp,svg,pdf,doc,docx',
-                ],
-
-
-                'alt_text' => [
-                    'nullable',
-                    'string',
-                    'max:255',
-                ],
-
-
-                'description' => [
-                    'nullable',
-                    'string',
-                ],
-            ]);
-
-
-        $file =
-            $validated[
-                'file'
-            ];
-
+    public function store(Request $request)
+    {
+        $team = $this->currentTeam($request);
 
         /*
         |--------------------------------------------------------------------------
-        | Store Physical File
+        | Validate Request
         |--------------------------------------------------------------------------
         */
 
-        $path =
-            $file->store(
-                'media',
-                'public'
-            );
+        $validated = $request->validate([
 
+            /*
+            |--------------------------------------------------------------------------
+            | Multiple Websites
+            |--------------------------------------------------------------------------
+            */
 
-        /*
-        |--------------------------------------------------------------------------
-        | Create Media Record
-        |--------------------------------------------------------------------------
-        */
+            'website_ids' => [
+                'required',
+                'array',
+                'min:1',
+            ],
 
-        Media::create([
-            'website_id' =>
-                $validated[
-                    'website_id'
-                ],
+            /*
+            |--------------------------------------------------------------------------
+            | Validate Every Website
+            |--------------------------------------------------------------------------
+            |
+            | Every selected website must:
+            |
+            | - Be an integer
+            | - Be unique
+            | - Exist
+            | - Belong to the current team
+            |
+            */
 
-            'name' =>
-                pathinfo(
-                    $file
-                        ->getClientOriginalName(),
-                    PATHINFO_FILENAME
+            'website_ids.*' => [
+                'required',
+                'integer',
+                'distinct',
+
+                Rule::exists(
+                    'websites',
+                    'id'
+                )->where(
+                    fn ($query) =>
+                        $query->where(
+                            'team_id',
+                            $team->id
+                        )
                 ),
+            ],
 
-            'file_name' =>
-                $file
-                    ->getClientOriginalName(),
+            /*
+            |--------------------------------------------------------------------------
+            | File
+            |--------------------------------------------------------------------------
+            */
 
-            'file_path' =>
-                $path,
+            'file' => [
+                'required',
+                'file',
+                'max:10240',
+                'mimes:jpg,jpeg,png,gif,webp,svg,pdf,doc,docx',
+            ],
 
-            'mime_type' =>
-                $file
-                    ->getMimeType(),
+            /*
+            |--------------------------------------------------------------------------
+            | Alt Text
+            |--------------------------------------------------------------------------
+            */
 
-            'file_size' =>
-                $file
-                    ->getSize(),
+            'alt_text' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
 
-            'alt_text' =>
-                $validated[
-                    'alt_text'
-                ]
-                ?? null,
+            /*
+            |--------------------------------------------------------------------------
+            | Description
+            |--------------------------------------------------------------------------
+            */
 
-            'description' =>
-                $validated[
-                    'description'
-                ]
-                ?? null,
+            'description' => [
+                'nullable',
+                'string',
+            ],
         ]);
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Normalize Website IDs
+        |--------------------------------------------------------------------------
+        */
+
+        $websiteIds = collect(
+            $validated['website_ids']
+        )
+            ->map(
+                fn ($id) => (int) $id
+            )
+            ->unique()
+            ->values()
+            ->all();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Extra Team Security Check
+        |--------------------------------------------------------------------------
+        |
+        | This is an additional server-side protection layer.
+        |
+        */
+
+        $validWebsiteCount = Website::query()
+            ->where(
+                'team_id',
+                $team->id
+            )
+            ->whereIn(
+                'id',
+                $websiteIds
+            )
+            ->count();
+
+        abort_unless(
+            $validWebsiteCount === count($websiteIds),
+            403,
+            'One or more selected websites do not belong to the current team.'
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Uploaded File
+        |--------------------------------------------------------------------------
+        */
+
+        $file = $validated['file'];
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Store Physical File Once
+        |--------------------------------------------------------------------------
+        |
+        | Regardless of how many websites are selected,
+        | the physical file is stored only once.
+        |
+        */
+
+        $path = $file->store(
+            'media',
+            'public'
+        );
+
+
+        try {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Create Media + Website Pivot
+            |--------------------------------------------------------------------------
+            */
+
+            DB::transaction(
+                function () use (
+                    $websiteIds,
+                    $file,
+                    $path,
+                    $validated
+                ) {
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Create ONE Media Record
+                    |--------------------------------------------------------------------------
+                    |
+                    | website_id is kept as a legacy compatibility field.
+                    |
+                    | We store the first selected website here because existing
+                    | deletion/trash services still depend on website_id.
+                    |
+                    */
+
+                    $media = Media::create([
+                        'website_id' =>
+                            $websiteIds[0],
+
+                        'name' =>
+                            pathinfo(
+                                $file->getClientOriginalName(),
+                                PATHINFO_FILENAME
+                            ),
+
+                        'file_name' =>
+                            $file->getClientOriginalName(),
+
+                        'file_path' =>
+                            $path,
+
+                        'mime_type' =>
+                            $file->getMimeType(),
+
+                        'file_size' =>
+                            $file->getSize(),
+
+                        'alt_text' =>
+                            $validated['alt_text']
+                            ?? null,
+
+                        'description' =>
+                            $validated['description']
+                            ?? null,
+                    ]);
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Attach All Selected Websites
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $media->websites()->sync(
+                        $websiteIds
+                    );
+                }
+            );
+
+        } catch (\Throwable $exception) {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Remove Physical File If Database Operation Fails
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                Storage::disk('public')
+                    ->exists($path)
+            ) {
+                Storage::disk('public')
+                    ->delete($path);
+            }
+
+            throw $exception;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Success
+        |--------------------------------------------------------------------------
+        */
 
         return redirect()
             ->route(
@@ -253,7 +422,15 @@ class MediaController extends Controller
             )
             ->with(
                 'success',
-                'Media uploaded successfully.'
+                'Media uploaded successfully to '
+                . count($websiteIds)
+                . ' website'
+                . (
+                    count($websiteIds) === 1
+                        ? ''
+                        : 's'
+                )
+                . '.'
             );
     }
 
@@ -268,10 +445,7 @@ class MediaController extends Controller
         Request $request,
         Media $media
     ) {
-        $team =
-            $this->currentTeam(
-                $request
-            );
+        $team = $this->currentTeam($request);
 
 
         /*
@@ -288,29 +462,35 @@ class MediaController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Only Current Team Websites
+        | Current Team Websites
         |--------------------------------------------------------------------------
         */
 
-        $websites =
-            Website::query()
+        $websites = Website::query()
+            ->where(
+                'team_id',
+                $team->id
+            )
+            ->orderBy('name')
+            ->get([
+                'id',
+                'name',
+            ]);
 
-                ->where(
-                    'team_id',
-                    $team->id
-                )
 
-                ->orderBy(
-                    'name'
-                )
-
-                ->get([
-                    'id',
-                    'name',
-                ]);
-
+        /*
+        |--------------------------------------------------------------------------
+        | Load Website Relationships
+        |--------------------------------------------------------------------------
+        |
+        | websites = new multi-website relationship
+        |
+        | website = legacy relationship
+        |
+        */
 
         $media->load([
+            'websites:id,name,team_id',
             'website:id,name,team_id',
         ]);
 
@@ -332,16 +512,27 @@ class MediaController extends Controller
     |--------------------------------------------------------------------------
     | Update Media
     |--------------------------------------------------------------------------
+    |
+    | Website assignments can be changed here.
+    |
+    | Example:
+    |
+    | Before:
+    | website_ids = [1, 2]
+    |
+    | After:
+    | website_ids = [2, 3, 4]
+    |
+    | sync() automatically removes 1, keeps 2,
+    | and adds 3 + 4.
+    |
     */
 
     public function update(
         Request $request,
         Media $media
     ) {
-        $team =
-            $this->currentTeam(
-                $request
-            );
+        $team = $this->currentTeam($request);
 
 
         /*
@@ -356,83 +547,192 @@ class MediaController extends Controller
         );
 
 
-        $validated =
-            $request->validate([
+        /*
+        |--------------------------------------------------------------------------
+        | Validate Request
+        |--------------------------------------------------------------------------
+        */
 
-                /*
-                |--------------------------------------------------------------------------
-                | Selected Website Must Also Belong To Current Team
-                |--------------------------------------------------------------------------
-                */
+        $validated = $request->validate([
 
-                'website_id' => [
-                    'required',
-                    'integer',
+            /*
+            |--------------------------------------------------------------------------
+            | Multiple Websites
+            |--------------------------------------------------------------------------
+            */
 
-                    Rule::exists(
-                        'websites',
-                        'id'
-                    )->where(
-                        fn ($query) =>
-                            $query->where(
-                                'team_id',
-                                $team->id
-                            )
-                    ),
-                ],
+            'website_ids' => [
+                'required',
+                'array',
+                'min:1',
+            ],
 
+            /*
+            |--------------------------------------------------------------------------
+            | Validate Every Website
+            |--------------------------------------------------------------------------
+            */
 
-                'name' => [
-                    'required',
-                    'string',
-                    'max:255',
-                ],
+            'website_ids.*' => [
+                'required',
+                'integer',
+                'distinct',
 
+                Rule::exists(
+                    'websites',
+                    'id'
+                )->where(
+                    fn ($query) =>
+                        $query->where(
+                            'team_id',
+                            $team->id
+                        )
+                ),
+            ],
 
-                'alt_text' => [
-                    'nullable',
-                    'string',
-                    'max:255',
-                ],
+            /*
+            |--------------------------------------------------------------------------
+            | Name
+            |--------------------------------------------------------------------------
+            */
 
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+            ],
 
-                'description' => [
-                    'nullable',
-                    'string',
-                ],
-            ]);
+            /*
+            |--------------------------------------------------------------------------
+            | Alt Text
+            |--------------------------------------------------------------------------
+            */
+
+            'alt_text' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Description
+            |--------------------------------------------------------------------------
+            */
+
+            'description' => [
+                'nullable',
+                'string',
+            ],
+        ]);
 
 
         /*
         |--------------------------------------------------------------------------
-        | Update
+        | Normalize Website IDs
         |--------------------------------------------------------------------------
         */
 
-        $media->update([
-            'website_id' =>
-                $validated[
-                    'website_id'
-                ],
+        $websiteIds = collect(
+            $validated['website_ids']
+        )
+            ->map(
+                fn ($id) => (int) $id
+            )
+            ->unique()
+            ->values()
+            ->all();
 
-            'name' =>
-                $validated[
-                    'name'
-                ],
 
-            'alt_text' =>
-                $validated[
-                    'alt_text'
-                ]
-                ?? null,
+        /*
+        |--------------------------------------------------------------------------
+        | Extra Team Security Check
+        |--------------------------------------------------------------------------
+        */
 
-            'description' =>
-                $validated[
-                    'description'
-                ]
-                ?? null,
-        ]);
+        $validWebsiteCount = Website::query()
+            ->where(
+                'team_id',
+                $team->id
+            )
+            ->whereIn(
+                'id',
+                $websiteIds
+            )
+            ->count();
 
+        abort_unless(
+            $validWebsiteCount === count($websiteIds),
+            403,
+            'One or more selected websites do not belong to the current team.'
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Update Media + Website Assignments
+        |--------------------------------------------------------------------------
+        */
+
+        DB::transaction(
+            function () use (
+                $media,
+                $websiteIds,
+                $validated
+            ) {
+
+                /*
+                |--------------------------------------------------------------------------
+                | Update Media Information
+                |--------------------------------------------------------------------------
+                |
+                | Keep website_id synchronized with the first selected website
+                | for backwards compatibility with the existing Trash system.
+                |
+                */
+
+                $media->update([
+                    'website_id' =>
+                        $websiteIds[0],
+
+                    'name' =>
+                        $validated['name'],
+
+                    'alt_text' =>
+                        $validated['alt_text']
+                        ?? null,
+
+                    'description' =>
+                        $validated['description']
+                        ?? null,
+                ]);
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Synchronize Websites
+                |--------------------------------------------------------------------------
+                |
+                | This is the important part.
+                |
+                | Existing pivot rows that are not selected anymore are removed.
+                |
+                | Newly selected websites are added.
+                |
+                */
+
+                $media->websites()->sync(
+                    $websiteIds
+                );
+            }
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Success
+        |--------------------------------------------------------------------------
+        */
 
         return redirect()
             ->route(
@@ -440,7 +740,15 @@ class MediaController extends Controller
             )
             ->with(
                 'success',
-                'Media updated successfully.'
+                'Media updated successfully for '
+                . count($websiteIds)
+                . ' website'
+                . (
+                    count($websiteIds) === 1
+                        ? ''
+                        : 's'
+                )
+                . '.'
             );
     }
 
@@ -456,9 +764,7 @@ class MediaController extends Controller
         Media $media,
         CmsDeletionService $deletionService
     ) {
-        $user =
-            $request->user();
-
+        $user = $request->user();
 
         abort_unless(
             $user,
@@ -466,10 +772,9 @@ class MediaController extends Controller
         );
 
 
-        $team =
-            $this->currentTeam(
-                $request
-            );
+        $team = $this->currentTeam(
+            $request
+        );
 
 
         /*
@@ -490,6 +795,10 @@ class MediaController extends Controller
         |--------------------------------------------------------------------------
         |
         | Physical file is intentionally preserved by CmsDeletionService.
+        |
+        | The legacy website_id remains synchronized with the first
+        | selected website so the existing deletion service continues
+        | to work.
         |
         */
 
@@ -528,9 +837,7 @@ class MediaController extends Controller
     private function currentTeam(
         Request $request
     ): Team {
-        $user =
-            $request->user();
-
+        $user = $request->user();
 
         abort_unless(
             $user,
@@ -575,11 +882,27 @@ class MediaController extends Controller
     | Ensure Media Belongs To Current Team
     |--------------------------------------------------------------------------
     |
+    | New media:
+    |
     | Media
+    |   ↓
+    | media_website
     |   ↓
     | Website
     |   ↓
     | team_id
+    |
+    | Existing/legacy media:
+    |
+    | Media
+    |   ↓
+    | website_id
+    |   ↓
+    | Website
+    |   ↓
+    | team_id
+    |
+    | Both are supported during the transition.
     |
     */
 
@@ -587,23 +910,56 @@ class MediaController extends Controller
         Media $media,
         Team $team
     ): void {
-        $belongsToTeam =
-            Website::query()
 
-                ->whereKey(
-                    $media->website_id
-                )
+        /*
+        |--------------------------------------------------------------------------
+        | Check New Many-To-Many Relationship
+        |--------------------------------------------------------------------------
+        */
 
+        $belongsThroughPivot =
+            $media
+                ->websites()
                 ->where(
-                    'team_id',
+                    'websites.team_id',
                     $team->id
                 )
-
                 ->exists();
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | Check Legacy website_id Relationship
+        |--------------------------------------------------------------------------
+        */
+
+        $belongsThroughLegacyWebsite =
+            false;
+
+        if ($media->website_id) {
+
+            $belongsThroughLegacyWebsite =
+                Website::query()
+                    ->whereKey(
+                        $media->website_id
+                    )
+                    ->where(
+                        'team_id',
+                        $team->id
+                    )
+                    ->exists();
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Final Security Check
+        |--------------------------------------------------------------------------
+        */
+
         abort_unless(
-            $belongsToTeam,
+            $belongsThroughPivot ||
+            $belongsThroughLegacyWebsite,
             404
         );
     }

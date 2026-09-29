@@ -2,16 +2,11 @@ interface CardItem {
     title?: string;
     name?: string;
     description?: string;
-
     image?: string;
     icon?: string;
-
     url?: string;
     button_text?: string;
-
     features?: string[];
-
-    /* Optional extended fields for richer variants */
     badge?: string;
     company?: string;
     person_name?: string;
@@ -31,7 +26,6 @@ interface CardsContent {
         | 'why_choose_us'
         | 'testimonials'
         | string;
-
     heading?: string;
     description?: string;
     items?: CardItem[];
@@ -46,13 +40,8 @@ interface CardsSectionProps {
    IMAGE HELPER
    ========================================================= */
 
-const getImageUrl = (
-    image?: string | null,
-): string | null => {
-    if (!image) {
-        return null;
-    }
-
+const getImageUrl = (image?: string | null): string | null => {
+    if (!image) return null;
     if (
         image.startsWith('http://') ||
         image.startsWith('https://') ||
@@ -60,7 +49,6 @@ const getImageUrl = (
     ) {
         return image;
     }
-
     return `/storage/${image}`;
 };
 
@@ -85,12 +73,7 @@ const renderIcon = (icon?: string) => {
             </svg>
         );
     }
-
-    return (
-        <span className="text-xl leading-none">
-            {icon}
-        </span>
-    );
+    return <span className="text-xl leading-none">{icon}</span>;
 };
 
 function ArrowIcon() {
@@ -113,7 +96,7 @@ function ArrowIcon() {
 }
 
 /* =========================================================
-   COMMON HEADER
+   COMMON HEADER  (already correct — kept as-is)
    ========================================================= */
 
 function SectionHeader({
@@ -132,43 +115,31 @@ function SectionHeader({
     return (
         <div
             className={
-                centered
-                    ? 'mx-auto max-w-3xl text-center'
-                    : 'max-w-2xl text-left'
+                centered ? 'mx-auto max-w-3xl text-center' : 'max-w-2xl text-left'
             }
         >
             {title && (
-                <div
-                    className={`flex ${
-                        centered
-                            ? 'justify-center'
-                            : 'justify-start'
-                    }`}
-                >
+                <div className={`flex ${centered ? 'justify-center' : 'justify-start'}`}>
                     <div className="inline-flex items-center gap-3">
                         <span className="h-[2px] w-7 bg-[#D71920]" />
-                        <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#0A5F9E] sm:text-xs">
+                        <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-[color:var(--pub-label)] sm:text-xs">
                             {title}
                         </span>
                     </div>
                 </div>
             )}
 
-            <h2 className="mt-5 text-3xl font-extrabold leading-[1.08] tracking-[-0.04em] text-[#0B2D4D] sm:text-4xl lg:text-[50px]">
+            <h2 className="mt-5 text-3xl font-extrabold leading-[1.08] tracking-[-0.04em] text-[color:var(--pub-heading)] sm:text-4xl lg:text-[50px]">
                 {heading}
             </h2>
 
-            <div
-                className={`mt-5 flex items-center gap-2 ${
-                    centered ? 'justify-center' : ''
-                }`}
-            >
+            <div className={`mt-5 flex items-center gap-2 ${centered ? 'justify-center' : ''}`}>
                 <span className="h-[3px] w-12 rounded-full bg-[#D71920]" />
                 <span className="h-[3px] w-5 rounded-full bg-[#0A5F9E]" />
             </div>
 
             {description && (
-                <p className="mt-7 text-base leading-8 text-[#5C6F82] sm:text-[17px]">
+                <p className="mt-7 text-base leading-8 text-[color:var(--pub-body)] sm:text-[17px]">
                     {description}
                 </p>
             )}
@@ -182,9 +153,7 @@ function EmptyState({ text }: { text: string }) {
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#EAF4FC] text-[#0A5F9E]">
                 {renderIcon()}
             </div>
-            <p className="mt-4 text-sm font-semibold text-[#607487]">
-                {text}
-            </p>
+            <p className="mt-4 text-sm font-semibold text-[#607487]">{text}</p>
         </div>
     );
 }
@@ -193,31 +162,18 @@ function EmptyState({ text }: { text: string }) {
    CARDS SECTION
    ========================================================= */
 
-export default function CardsSection({
-    title,
-    content = {},
-}: CardsSectionProps) {
-    const variant =
-        content.variant ?? 'services';
-
-    const items = Array.isArray(
-        content.items,
-    )
-        ? content.items
-        : [];
-
-    const heading =
-        content.heading ||
-        title ||
-        'Our Services';
+export default function CardsSection({ title, content = {} }: CardsSectionProps) {
+    const variant = content.variant ?? 'services';
+    const items = Array.isArray(content.items) ? content.items : [];
+    const heading = content.heading || title || 'Our Services';
 
     /* =====================================================
-       SERVICES — FEATURED SERVICE BENTO
+       SERVICES
        ===================================================== */
 
     if (variant === 'services') {
         return (
-            <section className="relative overflow-hidden bg-[#F7FAFD] px-5 py-20 sm:px-6 lg:px-8 lg:py-28">
+            <section className="relative overflow-hidden px-5 py-20 sm:px-6 lg:px-8 lg:py-28">
                 <div className="pointer-events-none absolute inset-0">
                     <div className="absolute left-[-8%] top-[12%] h-[340px] w-[340px] rounded-full bg-[#0A5F9E]/6 blur-[120px]" />
                     <div className="absolute bottom-[-5%] right-[-6%] h-[320px] w-[320px] rounded-full bg-[#D71920]/5 blur-[120px]" />
@@ -231,8 +187,7 @@ export default function CardsSection({
                             description={content.description}
                             align="left"
                         />
-
-                        <p className="hidden max-w-lg justify-self-end text-right text-sm leading-7 text-[#718395] lg:block">
+                        <p className="hidden max-w-lg justify-self-end text-right text-sm leading-7 text-[color:var(--pub-muted)] lg:block">
                             Built to combine strategy, engineering and ongoing
                             support into business-ready technology outcomes.
                         </p>
@@ -240,173 +195,105 @@ export default function CardsSection({
 
                     {items.length > 0 ? (
                         <div className="grid gap-5 lg:grid-cols-12">
-                            {items.map(
-                                (
-                                    item,
-                                    index,
-                                ) => {
-                                    const imageUrl =
-                                        getImageUrl(
-                                            item.image,
-                                        );
+                            {items.map((item, index) => {
+                                const imageUrl = getImageUrl(item.image);
+                                const itemTitle =
+                                    item.title || item.name || `Service ${index + 1}`;
+                                const featured = index === 0;
 
-                                    const itemTitle =
-                                        item.title ||
-                                        item.name ||
-                                        `Service ${
-                                            index + 1
-                                        }`;
+                                return (
+                                    <article
+                                        key={index}
+                                        className={`group relative overflow-hidden rounded-[32px] border border-[#D8E5EE] bg-white shadow-[0_18px_50px_rgba(11,45,77,0.085)] transition duration-300 hover:-translate-y-1 hover:border-[#A9CDE7] hover:shadow-[0_28px_68px_rgba(11,45,77,0.14)] ${
+                                            featured ? 'lg:col-span-7' : 'lg:col-span-5'
+                                        }`}
+                                    >
+                                        <div className="absolute inset-x-0 top-0 h-[3px] bg-[linear-gradient(90deg,#0A5F9E,#D71920)] opacity-0 transition duration-300 group-hover:opacity-100" />
 
-                                    const featured =
-                                        index === 0;
-
-                                    return (
-                                        <article
-                                            key={
-                                                index
-                                            }
-                                            className={`group relative overflow-hidden rounded-[32px] border border-[#D8E5EE] bg-white shadow-[0_18px_50px_rgba(11,45,77,0.085)] transition duration-300 hover:-translate-y-1 hover:border-[#A9CDE7] hover:shadow-[0_28px_68px_rgba(11,45,77,0.14)] ${
-                                                featured
-                                                    ? 'lg:col-span-7'
-                                                    : 'lg:col-span-5'
+                                        <div
+                                            className={`grid h-full ${
+                                                featured ? 'md:grid-cols-[1.08fr_0.92fr]' : ''
                                             }`}
                                         >
-                                            <div className="absolute inset-x-0 top-0 h-[3px] bg-[linear-gradient(90deg,#0A5F9E,#D71920)] opacity-0 transition duration-300 group-hover:opacity-100" />
+                                            {imageUrl && (
+                                                <div
+                                                    className={`relative overflow-hidden ${
+                                                        featured ? 'min-h-[360px]' : 'h-56'
+                                                    }`}
+                                                >
+                                                    <img
+                                                        src={imageUrl}
+                                                        alt={itemTitle}
+                                                        className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.055]"
+                                                    />
+                                                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,29,49,0.02),rgba(7,29,49,0.32))]" />
+                                                </div>
+                                            )}
 
-                                            <div
-                                                className={`grid h-full ${
-                                                    featured
-                                                        ? 'md:grid-cols-[1.08fr_0.92fr]'
-                                                        : ''
-                                                }`}
-                                            >
-                                                {imageUrl && (
-                                                    <div
-                                                        className={`relative overflow-hidden ${
-                                                            featured
-                                                                ? 'min-h-[360px]'
-                                                                : 'h-56'
-                                                        }`}
-                                                    >
-                                                        <img
-                                                            src={
-                                                                imageUrl
-                                                            }
-                                                            alt={
-                                                                itemTitle
-                                                            }
-                                                            className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.055]"
-                                                        />
+                                            <div className="relative flex h-full flex-col p-6 sm:p-7">
+                                                <div className="absolute right-[-40px] top-[-40px] h-28 w-28 rounded-full bg-[#0A5F9E]/5 transition duration-500 group-hover:scale-150" />
 
-                                                        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,29,49,0.02),rgba(7,29,49,0.32))]" />
-                                                    </div>
-                                                )}
-
-                                                <div className="relative flex h-full flex-col p-6 sm:p-7">
-                                                    <div className="absolute right-[-40px] top-[-40px] h-28 w-28 rounded-full bg-[#0A5F9E]/5 transition duration-500 group-hover:scale-150" />
-
-                                                    <div className="relative">
-                                                        <div className="flex items-center justify-between gap-4">
-                                                            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[linear-gradient(145deg,#EAF4FC,#F8FCFE)] text-[#0A5F9E] shadow-[inset_0_0_0_1px_rgba(10,95,158,0.08)]">
-                                                                {renderIcon(
-                                                                    item.icon,
-                                                                )}
-                                                            </div>
-
-                                                            <span className="text-xs font-black text-[#BCC9D3]">
-                                                                {String(
-                                                                    index +
-                                                                        1,
-                                                                ).padStart(
-                                                                    2,
-                                                                    '0',
-                                                                )}
-                                                            </span>
+                                                <div className="relative">
+                                                    <div className="flex items-center justify-between gap-4">
+                                                        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[linear-gradient(145deg,#EAF4FC,#F8FCFE)] text-[#0A5F9E] shadow-[inset_0_0_0_1px_rgba(10,95,158,0.08)]">
+                                                            {renderIcon(item.icon)}
                                                         </div>
-
-                                                        {item.badge && (
-                                                            <span className="mt-6 inline-flex rounded-full bg-[#FFF1F2] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.13em] text-[#D71920]">
-                                                                {
-                                                                    item.badge
-                                                                }
-                                                            </span>
-                                                        )}
-
-                                                        <h3 className="mt-5 text-xl font-extrabold tracking-[-0.025em] text-[#0B2D4D] sm:text-2xl">
-                                                            {
-                                                                itemTitle
-                                                            }
-                                                        </h3>
-
-                                                        {item.description && (
-                                                            <p className="mt-3 text-sm leading-7 text-[#607487]">
-                                                                {
-                                                                    item.description
-                                                                }
-                                                            </p>
-                                                        )}
-
-                                                        {Array.isArray(
-                                                            item.features,
-                                                        ) &&
-                                                            item
-                                                                .features
-                                                                .filter(
-                                                                    Boolean,
-                                                                )
-                                                                .length >
-                                                                0 && (
-                                                                <div className="mt-5 grid gap-2 sm:grid-cols-2">
-                                                                    {item.features
-                                                                        .filter(
-                                                                            Boolean,
-                                                                        )
-                                                                        .slice(
-                                                                            0,
-                                                                            4,
-                                                                        )
-                                                                        .map(
-                                                                            (
-                                                                                feature,
-                                                                                featureIndex,
-                                                                            ) => (
-                                                                                <div
-                                                                                    key={
-                                                                                        featureIndex
-                                                                                    }
-                                                                                    className="flex items-start gap-2 text-xs leading-5 text-[#607487]"
-                                                                                >
-                                                                                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#D71920]" />
-                                                                                    <span>
-                                                                                        {
-                                                                                            feature
-                                                                                        }
-                                                                                    </span>
-                                                                                </div>
-                                                                            ),
-                                                                        )}
-                                                                </div>
-                                                            )}
-
-                                                        {item.url && (
-                                                            <a
-                                                                href={
-                                                                    item.url
-                                                                }
-                                                                className="mt-7 inline-flex items-center gap-2 rounded-xl bg-[#F2F8FC] px-4 py-2.5 text-sm font-bold text-[#0A5F9E] transition group-hover:text-[#D71920]"
-                                                            >
-                                                                {item.button_text ||
-                                                                    'Learn More'}
-                                                                <ArrowIcon />
-                                                            </a>
-                                                        )}
+                                                        <span className="text-xs font-black text-[#BCC9D3]">
+                                                            {String(index + 1).padStart(2, '0')}
+                                                        </span>
                                                     </div>
+
+                                                    {item.badge && (
+                                                        <span className="mt-6 inline-flex rounded-full bg-[#FFF1F2] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.13em] text-[#D71920]">
+                                                            {item.badge}
+                                                        </span>
+                                                    )}
+
+                                                    {/* ✅ was text-[#0B2D4D] */}
+                                                    <h3 className="mt-5 text-xl font-extrabold tracking-[-0.025em] text-[#0B2D4D] sm:text-2xl">
+                                                        {itemTitle}
+                                                    </h3>
+
+                                                    {/* ✅ was text-[#607487] */}
+                                                    {item.description && (
+                                                        <p className="mt-3 text-sm leading-7 text-[#4A5E70]">
+                                                            {item.description}
+                                                        </p>
+                                                    )}
+
+                                                    {Array.isArray(item.features) &&
+                                                        item.features.filter(Boolean).length > 0 && (
+                                                            <div className="mt-5 grid gap-2 sm:grid-cols-2">
+                                                                {item.features
+                                                                    .filter(Boolean)
+                                                                    .slice(0, 4)
+                                                                    .map((feature, featureIndex) => (
+                                                                        <div
+                                                                            key={featureIndex}
+                                                                            className="flex items-start gap-2 text-xs leading-5 text-[#4A5E70]"
+                                                                        >
+                                                                            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#D71920]" />
+                                                                            <span>{feature}</span>
+                                                                        </div>
+                                                                    ))}
+                                                            </div>
+                                                        )}
+
+                                                    {item.url && (
+                                                        <a
+                                                            href={item.url}
+                                                            className="mt-7 inline-flex items-center gap-2 rounded-xl bg-[#F2F8FC] px-4 py-2.5 text-sm font-bold text-[#0A5F9E] transition group-hover:text-[#D71920]"
+                                                        >
+                                                            {item.button_text || 'Learn More'}
+                                                            <ArrowIcon />
+                                                        </a>
+                                                    )}
                                                 </div>
                                             </div>
-                                        </article>
-                                    );
-                                },
-                            )}
+                                        </div>
+                                    </article>
+                                );
+                            })}
                         </div>
                     ) : (
                         <EmptyState text="No service cards have been added yet." />
@@ -417,12 +304,12 @@ export default function CardsSection({
     }
 
     /* =====================================================
-       SOLUTIONS — EXECUTIVE SOLUTION TIMELINE
+       SOLUTIONS
        ===================================================== */
 
     if (variant === 'solutions') {
         return (
-            <section className="relative overflow-hidden bg-[#F7FAFD] px-5 py-20 sm:px-6 lg:px-8 lg:py-28">
+            <section className="relative overflow-hidden px-5 py-20 sm:px-6 lg:px-8 lg:py-28">
                 <div className="pointer-events-none absolute inset-0">
                     <div className="absolute -left-32 top-12 h-[320px] w-[320px] rounded-full bg-[#0A5F9E]/5 blur-[120px]" />
                     <div className="absolute -right-28 bottom-0 h-[300px] w-[300px] rounded-full bg-[#D71920]/4 blur-[120px]" />
@@ -442,7 +329,7 @@ export default function CardsSection({
                                 <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#0A5F9E]">
                                     Solution Architecture
                                 </p>
-                                <p className="mt-2 text-sm leading-6 text-[#607487]">
+                                <p className="mt-2 text-sm leading-6 text-[#4A5E70]">
                                     Explore integrated solutions designed around
                                     business outcomes, scalability and long-term
                                     operational value.
@@ -452,122 +339,71 @@ export default function CardsSection({
 
                         {items.length > 0 ? (
                             <div className="relative space-y-6 before:absolute before:bottom-6 before:left-[27px] before:top-6 before:w-px before:bg-[#D9E6EF]">
-                                {items.map(
-                                    (
-                                        item,
-                                        index,
-                                    ) => {
-                                        const itemTitle =
-                                            item.title ||
-                                            item.name ||
-                                            `Solution ${
-                                                index +
-                                                1
-                                            }`;
+                                {items.map((item, index) => {
+                                    const itemTitle =
+                                        item.title || item.name || `Solution ${index + 1}`;
 
-                                        return (
-                                            <article
-                                                key={
-                                                    index
-                                                }
-                                                className="group relative pl-[72px]"
-                                            >
-                                                <div className="absolute left-0 top-6 z-10 flex h-14 w-14 items-center justify-center rounded-2xl border border-[#D5E4EE] bg-white text-[#0A5F9E] shadow-[0_8px_20px_rgba(11,45,77,0.08)] transition duration-300 group-hover:border-[#0A5F9E] group-hover:bg-[#0A5F9E] group-hover:text-white">
-                                                    {renderIcon(
-                                                        item.icon,
-                                                    )}
-                                                </div>
+                                    return (
+                                        <article key={index} className="group relative pl-[72px]">
+                                            <div className="absolute left-0 top-6 z-10 flex h-14 w-14 items-center justify-center rounded-2xl border border-[#D5E4EE] bg-white text-[#0A5F9E] shadow-[0_8px_20px_rgba(11,45,77,0.08)] transition duration-300 group-hover:border-[#0A5F9E] group-hover:bg-[#0A5F9E] group-hover:text-white">
+                                                {renderIcon(item.icon)}
+                                            </div>
 
-                                                <div className="rounded-[28px] border border-[#D8E5EE] bg-white p-7 shadow-[0_12px_36px_rgba(11,45,77,0.06)] transition duration-300 group-hover:-translate-y-1 group-hover:border-[#A9CDE7] group-hover:shadow-[0_22px_52px_rgba(11,45,77,0.11)]">
-                                                    <div className="flex flex-wrap items-start justify-between gap-4">
-                                                        <div>
-                                                            <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#D71920]">
-                                                                Solution{' '}
-                                                                {String(
-                                                                    index +
-                                                                        1,
-                                                                ).padStart(
-                                                                    2,
-                                                                    '0',
-                                                                )}
-                                                            </span>
-
-                                                            <h3 className="mt-2 text-xl font-extrabold tracking-[-0.025em] text-[#0B2D4D]">
-                                                                {
-                                                                    itemTitle
-                                                                }
-                                                            </h3>
-                                                        </div>
-
-                                                        {item.badge && (
-                                                            <span className="rounded-full bg-[#EAF4FC] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#0A5F9E]">
-                                                                {
-                                                                    item.badge
-                                                                }
-                                                            </span>
-                                                        )}
+                                            <div className="rounded-[28px] border border-[#D8E5EE] bg-white p-7 shadow-[0_12px_36px_rgba(11,45,77,0.06)] transition duration-300 group-hover:-translate-y-1 group-hover:border-[#A9CDE7] group-hover:shadow-[0_22px_52px_rgba(11,45,77,0.11)]">
+                                                <div className="flex flex-wrap items-start justify-between gap-4">
+                                                    <div>
+                                                        <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#D71920]">
+                                                            Solution {String(index + 1).padStart(2, '0')}
+                                                        </span>
+                                                        {/* ✅ was text-[#0B2D4D] */}
+                                                        <h3 className="mt-2 text-xl font-extrabold tracking-[-0.025em] text-[#0B2D4D]">
+                                                            {itemTitle}
+                                                        </h3>
                                                     </div>
 
-                                                    {item.description && (
-                                                        <p className="mt-4 text-sm leading-7 text-[#607487]">
-                                                            {
-                                                                item.description
-                                                            }
-                                                        </p>
-                                                    )}
-
-                                                    {Array.isArray(
-                                                        item.features,
-                                                    ) &&
-                                                        item
-                                                            .features
-                                                            .filter(
-                                                                Boolean,
-                                                            )
-                                                            .length >
-                                                            0 && (
-                                                            <div className="mt-5 flex flex-wrap gap-2">
-                                                                {item.features
-                                                                    .filter(
-                                                                        Boolean,
-                                                                    )
-                                                                    .map(
-                                                                        (
-                                                                            feature,
-                                                                            featureIndex,
-                                                                        ) => (
-                                                                            <span
-                                                                                key={
-                                                                                    featureIndex
-                                                                                }
-                                                                                className="rounded-full border border-[#DCE7EF] bg-[#F8FBFD] px-3 py-1.5 text-[11px] font-semibold text-[#5E7386]"
-                                                                            >
-                                                                                {
-                                                                                    feature
-                                                                                }
-                                                                            </span>
-                                                                        ),
-                                                                    )}
-                                                            </div>
-                                                        )}
-
-                                                    {item.url && (
-                                                        <a
-                                                            href={
-                                                                item.url
-                                                            }
-                                                            className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#0A5F9E] transition hover:text-[#D71920]"
-                                                        >
-                                                            {item.button_text ||
-                                                                'Explore Solution'}
-                                                            <ArrowIcon />
-                                                        </a>
+                                                    {item.badge && (
+                                                        <span className="rounded-full bg-[#EAF4FC] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#0A5F9E]">
+                                                            {item.badge}
+                                                        </span>
                                                     )}
                                                 </div>
-                                            </article>
-                                        );
-                                    },
-                                )}
+
+                                                {/* ✅ was text-[#607487] */}
+                                                {item.description && (
+                                                    <p className="mt-4 text-sm leading-7 text-[#4A5E70]">
+                                                        {item.description}
+                                                    </p>
+                                                )}
+
+                                                {Array.isArray(item.features) &&
+                                                    item.features.filter(Boolean).length > 0 && (
+                                                        <div className="mt-5 flex flex-wrap gap-2">
+                                                            {item.features
+                                                                .filter(Boolean)
+                                                                .map((feature, featureIndex) => (
+                                                                    <span
+                                                                        key={featureIndex}
+                                                                        className="rounded-full border border-[#DCE7EF] bg-[#F8FBFD] px-3 py-1.5 text-[11px] font-semibold text-[#4A5E70]"
+                                                                    >
+                                                                        {feature}
+                                                                    </span>
+                                                                ))}
+                                                        </div>
+                                                    )}
+
+                                                {item.url && (
+                                                    <a
+                                                        href={item.url}
+                                                        className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#0A5F9E] transition hover:text-[#D71920]"
+                                                    >
+                                                        {item.button_text || 'Explore Solution'}
+                                                        <ArrowIcon />
+                                                    </a>
+                                                )}
+                                            </div>
+                                        </article>
+                                    );
+                                })}
                             </div>
                         ) : (
                             <EmptyState text="No solutions have been added yet." />
@@ -579,12 +415,12 @@ export default function CardsSection({
     }
 
     /* =====================================================
-       PRODUCTS — PRODUCT SHOWCASE SHELF
+       PRODUCTS
        ===================================================== */
 
     if (variant === 'products') {
         return (
-            <section className="relative overflow-hidden bg-[#F7FAFD] px-5 py-20 sm:px-6 lg:px-8 lg:py-28">
+            <section className="relative overflow-hidden px-5 py-20 sm:px-6 lg:px-8 lg:py-28">
                 <div className="pointer-events-none absolute inset-0">
                     <div className="absolute -left-32 top-12 h-[320px] w-[320px] rounded-full bg-[#0A5F9E]/5 blur-[120px]" />
                     <div className="absolute -right-28 bottom-0 h-[300px] w-[300px] rounded-full bg-[#D71920]/4 blur-[120px]" />
@@ -599,111 +435,75 @@ export default function CardsSection({
 
                     {items.length > 0 ? (
                         <div className="mt-14 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                            {items.map(
-                                (
-                                    item,
-                                    index,
-                                ) => {
-                                    const itemTitle =
-                                        item.title ||
-                                        item.name ||
-                                        `Product ${
-                                            index + 1
-                                        }`;
+                            {items.map((item, index) => {
+                                const itemTitle =
+                                    item.title || item.name || `Product ${index + 1}`;
+                                const imageUrl = getImageUrl(item.image);
 
-                                    const imageUrl =
-                                        getImageUrl(
-                                            item.image,
-                                        );
+                                return (
+                                    <article
+                                        key={index}
+                                        className="group relative overflow-hidden rounded-[32px] border border-[#D8E5EE] bg-white shadow-[0_18px_48px_rgba(11,45,77,0.075)] transition duration-300 hover:-translate-y-1 hover:border-[#A9CDE7] hover:shadow-[0_24px_58px_rgba(11,45,77,0.11)]"
+                                    >
+                                        <div className="relative flex h-[280px] items-center justify-center overflow-hidden bg-[linear-gradient(145deg,#F8FBFD_0%,#EEF6FA_100%)] p-8">
+                                            <div className="absolute right-[-50px] top-[-50px] h-36 w-36 rounded-full bg-[#0A5F9E]/7 blur-2xl" />
+                                            <div className="absolute bottom-[-60px] left-[-30px] h-32 w-32 rounded-full bg-[#D71920]/6 blur-2xl" />
 
-                                    return (
-                                        <article
-                                            key={
-                                                index
-                                            }
-                                            className="group relative overflow-hidden rounded-[32px] border border-[#D8E5EE] bg-white shadow-[0_18px_48px_rgba(11,45,77,0.075)] transition duration-300 hover:-translate-y-1 hover:border-[#A9CDE7] hover:shadow-[0_24px_58px_rgba(11,45,77,0.11)]"
-                                        >
-                                            <div className="relative flex h-[280px] items-center justify-center overflow-hidden bg-[linear-gradient(145deg,#F8FBFD_0%,#EEF6FA_100%)] p-8">
-                                                <div className="absolute right-[-50px] top-[-50px] h-36 w-36 rounded-full bg-[#0A5F9E]/7 blur-2xl" />
-                                                <div className="absolute bottom-[-60px] left-[-30px] h-32 w-32 rounded-full bg-[#D71920]/6 blur-2xl" />
+                                            {item.badge && (
+                                                <span className="absolute left-5 top-5 rounded-full bg-[#D71920] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-white shadow-sm">
+                                                    {item.badge}
+                                                </span>
+                                            )}
 
-                                                {item.badge && (
-                                                    <span className="absolute left-5 top-5 rounded-full bg-[#D71920] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-white shadow-sm">
-                                                        {
-                                                            item.badge
-                                                        }
-                                                    </span>
-                                                )}
-
-                                                {imageUrl ? (
-                                                    <img
-                                                        src={
-                                                            imageUrl
-                                                        }
-                                                        alt={
-                                                            itemTitle
-                                                        }
-                                                        className="relative z-10 max-h-[205px] max-w-[80%] object-contain drop-shadow-[0_22px_30px_rgba(11,45,77,0.18)] transition duration-500 group-hover:scale-[1.045]"
-                                                    />
-                                                ) : (
-                                                    <div className="relative z-10 flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-[#0A5F9E] shadow-lg">
-                                                        {renderIcon(
-                                                            item.icon,
-                                                        )}
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            <div className="p-7">
-                                                <div className="flex items-start justify-between gap-4">
-                                                    <div>
-                                                        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#0A5F9E]">
-                                                            Product Solution
-                                                        </p>
-
-                                                        <h3 className="mt-2 text-2xl font-extrabold tracking-[-0.03em] text-[#0B2D4D]">
-                                                            {
-                                                                itemTitle
-                                                            }
-                                                        </h3>
-                                                    </div>
-
-                                                    <span className="text-xs font-black text-[#C1CDD6]">
-                                                        {String(
-                                                            index +
-                                                                1,
-                                                        ).padStart(
-                                                            2,
-                                                            '0',
-                                                        )}
-                                                    </span>
+                                            {imageUrl ? (
+                                                <img
+                                                    src={imageUrl}
+                                                    alt={itemTitle}
+                                                    className="relative z-10 max-h-[205px] max-w-[80%] object-contain drop-shadow-[0_22px_30px_rgba(11,45,77,0.18)] transition duration-500 group-hover:scale-[1.045]"
+                                                />
+                                            ) : (
+                                                <div className="relative z-10 flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-[#0A5F9E] shadow-lg">
+                                                    {renderIcon(item.icon)}
                                                 </div>
+                                            )}
+                                        </div>
 
-                                                {item.description && (
-                                                    <p className="mt-4 text-sm leading-7 text-[#607487]">
-                                                        {
-                                                            item.description
-                                                        }
+                                        <div className="p-7">
+                                            <div className="flex items-start justify-between gap-4">
+                                                <div>
+                                                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#0A5F9E]">
+                                                        Product Solution
                                                     </p>
-                                                )}
-
-                                                {item.url && (
-                                                    <a
-                                                        href={
-                                                            item.url
-                                                        }
-                                                        className="mt-7 inline-flex items-center gap-2 rounded-xl bg-[#F2F8FC] px-4 py-2.5 text-sm font-bold text-[#0A5F9E] transition hover:text-[#D71920]"
-                                                    >
-                                                        {item.button_text ||
-                                                            'View Product'}
-                                                        <ArrowIcon />
-                                                    </a>
-                                                )}
+                                                    {/* ✅ was text-[#0B2D4D] */}
+                                                    <h3 className="mt-2 text-2xl font-extrabold tracking-[-0.03em] text-[#0B2D4D]">
+                                                        {itemTitle}
+                                                    </h3>
+                                                </div>
+                                                <span className="text-xs font-black text-[#C1CDD6]">
+                                                    {String(index + 1).padStart(2, '0')}
+                                                </span>
                                             </div>
-                                        </article>
-                                    );
-                                },
-                            )}
+
+                                            {/* ✅ was text-[#607487] */}
+                                            {item.description && (
+                                                <p className="mt-4 text-sm leading-7 text-[#4A5E70]">
+                                                    {item.description}
+                                                </p>
+                                            )}
+
+                                            {item.url && (
+                                                <a
+                                                    href={item.url}
+                                                    className="mt-7 inline-flex items-center gap-2 rounded-xl bg-[#F2F8FC] px-4 py-2.5 text-sm font-bold text-[#0A5F9E] transition hover:text-[#D71920]"
+                                                >
+                                                    {item.button_text || 'View Product'}
+                                                    <ArrowIcon />
+                                                </a>
+                                            )}
+                                        </div>
+                                    </article>
+                                );
+                            })}
                         </div>
                     ) : (
                         <div className="mt-14">
@@ -716,12 +516,12 @@ export default function CardsSection({
     }
 
     /* =====================================================
-       AI SOLUTIONS — FUTURISTIC TECHNOLOGY CANVAS
+       AI SOLUTIONS  (always dark — kept hardcoded, correct)
        ===================================================== */
 
     if (variant === 'ai_solutions') {
         return (
-            <section className="relative overflow-hidden bg-[#F7FAFD] px-5 py-20 sm:px-6 lg:px-8 lg:py-28">
+            <section className="relative overflow-hidden px-5 py-20 sm:px-6 lg:px-8 lg:py-28">
                 <div className="pointer-events-none absolute inset-0">
                     <div className="absolute -left-32 top-12 h-[320px] w-[320px] rounded-full bg-[#0A5F9E]/5 blur-[120px]" />
                     <div className="absolute -right-28 bottom-0 h-[300px] w-[300px] rounded-full bg-[#D71920]/4 blur-[120px]" />
@@ -746,11 +546,9 @@ export default function CardsSection({
                                             </span>
                                         </div>
                                     )}
-
                                     <h2 className="mt-5 text-3xl font-extrabold leading-[1.08] tracking-[-0.04em] text-white sm:text-4xl lg:text-[50px]">
                                         {heading}
                                     </h2>
-
                                     <div className="mt-5 flex gap-2">
                                         <span className="h-[3px] w-12 rounded-full bg-[#FF7B80]" />
                                         <span className="h-[3px] w-5 rounded-full bg-[#7CC5F2]" />
@@ -759,148 +557,88 @@ export default function CardsSection({
 
                                 {content.description && (
                                     <p className="max-w-xl justify-self-end text-base leading-8 text-white/70 lg:text-right">
-                                        {
-                                            content.description
-                                        }
+                                        {content.description}
                                     </p>
                                 )}
                             </div>
 
                             {items.length > 0 ? (
                                 <div className="mt-12 grid gap-5 lg:grid-cols-12">
-                                    {items.map(
-                                        (
-                                            item,
-                                            index,
-                                        ) => {
-                                            const itemTitle =
-                                                item.title ||
-                                                item.name ||
-                                                `AI Solution ${
-                                                    index +
-                                                    1
-                                                }`;
+                                    {items.map((item, index) => {
+                                        const itemTitle =
+                                            item.title || item.name || `AI Solution ${index + 1}`;
+                                        const spanClass =
+                                            index === 0
+                                                ? 'lg:col-span-7'
+                                                : index === 1
+                                                  ? 'lg:col-span-5'
+                                                  : 'lg:col-span-4';
 
-                                            const spanClass =
-                                                index ===
-                                                0
-                                                    ? 'lg:col-span-7'
-                                                    : index ===
-                                                        1
-                                                      ? 'lg:col-span-5'
-                                                      : 'lg:col-span-4';
+                                        return (
+                                            <article
+                                                key={index}
+                                                className={`group relative overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.075] p-6 backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:border-white/25 hover:bg-white/[0.12] ${spanClass}`}
+                                            >
+                                                <div className="absolute right-[-45px] top-[-45px] h-28 w-28 rounded-full bg-white/5 transition duration-500 group-hover:scale-150" />
 
-                                            return (
-                                                <article
-                                                    key={
-                                                        index
-                                                    }
-                                                    className={`group relative overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.075] p-6 backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:border-white/25 hover:bg-white/[0.12] ${spanClass}`}
-                                                >
-                                                    <div className="absolute right-[-45px] top-[-45px] h-28 w-28 rounded-full bg-white/5 transition duration-500 group-hover:scale-150" />
-
-                                                    <div className="relative">
-                                                        <div className="flex items-start justify-between gap-4">
-                                                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-[#9ED7F8] ring-1 ring-white/10">
-                                                                {renderIcon(
-                                                                    item.icon,
-                                                                )}
-                                                            </div>
-
-                                                            <div className="flex items-center gap-2">
-                                                                {item.badge && (
-                                                                    <span className="rounded-full border border-white/10 bg-white/10 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-white/70">
-                                                                        {
-                                                                            item.badge
-                                                                        }
-                                                                    </span>
-                                                                )}
-
-                                                                <span className="text-[10px] font-bold text-white/25">
-                                                                    {String(
-                                                                        index +
-                                                                            1,
-                                                                    ).padStart(
-                                                                        2,
-                                                                        '0',
-                                                                    )}
-                                                                </span>
-                                                            </div>
+                                                <div className="relative">
+                                                    <div className="flex items-start justify-between gap-4">
+                                                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-[#9ED7F8] ring-1 ring-white/10">
+                                                            {renderIcon(item.icon)}
                                                         </div>
-
-                                                        <h3 className="mt-6 text-xl font-extrabold tracking-[-0.025em] text-white">
-                                                            {
-                                                                itemTitle
-                                                            }
-                                                        </h3>
-
-                                                        {item.description && (
-                                                            <p className="mt-3 text-sm leading-7 text-white/68">
-                                                                {
-                                                                    item.description
-                                                                }
-                                                            </p>
-                                                        )}
-
-                                                        {Array.isArray(
-                                                            item.features,
-                                                        ) &&
-                                                            item
-                                                                .features
-                                                                .filter(
-                                                                    Boolean,
-                                                                )
-                                                                .length >
-                                                                0 && (
-                                                                <div className="mt-5 space-y-2">
-                                                                    {item.features
-                                                                        .filter(
-                                                                            Boolean,
-                                                                        )
-                                                                        .slice(
-                                                                            0,
-                                                                            4,
-                                                                        )
-                                                                        .map(
-                                                                            (
-                                                                                feature,
-                                                                                featureIndex,
-                                                                            ) => (
-                                                                                <div
-                                                                                    key={
-                                                                                        featureIndex
-                                                                                    }
-                                                                                    className="flex items-start gap-2 text-xs leading-5 text-white/70"
-                                                                                >
-                                                                                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#FF7B80]" />
-                                                                                    <span>
-                                                                                        {
-                                                                                            feature
-                                                                                        }
-                                                                                    </span>
-                                                                                </div>
-                                                                            ),
-                                                                        )}
-                                                                </div>
+                                                        <div className="flex items-center gap-2">
+                                                            {item.badge && (
+                                                                <span className="rounded-full border border-white/10 bg-white/10 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-white/70">
+                                                                    {item.badge}
+                                                                </span>
                                                             )}
-
-                                                        {item.url && (
-                                                            <a
-                                                                href={
-                                                                    item.url
-                                                                }
-                                                                className="mt-7 inline-flex items-center gap-2 text-sm font-bold text-[#9ED7F8] transition hover:text-white"
-                                                            >
-                                                                {item.button_text ||
-                                                                    'Explore AI Solution'}
-                                                                <ArrowIcon />
-                                                            </a>
-                                                        )}
+                                                            <span className="text-[10px] font-bold text-white/25">
+                                                                {String(index + 1).padStart(2, '0')}
+                                                            </span>
+                                                        </div>
                                                     </div>
-                                                </article>
-                                            );
-                                        },
-                                    )}
+
+                                                    <h3 className="mt-6 text-xl font-extrabold tracking-[-0.025em] text-white">
+                                                        {itemTitle}
+                                                    </h3>
+
+                                                    {item.description && (
+                                                        <p className="mt-3 text-sm leading-7 text-white/75">
+                                                            {item.description}
+                                                        </p>
+                                                    )}
+
+                                                    {Array.isArray(item.features) &&
+                                                        item.features.filter(Boolean).length > 0 && (
+                                                            <div className="mt-5 space-y-2">
+                                                                {item.features
+                                                                    .filter(Boolean)
+                                                                    .slice(0, 4)
+                                                                    .map((feature, featureIndex) => (
+                                                                        <div
+                                                                            key={featureIndex}
+                                                                            className="flex items-start gap-2 text-xs leading-5 text-white/80"
+                                                                        >
+                                                                            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#FF7B80]" />
+                                                                            <span>{feature}</span>
+                                                                        </div>
+                                                                    ))}
+                                                            </div>
+                                                        )}
+
+                                                    {item.url && (
+                                                        <a
+                                                            href={item.url}
+                                                            className="mt-7 inline-flex items-center gap-2 text-sm font-bold text-[#9ED7F8] transition hover:text-white"
+                                                        >
+                                                            {item.button_text || 'Explore AI Solution'}
+                                                            <ArrowIcon />
+                                                        </a>
+                                                    )}
+                                                </div>
+                                            </article>
+                                        );
+                                    })}
                                 </div>
                             ) : (
                                 <div className="mt-12 rounded-[26px] border border-dashed border-white/20 bg-white/[0.05] px-6 py-14 text-center">
@@ -917,12 +655,12 @@ export default function CardsSection({
     }
 
     /* =====================================================
-       WHY CHOOSE US — ADVANTAGE INDEX
+       WHY CHOOSE US
        ===================================================== */
 
     if (variant === 'why_choose_us') {
         return (
-            <section className="relative overflow-hidden bg-[#F7FAFD] px-5 py-20 sm:px-6 lg:px-8 lg:py-28">
+            <section className="relative overflow-hidden px-5 py-20 sm:px-6 lg:px-8 lg:py-28">
                 <div className="pointer-events-none absolute inset-0">
                     <div className="absolute -left-32 top-12 h-[320px] w-[320px] rounded-full bg-[#0A5F9E]/5 blur-[120px]" />
                     <div className="absolute -right-28 bottom-0 h-[300px] w-[300px] rounded-full bg-[#D71920]/4 blur-[120px]" />
@@ -940,62 +678,40 @@ export default function CardsSection({
 
                     {items.length > 0 ? (
                         <div className="grid overflow-hidden rounded-[34px] border border-[#D8E5EE] bg-white shadow-[0_20px_62px_rgba(11,45,77,0.085)] md:grid-cols-2 lg:grid-cols-3">
-                            {items.map(
-                                (
-                                    item,
-                                    index,
-                                ) => {
-                                    const itemTitle =
-                                        item.title ||
-                                        item.name ||
-                                        `Advantage ${
-                                            index + 1
-                                        }`;
+                            {items.map((item, index) => {
+                                const itemTitle =
+                                    item.title || item.name || `Advantage ${index + 1}`;
 
-                                    return (
-                                        <article
-                                            key={
-                                                index
-                                            }
-                                            className="group relative min-h-[270px] border-b border-r border-[#E7EEF3] p-7 transition duration-300 hover:z-10 hover:bg-[#F9FCFE] hover:shadow-[0_14px_34px_rgba(11,45,77,0.08)]"
-                                        >
-                                            <div className="flex items-start justify-between gap-4">
-                                                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#EAF4FC] text-[#0A5F9E]">
-                                                    {renderIcon(
-                                                        item.icon,
-                                                    )}
-                                                </div>
-
-                                                <span className="text-[32px] font-black tracking-[-0.05em] text-[#E6EEF4] transition group-hover:text-[#D71920]/20">
-                                                    {String(
-                                                        index +
-                                                            1,
-                                                    ).padStart(
-                                                        2,
-                                                        '0',
-                                                    )}
-                                                </span>
+                                return (
+                                    <article
+                                        key={index}
+                                        className="group relative min-h-[270px] border-b border-r border-[#E7EEF3] p-7 transition duration-300 hover:z-10 hover:bg-[#F9FCFE] hover:shadow-[0_14px_34px_rgba(11,45,77,0.08)]"
+                                    >
+                                        <div className="flex items-start justify-between gap-4">
+                                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#EAF4FC] text-[#0A5F9E]">
+                                                {renderIcon(item.icon)}
                                             </div>
+                                            <span className="text-[32px] font-black tracking-[-0.05em] text-[#E6EEF4] transition group-hover:text-[#D71920]/20">
+                                                {String(index + 1).padStart(2, '0')}
+                                            </span>
+                                        </div>
 
-                                            <h3 className="mt-6 text-xl font-extrabold tracking-[-0.025em] text-[#0B2D4D]">
-                                                {
-                                                    itemTitle
-                                                }
-                                            </h3>
+                                        {/* ✅ was text-[#0B2D4D] */}
+                                        <h3 className="mt-6 text-xl font-extrabold tracking-[-0.025em] text-[#0B2D4D]">
+                                            {itemTitle}
+                                        </h3>
 
-                                            {item.description && (
-                                                <p className="mt-3 text-sm leading-7 text-[#607487]">
-                                                    {
-                                                        item.description
-                                                    }
-                                                </p>
-                                            )}
+                                        {/* ✅ was text-[#607487] */}
+                                        {item.description && (
+                                            <p className="mt-3 text-sm leading-7 text-[#4A5E70]">
+                                                {item.description}
+                                            </p>
+                                        )}
 
-                                            <div className="absolute bottom-0 left-0 h-[3px] w-0 bg-[linear-gradient(90deg,#0A5F9E,#D71920)] transition-all duration-300 group-hover:w-full" />
-                                        </article>
-                                    );
-                                },
-                            )}
+                                        <div className="absolute bottom-0 left-0 h-[3px] w-0 bg-[linear-gradient(90deg,#0A5F9E,#D71920)] transition-all duration-300 group-hover:w-full" />
+                                    </article>
+                                );
+                            })}
                         </div>
                     ) : (
                         <EmptyState text="No advantages have been added yet." />
@@ -1005,232 +721,677 @@ export default function CardsSection({
         );
     }
 
-    /* =====================================================
-       TESTIMONIALS — FEATURED QUOTE + SUPPORTING QUOTES
-       ===================================================== */
+    /* =========================================================
+    TESTIMONIALS
+    ========================================================= */
 
     if (variant === 'testimonials') {
-        const featured =
-            items[0] ?? null;
+        const getTestimonialName = (item: CardItem, index: number) =>
+            item.person_name ||
+            item.title ||
+            item.name ||
+            `Client ${index + 1}`;
 
-        const remaining =
-            items.slice(1);
-
-        const featuredName =
-            featured
-                ? featured.person_name ||
-                  featured.title ||
-                  featured.name ||
-                  'Client'
-                : '';
-
-        const featuredLogo =
-            featured
-                ? getImageUrl(
-                      featured.logo ||
-                          featured.image,
-                  )
-                : null;
+        const getCompanyInfo = (item: CardItem) =>
+            [item.designation, item.company]
+                .filter(Boolean)
+                .join(' · ');
 
         return (
-            <section className="relative overflow-hidden bg-[#F7FAFD] px-5 py-20 sm:px-6 lg:px-8 lg:py-28">
+            <section className="relative overflow-hidden bg-white px-5 py-20 sm:px-6 lg:px-8 lg:py-28">
+
+                {/* =====================================================
+                BACKGROUND DECORATION
+                ===================================================== */}
+
                 <div className="pointer-events-none absolute inset-0">
-                    <div className="absolute -left-32 top-12 h-[320px] w-[320px] rounded-full bg-[#0A5F9E]/5 blur-[120px]" />
-                    <div className="absolute -right-28 bottom-0 h-[300px] w-[300px] rounded-full bg-[#D71920]/4 blur-[120px]" />
+
+                    {/* Blue glow */}
+                    <div
+                        className="
+                            absolute
+                            left-[-180px]
+                            top-[-100px]
+                            h-[420px]
+                            w-[420px]
+                            rounded-full
+                            bg-[#0A5F9E]/[0.045]
+                            blur-[120px]
+                        "
+                    />
+
+                    {/* Red glow */}
+                    <div
+                        className="
+                            absolute
+                            right-[-180px]
+                            top-[20%]
+                            h-[420px]
+                            w-[420px]
+                            rounded-full
+                            bg-[#D71920]/[0.035]
+                            blur-[120px]
+                        "
+                    />
+
+                    {/* Bottom blue glow */}
+                    <div
+                        className="
+                            absolute
+                            bottom-[-180px]
+                            left-[35%]
+                            h-[420px]
+                            w-[420px]
+                            rounded-full
+                            bg-[#0A5F9E]/[0.025]
+                            blur-[120px]
+                        "
+                    />
+
+                    {/* Very subtle grid */}
+                    <div
+                        className="
+                            absolute
+                            inset-0
+                            opacity-[0.018]
+                            [background-image:linear-gradient(#0B2D4D_1px,transparent_1px),linear-gradient(90deg,#0B2D4D_1px,transparent_1px)]
+                            [background-size:48px_48px]
+                        "
+                    />
                 </div>
 
+                {/* =====================================================
+                MAIN CONTAINER
+                ===================================================== */}
+
                 <div className="relative z-10 mx-auto max-w-[1400px]">
+
+                    {/* =================================================
+                    SECTION HEADER
+                    ================================================= */}
+
                     <SectionHeader
                         title={title}
                         heading={heading}
                         description={content.description}
                     />
 
+                    {/* =================================================
+                    TESTIMONIAL COUNT
+                    ================================================= */}
+
+                    {items.length > 0 && (
+                        <div className="mt-7 flex justify-center">
+
+                            <div
+                                className="
+                                    inline-flex
+                                    items-center
+                                    gap-2
+                                    rounded-full
+                                    border
+                                    border-[#DCE7EF]
+                                    bg-white
+                                    px-4
+                                    py-2
+                                    shadow-[0_6px_20px_rgba(11,45,77,0.05)]
+                                "
+                            >
+                                <span className="h-2 w-2 rounded-full bg-[#D71920]" />
+
+                                <span
+                                    className="
+                                        text-[10px]
+                                        font-bold
+                                        uppercase
+                                        tracking-[0.16em]
+                                        text-[#607487]
+                                    "
+                                >
+                                    {items.length}{' '}
+                                    {items.length === 1
+                                        ? 'Customer Review'
+                                        : 'Customer Reviews'}
+                                </span>
+                            </div>
+
+                        </div>
+                    )}
+
+                    {/* =================================================
+                    ALL TESTIMONIALS
+
+                    IMPORTANT:
+                    We use items.map() directly.
+
+                    This means:
+                    1 testimonial = 1 card
+                    5 testimonials = 5 cards
+                    10 testimonials = 10 cards
+                    20 testimonials = 20 cards
+
+                    There is NO hardcoded card limit.
+                    ================================================= */}
+
                     {items.length > 0 ? (
-                        <div className="mt-14 grid gap-6 lg:grid-cols-[1.08fr_0.92fr]">
-                            {featured && (
-                                <article className="relative overflow-hidden rounded-[36px] border border-[#174E77] bg-[linear-gradient(145deg,#061B2C_0%,#0B2D4D_45%,#0A5F9E_100%)] p-8 text-white shadow-[0_28px_80px_rgba(11,45,77,0.23)] sm:p-10">
-                                    <div className="absolute right-[-80px] top-[-80px] h-56 w-56 rounded-full bg-white/10 blur-3xl" />
-                                    <div className="absolute bottom-[-80px] left-[-40px] h-52 w-52 rounded-full bg-[#D71920]/10 blur-3xl" />
+                        <div
+                            className="
+                                mt-14
+                                grid
+                                grid-cols-1
+                                gap-6
+                                md:grid-cols-2
+                                xl:grid-cols-3
+                            "
+                        >
+                            {items.map((item, index) => {
 
-                                    <div className="relative">
-                                        <div className="text-7xl font-serif leading-none text-[#FF8D91]">
-                                            “
-                                        </div>
+                                const displayName =
+                                    getTestimonialName(item, index);
 
-                                        {featured.description && (
-                                            <p className="mt-2 text-xl font-medium leading-9 text-white/90 sm:text-2xl">
-                                                {
-                                                    featured.description
-                                                }
-                                            </p>
-                                        )}
+                                const companyInfo =
+                                    getCompanyInfo(item);
 
-                                        <div className="mt-9 flex items-center gap-4 border-t border-white/12 pt-6">
-                                            {featuredLogo ? (
-                                                <img
-                                                    src={
-                                                        featuredLogo
-                                                    }
-                                                    alt={
-                                                        featuredName
-                                                    }
-                                                    className="h-12 w-12 rounded-full border border-white/20 object-cover"
-                                                />
-                                            ) : (
-                                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-sm font-bold text-white">
-                                                    {featuredName
-                                                        .charAt(
-                                                            0,
-                                                        )
-                                                        .toUpperCase()}
+                                const logoUrl =
+                                    getImageUrl(
+                                        item.logo || item.image
+                                    );
+
+                                const hasMetric =
+                                    Boolean(item.metric_value) ||
+                                    Boolean(item.metric_label);
+
+                                return (
+                                    <article
+                                        key={index}
+                                        className="
+                                            group
+                                            relative
+                                            flex
+                                            h-full
+                                            min-h-[390px]
+                                            flex-col
+                                            overflow-hidden
+                                            rounded-[28px]
+                                            border
+                                            border-[#D8E5EE]
+                                            bg-white
+                                            shadow-[0_12px_40px_rgba(11,45,77,0.07)]
+                                            transition-all
+                                            duration-300
+                                            hover:-translate-y-1
+                                            hover:border-[#A9CDE7]
+                                            hover:shadow-[0_24px_60px_rgba(11,45,77,0.13)]
+                                        "
+                                    >
+
+                                        {/* =================================================
+                                        TOP GRADIENT LINE
+                                        ================================================= */}
+
+                                        <div
+                                            className="
+                                                absolute
+                                                inset-x-0
+                                                top-0
+                                                h-[3px]
+                                                bg-[linear-gradient(90deg,#0A5F9E_0%,#0A5F9E_50%,#D71920_100%)]
+                                            "
+                                        />
+
+                                        {/* =================================================
+                                        CARD CONTENT
+                                        ================================================= */}
+
+                                        <div className="flex h-full flex-col p-7 sm:p-8">
+
+                                            {/* =============================================
+                                            TOP ROW
+                                            ============================================= */}
+
+                                            <div className="flex items-start justify-between">
+
+                                                {/* Quote icon */}
+
+                                                <div
+                                                    className="
+                                                        flex
+                                                        h-11
+                                                        w-11
+                                                        items-center
+                                                        justify-center
+                                                        rounded-xl
+                                                        bg-[#EAF4FC]
+                                                        text-[#0A5F9E]
+                                                        shadow-[inset_0_0_0_1px_rgba(10,95,158,0.08)]
+                                                        transition-all
+                                                        duration-300
+                                                        group-hover:bg-[#0A5F9E]
+                                                        group-hover:text-white
+                                                    "
+                                                >
+                                                    <svg
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        className="h-5 w-5"
+                                                        aria-hidden="true"
+                                                    >
+                                                        <path
+                                                            d="M7.5 8.5h3v3h-3a3 3 0 0 1 3-3V6a5.5 5.5 0 0 0-5.5 5.5V18h5.5v-6.5h-3Z"
+                                                            fill="currentColor"
+                                                        />
+
+                                                        <path
+                                                            d="M16 8.5h3v3h-3a3 3 0 0 1 3-3V6a5.5 5.5 0 0 0-5.5 5.5V18H19v-6.5h-3Z"
+                                                            fill="currentColor"
+                                                        />
+                                                    </svg>
+                                                </div>
+
+                                                {/* Card number */}
+
+                                                <span
+                                                    className="
+                                                        text-[10px]
+                                                        font-black
+                                                        tracking-[0.14em]
+                                                        text-[#9AAAB8]
+                                                    "
+                                                >
+                                                    {String(index + 1).padStart(2, '0')}
+                                                </span>
+
+                                            </div>
+
+                                            {/* =============================================
+                                            COMPANY / LOGO
+                                            ============================================= */}
+
+                                            <div className="mt-7">
+
+                                                {logoUrl ? (
+
+                                                    <div
+                                                        className="
+                                                            inline-flex
+                                                            min-h-[44px]
+                                                            max-w-[200px]
+                                                            items-center
+                                                            rounded-xl
+                                                            border
+                                                            border-[#E0E9EF]
+                                                            bg-[#FAFCFD]
+                                                            px-4
+                                                            py-2
+                                                        "
+                                                    >
+                                                        <img
+                                                            src={logoUrl}
+                                                            alt={`${displayName} company`}
+                                                            className="
+                                                                max-h-8
+                                                                max-w-[165px]
+                                                                object-contain
+                                                            "
+                                                        />
+                                                    </div>
+
+                                                ) : item.company ? (
+
+                                                    <div
+                                                        className="
+                                                            inline-flex
+                                                            min-h-[42px]
+                                                            max-w-[230px]
+                                                            items-center
+                                                            rounded-xl
+                                                            border
+                                                            border-[#DCE7EF]
+                                                            bg-[#F8FBFD]
+                                                            px-4
+                                                        "
+                                                    >
+                                                        <span
+                                                            className="
+                                                                truncate
+                                                                text-[10px]
+                                                                font-extrabold
+                                                                uppercase
+                                                                tracking-[0.10em]
+                                                                text-[#0B2D4D]
+                                                            "
+                                                        >
+                                                            {item.company}
+                                                        </span>
+                                                    </div>
+
+                                                ) : (
+
+                                                    <div
+                                                        className="
+                                                            inline-flex
+                                                            min-h-[42px]
+                                                            items-center
+                                                            rounded-xl
+                                                            border
+                                                            border-[#DCE7EF]
+                                                            bg-[#F8FBFD]
+                                                            px-4
+                                                        "
+                                                    >
+                                                        <span
+                                                            className="
+                                                                text-[10px]
+                                                                font-bold
+                                                                uppercase
+                                                                tracking-[0.13em]
+                                                                text-[#607487]
+                                                            "
+                                                        >
+                                                            Customer Review
+                                                        </span>
+                                                    </div>
+
+                                                )}
+
+                                            </div>
+
+                                            {/* =============================================
+                                            QUOTE TEXT
+                                            ============================================= */}
+
+                                            {item.description && (
+                                                <blockquote className="mt-7 flex-1">
+
+                                                    <div className="relative">
+
+                                                        {/* Decorative quote */}
+
+                                                        <span
+                                                            className="
+                                                                absolute
+                                                                -left-1
+                                                                -top-4
+                                                                font-serif
+                                                                text-5xl
+                                                                font-black
+                                                                leading-none
+                                                                text-[#D71920]/15
+                                                            "
+                                                        >
+                                                            “
+                                                        </span>
+
+                                                        <p
+                                                            className="
+                                                                relative
+                                                                text-[15px]
+                                                                font-medium
+                                                                leading-7
+                                                                text-[#334E63]
+                                                            "
+                                                        >
+                                                            {item.description}
+                                                        </p>
+
+                                                    </div>
+
+                                                </blockquote>
+                                            )}
+
+                                            {/* =============================================
+                                            OPTIONAL METRIC
+                                            ============================================= */}
+
+                                            {hasMetric && (
+                                                <div
+                                                    className="
+                                                        mt-6
+                                                        rounded-xl
+                                                        border
+                                                        border-[#E1EAF0]
+                                                        bg-[#F8FBFD]
+                                                        px-4
+                                                        py-3
+                                                    "
+                                                >
+
+                                                    {item.metric_value && (
+                                                        <div
+                                                            className="
+                                                                text-xl
+                                                                font-black
+                                                                tracking-[-0.03em]
+                                                                text-[#0B2D4D]
+                                                            "
+                                                        >
+                                                            {item.metric_value}
+                                                        </div>
+                                                    )}
+
+                                                    {item.metric_label && (
+                                                        <div
+                                                            className="
+                                                                mt-0.5
+                                                                text-[10px]
+                                                                font-bold
+                                                                uppercase
+                                                                tracking-[0.10em]
+                                                                text-[#718394]
+                                                            "
+                                                        >
+                                                            {item.metric_label}
+                                                        </div>
+                                                    )}
+
                                                 </div>
                                             )}
 
-                                            <div>
-                                                <p className="text-sm font-bold text-white">
-                                                    {
-                                                        featuredName
-                                                    }
-                                                </p>
+                                            {/* =============================================
+                                            DIVIDER
+                                            ============================================= */}
 
-                                                {(featured.designation ||
-                                                    featured.company) && (
-                                                    <p className="mt-1 text-xs text-white/60">
-                                                        {[
-                                                            featured.designation,
-                                                            featured.company,
-                                                        ]
-                                                            .filter(
-                                                                Boolean,
-                                                            )
-                                                            .join(
-                                                                ' · ',
-                                                            )}
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </article>
-                            )}
+                                            <div
+                                                className="
+                                                    mt-7
+                                                    h-px
+                                                    w-full
+                                                    bg-[#E6EDF2]
+                                                "
+                                            />
 
-                            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-1">
-                                {remaining
-                                    .slice(
-                                        0,
-                                        3,
-                                    )
-                                    .map(
-                                        (
-                                            item,
-                                            index,
-                                        ) => {
-                                            const displayName =
-                                                item.person_name ||
-                                                item.title ||
-                                                item.name ||
-                                                `Client ${
-                                                    index +
-                                                    2
-                                                }`;
+                                            {/* =============================================
+                                            CUSTOMER INFORMATION
+                                            ============================================= */}
 
-                                            const logoUrl =
-                                                getImageUrl(
-                                                    item.logo ||
-                                                        item.image,
-                                                );
+                                            <div className="mt-5 flex items-center gap-3">
 
-                                            return (
-                                                <article
-                                                    key={
-                                                        index
-                                                    }
-                                                    className="rounded-[26px] border border-[#D8E5EE] bg-white p-6 shadow-[0_12px_34px_rgba(11,45,77,0.06)]"
-                                                >
-                                                    <div className="flex gap-4">
-                                                        <div className="text-4xl font-serif leading-none text-[#D71920]">
-                                                            “
-                                                        </div>
+                                                {/* Avatar */}
 
-                                                        <div className="min-w-0 flex-1">
-                                                            {item.description && (
-                                                                <p className="text-sm leading-7 text-[#607487]">
-                                                                    {
-                                                                        item.description
-                                                                    }
-                                                                </p>
-                                                            )}
+                                                {logoUrl ? (
 
-                                                            <div className="mt-5 flex items-center gap-3">
-                                                                {logoUrl ? (
-                                                                    <img
-                                                                        src={
-                                                                            logoUrl
-                                                                        }
-                                                                        alt={
-                                                                            displayName
-                                                                        }
-                                                                        className="h-9 w-9 rounded-full border border-[#DDE7EF] object-cover"
-                                                                    />
-                                                                ) : (
-                                                                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#EAF4FC] text-xs font-bold text-[#0A5F9E]">
-                                                                        {displayName
-                                                                            .charAt(
-                                                                                0,
-                                                                            )
-                                                                            .toUpperCase()}
-                                                                    </div>
-                                                                )}
-
-                                                                <div>
-                                                                    <p className="text-xs font-bold text-[#0B2D4D]">
-                                                                        {
-                                                                            displayName
-                                                                        }
-                                                                    </p>
-
-                                                                    {(item.designation ||
-                                                                        item.company) && (
-                                                                        <p className="mt-0.5 text-[10px] text-[#8193A3]">
-                                                                            {[
-                                                                                item.designation,
-                                                                                item.company,
-                                                                            ]
-                                                                                .filter(
-                                                                                    Boolean,
-                                                                                )
-                                                                                .join(
-                                                                                    ' · ',
-                                                                                )}
-                                                                        </p>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                        </div>
+                                                    <div
+                                                        className="
+                                                            flex
+                                                            h-10
+                                                            w-10
+                                                            shrink-0
+                                                            items-center
+                                                            justify-center
+                                                            overflow-hidden
+                                                            rounded-full
+                                                            bg-[#EAF4FC]
+                                                            ring-1
+                                                            ring-[#DCE7EF]
+                                                        "
+                                                    >
+                                                        <img
+                                                            src={logoUrl}
+                                                            alt=""
+                                                            className="
+                                                                h-full
+                                                                w-full
+                                                                object-contain
+                                                                p-1.5
+                                                            "
+                                                        />
                                                     </div>
-                                                </article>
-                                            );
-                                        },
-                                    )}
-                            </div>
+
+                                                ) : (
+
+                                                    <div
+                                                        className="
+                                                            flex
+                                                            h-10
+                                                            w-10
+                                                            shrink-0
+                                                            items-center
+                                                            justify-center
+                                                            rounded-full
+                                                            bg-[#0A5F9E]
+                                                            text-xs
+                                                            font-black
+                                                            text-white
+                                                        "
+                                                    >
+                                                        {displayName
+                                                            .charAt(0)
+                                                            .toUpperCase()}
+                                                    </div>
+
+                                                )}
+
+                                                {/* Name / designation */}
+
+                                                <div className="min-w-0">
+
+                                                    <p
+                                                        className="
+                                                            truncate
+                                                            text-sm
+                                                            font-extrabold
+                                                            text-[#0B2D4D]
+                                                        "
+                                                    >
+                                                        {displayName}
+                                                    </p>
+
+                                                    {companyInfo && (
+                                                        <p
+                                                            className="
+                                                                mt-0.5
+                                                                truncate
+                                                                text-[10px]
+                                                                font-medium
+                                                                text-[#718394]
+                                                            "
+                                                        >
+                                                            {companyInfo}
+                                                        </p>
+                                                    )}
+
+                                                </div>
+
+                                            </div>
+
+                                            {/* =============================================
+                                            OPTIONAL BUTTON
+                                            ============================================= */}
+
+                                            {item.url && (
+                                                <a
+                                                    href={item.url}
+                                                    className="
+                                                        mt-5
+                                                        inline-flex
+                                                        w-fit
+                                                        items-center
+                                                        gap-2
+                                                        text-xs
+                                                        font-bold
+                                                        text-[#0A5F9E]
+                                                        transition-colors
+                                                        duration-200
+                                                        hover:text-[#D71920]
+                                                    "
+                                                >
+                                                    {item.button_text ||
+                                                        'Read Customer Story'}
+
+                                                    <ArrowIcon />
+                                                </a>
+                                            )}
+
+                                        </div>
+
+                                        {/* =================================================
+                                        BOTTOM HOVER ACCENT
+                                        ================================================= */}
+
+                                        <div
+                                            className="
+                                                absolute
+                                                bottom-0
+                                                left-0
+                                                h-[3px]
+                                                w-0
+                                                bg-[linear-gradient(90deg,#0A5F9E,#D71920)]
+                                                transition-all
+                                                duration-300
+                                                group-hover:w-full
+                                            "
+                                        />
+
+                                        {/* =================================================
+                                        DECORATIVE QUOTE AT BOTTOM RIGHT
+                                        ================================================= */}
+
+                                        <div
+                                            className="
+                                                pointer-events-none
+                                                absolute
+                                                bottom-4
+                                                right-6
+                                                font-serif
+                                                text-6xl
+                                                font-black
+                                                leading-none
+                                                text-[#0A5F9E]/[0.045]
+                                                transition-all
+                                                duration-300
+                                                group-hover:text-[#D71920]/[0.07]
+                                            "
+                                        >
+                                            ”
+                                        </div>
+
+                                    </article>
+                                );
+                            })}
                         </div>
                     ) : (
+
+                        /* =================================================
+                        EMPTY STATE
+                        ================================================= */
+
                         <div className="mt-14">
                             <EmptyState text="No testimonials have been added yet." />
                         </div>
+
                     )}
+
                 </div>
             </section>
         );
     }
 
     /* =====================================================
-       FEATURES — PRODUCT CAPABILITY MATRIX
+       FEATURES (default)
        ===================================================== */
 
     return (
-        <section className="relative overflow-hidden bg-[#F7FAFD] px-5 py-20 sm:px-6 lg:px-8 lg:py-28">
+        <section className="relative overflow-hidden px-5 py-20 sm:px-6 lg:px-8 lg:py-28">
             <div className="mx-auto max-w-[1400px]">
                 <SectionHeader
                     title={title}
@@ -1240,119 +1401,71 @@ export default function CardsSection({
 
                 {items.length > 0 ? (
                     <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-                        {items.map(
-                            (
-                                item,
-                                index,
-                            ) => {
-                                const itemTitle =
-                                    item.title ||
-                                    item.name ||
-                                    `Feature ${
-                                        index + 1
-                                    }`;
+                        {items.map((item, index) => {
+                            const itemTitle =
+                                item.title || item.name || `Feature ${index + 1}`;
 
-                                return (
-                                    <article
-                                        key={
-                                            index
-                                        }
-                                        className="group relative overflow-hidden rounded-[28px] border border-[#D8E5EE] bg-white p-7 shadow-[0_12px_36px_rgba(11,45,77,0.06)] transition duration-300 hover:-translate-y-1 hover:border-[#A9CDE7] hover:shadow-[0_22px_50px_rgba(11,45,77,0.10)]"
-                                    >
-                                        <div className="absolute right-[-36px] top-[-36px] h-24 w-24 rounded-full bg-[#0A5F9E]/5 transition duration-500 group-hover:scale-150" />
+                            return (
+                                <article
+                                    key={index}
+                                    className="group relative overflow-hidden rounded-[28px] border border-[#D8E5EE] bg-white p-7 shadow-[0_12px_36px_rgba(11,45,77,0.06)] transition duration-300 hover:-translate-y-1 hover:border-[#A9CDE7] hover:shadow-[0_22px_50px_rgba(11,45,77,0.10)]"
+                                >
+                                    <div className="absolute right-[-36px] top-[-36px] h-24 w-24 rounded-full bg-[#0A5F9E]/5 transition duration-500 group-hover:scale-150" />
 
-                                        <div className="relative">
-                                            <div className="flex items-start justify-between gap-4">
-                                                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#EAF4FC] text-[#0A5F9E]">
-                                                    {renderIcon(
-                                                        item.icon,
-                                                    )}
-                                                </div>
-
-                                                <span className="text-[10px] font-bold uppercase tracking-[0.13em] text-[#A1B0BC]">
-                                                    Feature{' '}
-                                                    {String(
-                                                        index +
-                                                            1,
-                                                    ).padStart(
-                                                        2,
-                                                        '0',
-                                                    )}
-                                                </span>
+                                    <div className="relative">
+                                        <div className="flex items-start justify-between gap-4">
+                                            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#EAF4FC] text-[#0A5F9E]">
+                                                {renderIcon(item.icon)}
                                             </div>
-
-                                            <h3 className="mt-5 text-lg font-extrabold tracking-[-0.02em] text-[#0B2D4D]">
-                                                {
-                                                    itemTitle
-                                                }
-                                            </h3>
-
-                                            {item.description && (
-                                                <p className="mt-3 text-sm leading-7 text-[#607487]">
-                                                    {
-                                                        item.description
-                                                    }
-                                                </p>
-                                            )}
-
-                                            {Array.isArray(
-                                                item.features,
-                                            ) &&
-                                                item
-                                                    .features
-                                                    .filter(
-                                                        Boolean,
-                                                    )
-                                                    .length >
-                                                    0 && (
-                                                    <div className="mt-5 space-y-2 border-t border-[#E9F0F4] pt-4">
-                                                        {item.features
-                                                            .filter(
-                                                                Boolean,
-                                                            )
-                                                            .map(
-                                                                (
-                                                                    feature,
-                                                                    featureIndex,
-                                                                ) => (
-                                                                    <div
-                                                                        key={
-                                                                            featureIndex
-                                                                        }
-                                                                        className="flex items-start gap-2 text-sm text-[#607487]"
-                                                                    >
-                                                                        <span className="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#E9F8F1] text-[10px] font-black text-[#2C9A62]">
-                                                                            ✓
-                                                                        </span>
-
-                                                                        <span>
-                                                                            {
-                                                                                feature
-                                                                            }
-                                                                        </span>
-                                                                    </div>
-                                                                ),
-                                                            )}
-                                                    </div>
-                                                )}
-
-                                            {item.url && (
-                                                <a
-                                                    href={
-                                                        item.url
-                                                    }
-                                                    className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#0A5F9E] transition hover:text-[#D71920]"
-                                                >
-                                                    {item.button_text ||
-                                                        'Learn More'}
-                                                    <ArrowIcon />
-                                                </a>
-                                            )}
+                                            <span className="text-[10px] font-bold uppercase tracking-[0.13em] text-[#7E8F9E]">
+                                                Feature {String(index + 1).padStart(2, '0')}
+                                            </span>
                                         </div>
-                                    </article>
-                                );
-                            },
-                        )}
+
+                                        {/* ✅ was text-[#0B2D4D] */}
+                                        <h3 className="mt-5 text-lg font-extrabold tracking-[-0.02em] text-[#0B2D4D]">
+                                            {itemTitle}
+                                        </h3>
+
+                                        {/* ✅ was text-[#607487] */}
+                                        {item.description && (
+                                            <p className="mt-3 text-sm leading-7 text-[#4A5E70]">
+                                                {item.description}
+                                            </p>
+                                        )}
+
+                                        {Array.isArray(item.features) &&
+                                            item.features.filter(Boolean).length > 0 && (
+                                                <div className="mt-5 space-y-2 border-t border-[#E9F0F4] pt-4">
+                                                    {item.features
+                                                        .filter(Boolean)
+                                                        .map((feature, featureIndex) => (
+                                                            <div
+                                                                key={featureIndex}
+                                                                className="flex items-start gap-2 text-sm text-[#4A5E70]"
+                                                            >
+                                                                <span className="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#E9F8F1] text-[10px] font-black text-[#2C9A62]">
+                                                                    ✓
+                                                                </span>
+                                                                <span>{feature}</span>
+                                                            </div>
+                                                        ))}
+                                                </div>
+                                            )}
+
+                                        {item.url && (
+                                            <a
+                                                href={item.url}
+                                                className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#0A5F9E] transition hover:text-[#D71920]"
+                                            >
+                                                {item.button_text || 'Learn More'}
+                                                <ArrowIcon />
+                                            </a>
+                                        )}
+                                    </div>
+                                </article>
+                            );
+                        })}
                     </div>
                 ) : (
                     <div className="mt-14">

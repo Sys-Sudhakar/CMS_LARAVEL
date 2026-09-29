@@ -1,8 +1,8 @@
 import {
     useCallback,
-    useEffect,
     useRef,
     useState,
+    type CSSProperties,
     type MouseEvent as ReactMouseEvent,
     type ReactNode,
 } from 'react';
@@ -19,70 +19,43 @@ interface PublicWebsiteLayoutProps {
 }
 
 
-interface ClickBurst {
+interface ClickEffect {
     id: number;
 
     x: number;
     y: number;
 
-    theme: 'light' | 'dark';
+    theme:
+        | 'light'
+        | 'dark';
 }
 
 
 export default function PublicWebsiteLayout({
     children,
 }: PublicWebsiteLayoutProps) {
+
     const [
-        clickBursts,
-        setClickBursts,
-    ] = useState<ClickBurst[]>([]);
+        clickEffects,
+        setClickEffects,
+    ] = useState<ClickEffect[]>([]);
 
 
-    const nextBurstId =
+    const nextEffectId =
         useRef(1);
 
 
     /* =====================================================
-       REMOVE EXPIRED CLICK EFFECTS
-       ===================================================== */
-
-    useEffect(
-        () => {
-            if (
-                clickBursts.length === 0
-            ) {
-                return;
-            }
-
-
-            const timer =
-                window.setTimeout(
-                    () => {
-                        setClickBursts(
-                            (current) =>
-                                current.slice(-6),
-                        );
-                    },
-                    1000,
-                );
-
-
-            return () =>
-                window.clearTimeout(
-                    timer,
-                );
-        },
-        [
-            clickBursts,
-        ],
-    );
-
-
-    /* =====================================================
-       PAGE CLICK ENERGY EFFECT
+       PAGE CLICK EFFECT
        -----------------------------------------------------
-       Only blank/non-interactive page areas trigger it.
-       Buttons, links, forms, menus and controls are ignored.
+       - Light sections:
+         blue / cyan bubbles with a small red SYSNET accent
+
+       - Dark sections:
+         white / ice-blue bubbles and a bright ripple
+
+       - Interactive elements are ignored so links, buttons,
+         forms and menus work normally.
        ===================================================== */
 
     const handlePublicClick =
@@ -91,9 +64,14 @@ export default function PublicWebsiteLayout({
                 event:
                     ReactMouseEvent<HTMLDivElement>,
             ) => {
+
                 const target =
                     event.target as HTMLElement;
 
+
+                /* -------------------------------------------------
+                   IGNORE INTERACTIVE ELEMENTS
+                -------------------------------------------------- */
 
                 if (
                     target.closest(
@@ -116,6 +94,10 @@ export default function PublicWebsiteLayout({
                 }
 
 
+                /* -------------------------------------------------
+                   DETECT CURRENT SECTION THEME
+                -------------------------------------------------- */
+
                 const section =
                     target.closest(
                         '.public-section-theme',
@@ -132,9 +114,13 @@ export default function PublicWebsiteLayout({
                         : 'dark';
 
 
-                const burst: ClickBurst = {
+                /* -------------------------------------------------
+                   CREATE EFFECT AT CLICK POSITION
+                -------------------------------------------------- */
+
+                const effect: ClickEffect = {
                     id:
-                        nextBurstId.current++,
+                        nextEffectId.current++,
 
                     x:
                         event.clientX,
@@ -146,27 +132,38 @@ export default function PublicWebsiteLayout({
                 };
 
 
-                setClickBursts(
+                /*
+                   Keep only a small number of simultaneous effects.
+                   This prevents unnecessary DOM buildup if the user
+                   clicks repeatedly.
+                */
+
+                setClickEffects(
                     (current) => [
-                        ...current.slice(-7),
-                        burst,
+                        ...current.slice(-5),
+                        effect,
                     ],
                 );
 
 
+                /* -------------------------------------------------
+                   REMOVE AFTER ANIMATION
+                -------------------------------------------------- */
+
                 window.setTimeout(
                     () => {
-                        setClickBursts(
+                        setClickEffects(
                             (current) =>
                                 current.filter(
                                     (item) =>
                                         item.id !==
-                                        burst.id,
+                                        effect.id,
                                 ),
                         );
                     },
-                    900,
+                    1100,
                 );
+
             },
             [],
         );
@@ -199,7 +196,7 @@ export default function PublicWebsiteLayout({
 
 
             {/* ================================================
-                ANIMATED AMBIENT LIGHTS
+                AMBIENT LIGHT ORBS
             ================================================= */}
 
             <div
@@ -234,7 +231,7 @@ export default function PublicWebsiteLayout({
 
 
             {/* ================================================
-                FLOATING PARTICLES
+                FLOATING BACKGROUND PARTICLES
             ================================================= */}
 
             <div
@@ -270,38 +267,63 @@ export default function PublicWebsiteLayout({
 
 
             {/* ================================================
-                CLICK ENERGY EFFECTS
+                CLICK BUBBLE / RIPPLE / SPARK EFFECT
+                Corresponds to app.css V6 classes:
+                .public-interaction-fx
+                .public-click-fx
+                .public-click-bubble
+                .public-click-spark
             ================================================= */}
 
             <div
-                className="public-click-effects"
+                className="public-interaction-fx"
                 aria-hidden="true"
             >
-                {clickBursts.map(
+                {clickEffects.map(
                     (
-                        burst,
+                        effect,
                     ) => (
                         <span
                             key={
-                                burst.id
+                                effect.id
                             }
-                            className={`public-click-burst public-click-burst-${burst.theme}`}
+                            className={`public-click-fx public-click-fx-${effect.theme}`}
                             style={
                                 {
-                                    '--click-x':
-                                        `${burst.x}px`,
+                                    '--fx-x':
+                                        `${effect.x}px`,
 
-                                    '--click-y':
-                                        `${burst.y}px`,
-                                } as React.CSSProperties
+                                    '--fx-y':
+                                        `${effect.y}px`,
+                                } as CSSProperties
                             }
                         >
-                            <span />
-                            <span />
-                            <span />
-                            <span />
-                            <span />
-                            <span />
+
+                            {/* ------------------------------
+                                BUBBLES
+                            ------------------------------- */}
+
+                            <span className="public-click-bubble" />
+                            <span className="public-click-bubble" />
+                            <span className="public-click-bubble" />
+                            <span className="public-click-bubble" />
+                            <span className="public-click-bubble" />
+                            <span className="public-click-bubble" />
+                            <span className="public-click-bubble" />
+                            <span className="public-click-bubble" />
+                            <span className="public-click-bubble" />
+                            <span className="public-click-bubble" />
+
+
+                            {/* ------------------------------
+                                SPARKS
+                            ------------------------------- */}
+
+                            <span className="public-click-spark public-click-spark-1" />
+                            <span className="public-click-spark public-click-spark-2" />
+                            <span className="public-click-spark public-click-spark-3" />
+                            <span className="public-click-spark public-click-spark-4" />
+
                         </span>
                     ),
                 )}

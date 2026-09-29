@@ -1,11 +1,12 @@
+import type { ReactNode } from 'react';
+
+
+/* =========================================================
+   TYPES
+   ========================================================= */
+
 interface CTAContent {
-    variant?:
-        | 'simple'
-        | 'split'
-        | 'background'
-        | 'support'
-        | 'contact'
-        | string;
+    variant?: 'simple' | 'split' | 'background' | 'support' | 'contact' | string;
 
     heading?: string;
     description?: string;
@@ -23,261 +24,509 @@ interface CTASectionProps {
     imageUrl?: string | null;
 }
 
-
-/* =========================================================
-   URL HELPERS
-   ========================================================= */
-
-const isExternalUrl = (
-    url?: string,
-): boolean => {
-    if (!url) {
-        return false;
-    }
-
-    return (
-        url.startsWith('http://') ||
-        url.startsWith('https://') ||
-        url.startsWith('mailto:') ||
-        url.startsWith('tel:') ||
-        url.startsWith('whatsapp:')
-    );
-};
-
-
-const isWhatsAppUrl = (
-    url?: string,
-): boolean => {
-    if (!url) {
-        return false;
-    }
-
-    return (
-        url.includes('wa.me') ||
-        url.includes('api.whatsapp.com') ||
-        url.startsWith('whatsapp:')
-    );
-};
-
-
-/* =========================================================
-   BUTTON COMPONENT
-   ========================================================= */
-
-interface CTAButtonProps {
-    url: string;
-    text: string;
-    secondary?: boolean;
-    darkBackground?: boolean;
+interface VariantProps {
+    title?: string | null;
+    heading: string;
+    description: string;
+    imageUrl: string | null;
+    primary: { text: string; url: string };
+    secondary: { text: string; url: string } | null;
 }
 
+
+/* =========================================================
+   HELPERS & CONSTANTS
+   ---------------------------------------------------------
+   Text on dark surfaces uses Tailwind's important modifier (!)
+   so a global stylesheet cannot turn it dark-on-dark.
+   ========================================================= */
+
+const cx = (...parts: Array<string | false | null | undefined>) =>
+    parts.filter(Boolean).join(' ');
+
+const isExternalUrl = (url?: string): boolean =>
+    Boolean(url) && /^(https?:|mailto:|tel:|whatsapp:)/.test(url as string);
+
+const opensInNewTab = (url?: string): boolean =>
+    isExternalUrl(url) && !/^(mailto:|tel:)/.test(url as string);
+
+const isWhatsAppUrl = (url?: string): boolean =>
+    Boolean(url) &&
+    (/wa\.me|api\.whatsapp\.com/.test(url as string) ||
+        (url as string).startsWith('whatsapp:'));
+
+const SECTION_CLASS = 'bg-[#F5F8FB] px-5 py-14 sm:px-6 lg:px-8 lg:py-20';
+const CONTAINER_CLASS = 'mx-auto max-w-[1200px]';
+
+const GRID_TEXTURE =
+    '[background-image:linear-gradient(rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.06)_1px,transparent_1px)] [background-size:44px_44px]';
+
+
+/* =========================================================
+   ICONS
+   ========================================================= */
+
+const iconProps = {
+    viewBox: '0 0 24 24',
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: 1.8,
+    strokeLinecap: 'round',
+    strokeLinejoin: 'round',
+    'aria-hidden': true,
+} as const;
+
+function ArrowIcon({ className = 'h-4 w-4' }: { className?: string }) {
+    return (
+        <svg {...iconProps} strokeWidth={2} className={className}>
+            <path d="M5 12h14M13 6l6 6-6 6" />
+        </svg>
+    );
+}
+
+function WhatsAppIcon() {
+    return (
+        <svg {...iconProps} className="h-4 w-4">
+            <path d="M20 11.5a8 8 0 0 1-11.85 7l-4.15 1 1.1-4A8 8 0 1 1 20 11.5Z" />
+            <path d="M9.4 8.5c.2 2.7 2.2 4.7 4.9 5" />
+        </svg>
+    );
+}
+
+function HeadsetIcon() {
+    return (
+        <svg {...iconProps} className="h-6 w-6">
+            <path d="M12 3a7 7 0 0 0-7 7v4a3 3 0 0 0 3 3h1v-6H6v-1a6 6 0 1 1 12 0v1h-3v6h1a3 3 0 0 0 3-3v-4a7 7 0 0 0-7-7Z" />
+            <path d="M16 17c0 2-1.8 3-4 3" />
+        </svg>
+    );
+}
+
+function MailIcon() {
+    return (
+        <svg {...iconProps} className="h-5 w-5">
+            <path d="M4 5h16v14H4z" />
+            <path d="m4 7 8 6 8-6" />
+        </svg>
+    );
+}
+
+
+/* =========================================================
+   BUTTON
+   ========================================================= */
 
 function CTAButton({
     url,
     text,
     secondary = false,
-    darkBackground = false,
-}: CTAButtonProps) {
-    const external =
-        isExternalUrl(url);
+    onDark = false,
+    className,
+}: {
+    url: string;
+    text: string;
+    secondary?: boolean;
+    onDark?: boolean;
+    className?: string;
+}) {
+    const whatsapp = isWhatsAppUrl(url);
+    const newTab = opensInNewTab(url);
 
-    const whatsapp =
-        isWhatsAppUrl(url);
-
-
-    const className =
-        darkBackground
-            ? secondary
-                ? `
-                    inline-flex
-                    min-h-[48px]
-                    items-center
-                    justify-center
-                    gap-2
-                    rounded-xl
-                    border
-                    border-white/22
-                    bg-white/10
-                    px-5
-                    py-3
-                    text-sm
-                    font-bold
-                    text-white
-                    backdrop-blur-md
-                    transition
-                    duration-300
-
-                    hover:-translate-y-0.5
-                    hover:border-white/35
-                    hover:bg-white/15
-                    hover:shadow-[0_10px_28px_rgba(0,0,0,0.12)]
-
-                    focus:outline-none
-                    focus:ring-2
-                    focus:ring-white/30
-                    focus:ring-offset-2
-                    focus:ring-offset-[#0B2D4D]
-                `
-                : `
-                    inline-flex
-                    min-h-[48px]
-                    items-center
-                    justify-center
-                    gap-2
-                    rounded-xl
-                    bg-white
-                    px-5
-                    py-3
-                    text-sm
-                    font-bold
-                    text-[#0B2D4D]
-                    shadow-[0_10px_28px_rgba(0,0,0,0.13)]
-                    transition
-                    duration-300
-
-                    hover:-translate-y-0.5
-                    hover:bg-[#F7FAFD]
-                    hover:shadow-[0_16px_34px_rgba(0,0,0,0.16)]
-
-                    focus:outline-none
-                    focus:ring-2
-                    focus:ring-white/40
-                    focus:ring-offset-2
-                    focus:ring-offset-[#0B2D4D]
-                `
-            : secondary
-              ? `
-                    inline-flex
-                    min-h-[48px]
-                    items-center
-                    justify-center
-                    gap-2
-                    rounded-xl
-                    border
-                    border-[#C8D6E3]
-                    bg-white
-                    px-5
-                    py-3
-                    text-sm
-                    font-bold
-                    text-[#42576B]
-                    shadow-[0_6px_18px_rgba(11,45,77,0.04)]
-                    transition
-                    duration-300
-
-                    hover:-translate-y-0.5
-                    hover:border-[#0A5F9E]
-                    hover:bg-[#F3F8FC]
-                    hover:text-[#0A5F9E]
-                    hover:shadow-[0_10px_26px_rgba(11,45,77,0.08)]
-
-                    focus:outline-none
-                    focus:ring-2
-                    focus:ring-slate-300
-                    focus:ring-offset-2
-                `
-              : `
-                    inline-flex
-                    min-h-[48px]
-                    items-center
-                    justify-center
-                    gap-2
-                    rounded-xl
-                    bg-[#0A5F9E]
-                    px-5
-                    py-3
-                    text-sm
-                    font-bold
-                    text-white
-                    shadow-[0_10px_26px_rgba(10,95,158,0.18)]
-                    transition
-                    duration-300
-
-                    hover:-translate-y-0.5
-                    hover:bg-[#084F84]
-                    hover:shadow-[0_16px_34px_rgba(10,95,158,0.24)]
-
-                    focus:outline-none
-                    focus:ring-2
-                    focus:ring-[#0A5F9E]/30
-                    focus:ring-offset-2
-                `;
-
+    const tone = secondary
+        ? onDark
+            ? 'border border-white/30 !text-white hover:border-white hover:bg-white/10 focus-visible:ring-white'
+            : 'border border-[#B7CADA] bg-white text-[#0B2D4D] hover:border-[#0A5F9E] hover:text-[#0A5F9E] focus-visible:ring-[#0A5F9E]'
+        : 'bg-[#D71920] !text-white hover:bg-[#B9151B] focus-visible:ring-[#D71920]';
 
     return (
         <a
             href={url}
-            target={
-                external &&
-                !url.startsWith('mailto:') &&
-                !url.startsWith('tel:')
-                    ? '_blank'
-                    : undefined
-            }
-            rel={
-                external &&
-                !url.startsWith('mailto:') &&
-                !url.startsWith('tel:')
-                    ? 'noopener noreferrer'
-                    : undefined
-            }
-            className={className}
-        >
-            {whatsapp && (
-                <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    className="h-4 w-4"
-                    aria-hidden="true"
-                >
-                    <path
-                        d="M20 11.5a8 8 0 0 1-11.85 7l-4.15 1 1.1-4A8 8 0 1 1 20 11.5Z"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    />
-
-                    <path
-                        d="M9.4 8.5c.2 2.7 2.2 4.7 4.9 5"
-                        strokeLinecap="round"
-                    />
-                </svg>
+            target={newTab ? '_blank' : undefined}
+            rel={newTab ? 'noopener noreferrer' : undefined}
+            className={cx(
+                'group inline-flex min-h-[48px] items-center justify-center gap-2 rounded-lg px-6 text-sm font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+                onDark ? 'focus-visible:ring-offset-[#0B2D4D]' : '',
+                tone,
+                className,
             )}
-
-
+        >
+            {whatsapp && <WhatsAppIcon />}
             {text}
-
-
-            {!secondary &&
-                !whatsapp && (
-                    <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
-                        aria-hidden="true"
-                    >
-                        <path
-                            d="M5 12h14"
-                            strokeLinecap="round"
-                        />
-
-                        <path
-                            d="m13 6 6 6-6 6"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        />
-                    </svg>
-                )}
+            {!secondary && !whatsapp && (
+                <ArrowIcon className="h-4 w-4 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none" />
+            )}
         </a>
+    );
+}
+
+function Actions({
+    primary,
+    secondary,
+    onDark = false,
+    center = false,
+}: {
+    primary: VariantProps['primary'];
+    secondary: VariantProps['secondary'];
+    onDark?: boolean;
+    center?: boolean;
+}) {
+    return (
+        <div className={cx('flex flex-wrap gap-3', center && 'justify-center')}>
+            <CTAButton url={primary.url} text={primary.text} onDark={onDark} />
+
+            {secondary && (
+                <CTAButton url={secondary.url} text={secondary.text} secondary onDark={onDark} />
+            )}
+        </div>
+    );
+}
+
+function Eyebrow({
+    children,
+    dark = false,
+}: {
+    children: ReactNode;
+    dark?: boolean;
+}) {
+    return (
+        <p
+            className={cx(
+                'flex items-center gap-3 text-sm font-semibold',
+                dark ? '!text-[#7CC8F2]' : 'text-[#0A5F9E]',
+            )}
+        >
+            <span className="h-[3px] w-8 rounded-full bg-[#D71920]" />
+            {children}
+        </p>
     );
 }
 
 
 /* =========================================================
-   CTA SECTION
+   SIMPLE
+   One slim line: a button-sized bar with the message on the
+   left and the action on the right.
+   ========================================================= */
+
+function SimpleVariant({ heading, description, primary, secondary }: VariantProps) {
+    return (
+        <section className="bg-[#F5F8FB] px-5 py-8 sm:px-6 lg:px-8">
+            <div
+                className={cx(
+                    CONTAINER_CLASS,
+                    'flex flex-col gap-4 rounded-2xl border border-[#D9E4EC] bg-white px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:px-6',
+                )}
+            >
+                <div className="flex min-w-0 items-center gap-4">
+                    <span aria-hidden="true" className="h-9 w-1 shrink-0 rounded-full bg-[#D71920]" />
+
+                    <p className="min-w-0 text-base font-bold leading-snug text-[#0B2D4D] sm:truncate">
+                        {heading}
+                        {description && (
+                            <span className="hidden pl-3 text-sm font-normal text-[#607487] xl:inline">
+                                {description}
+                            </span>
+                        )}
+                    </p>
+                </div>
+
+                <div className="flex shrink-0 flex-wrap gap-3">
+                    <CTAButton url={primary.url} text={primary.text} className="min-h-[44px]" />
+
+                    {secondary && (
+                        <CTAButton
+                            url={secondary.url}
+                            text={secondary.text}
+                            secondary
+                            className="min-h-[44px]"
+                        />
+                    )}
+                </div>
+            </div>
+        </section>
+    );
+}
+
+
+/* =========================================================
+   SPLIT
+   Navy message panel + a list of large action rows. The
+   actions are the design: no small buttons.
+   ========================================================= */
+
+function ActionRow({
+    url,
+    text,
+    primary = false,
+}: {
+    url: string;
+    text: string;
+    primary?: boolean;
+}) {
+    const newTab = opensInNewTab(url);
+
+    return (
+        <a
+            href={url}
+            target={newTab ? '_blank' : undefined}
+            rel={newTab ? 'noopener noreferrer' : undefined}
+            className={cx(
+                'group flex items-center justify-between gap-4 rounded-xl px-5 py-5 text-base font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A5F9E] focus-visible:ring-offset-2 sm:text-lg',
+                primary
+                    ? 'bg-[#D71920] !text-white hover:bg-[#B9151B]'
+                    : 'border border-[#D9E4EC] text-[#0B2D4D] hover:border-[#0A5F9E] hover:text-[#0A5F9E]',
+            )}
+        >
+            {text}
+
+            <span
+                className={cx(
+                    'flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-transform group-hover:translate-x-1 motion-reduce:transition-none',
+                    primary ? 'bg-white/20' : 'bg-[#EAF4FC] text-[#0A5F9E]',
+                )}
+            >
+                <ArrowIcon />
+            </span>
+        </a>
+    );
+}
+
+function SplitVariant({ title, heading, description, primary, secondary }: VariantProps) {
+    return (
+        <section className={SECTION_CLASS}>
+            <div
+                className={cx(
+                    CONTAINER_CLASS,
+                    'grid overflow-hidden rounded-3xl border border-[#D9E4EC] shadow-[0_24px_60px_rgba(11,45,77,0.10)] lg:grid-cols-[1.1fr_0.9fr]',
+                )}
+            >
+                <div className="relative bg-[#0B2D4D] p-8 sm:p-10 lg:p-14">
+                    <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1 bg-[#0A5F9E]" />
+
+                    {title && <Eyebrow dark>{title}</Eyebrow>}
+
+                    <h2
+                        className={cx(
+                            'text-3xl font-bold leading-[1.1] tracking-[-0.03em] !text-white sm:text-4xl lg:text-[42px]',
+                            title && 'mt-5',
+                        )}
+                    >
+                        {heading}
+                    </h2>
+
+                    {description && (
+                        <p className="mt-5 max-w-[520px] text-base leading-8 !text-white/72">
+                            {description}
+                        </p>
+                    )}
+                </div>
+
+                <div className="flex flex-col justify-center gap-3 bg-white p-8 sm:p-10 lg:p-14">
+                    <ActionRow url={primary.url} text={primary.text} primary />
+
+                    {secondary && <ActionRow url={secondary.url} text={secondary.text} />}
+                </div>
+            </div>
+        </section>
+    );
+}
+
+
+/* =========================================================
+   BACKGROUND
+   Full-bleed and centred. The one edge-to-edge moment on a
+   page of contained sections.
+   ========================================================= */
+
+function BackgroundVariant({
+    title,
+    heading,
+    description,
+    imageUrl,
+    primary,
+    secondary,
+}: VariantProps) {
+    return (
+        <section className="relative isolate overflow-hidden bg-[#0B2D4D]">
+            <div aria-hidden="true" className="absolute inset-0 -z-10">
+                {imageUrl ? (
+                    <img src={imageUrl} alt="" className="h-full w-full object-cover" />
+                ) : (
+                    <div className={cx('h-full w-full bg-[#0B2D4D]', GRID_TEXTURE)} />
+                )}
+
+                <div className="absolute inset-0 bg-[#071D31]/80" />
+                <div className="absolute inset-x-0 top-0 h-px bg-white/15" />
+                <div className="absolute inset-x-0 bottom-0 h-px bg-white/15" />
+            </div>
+
+            <div className="mx-auto max-w-[860px] px-5 py-16 text-center sm:px-6 lg:py-24">
+                {title && (
+                    <div className="flex justify-center">
+                        <Eyebrow dark>{title}</Eyebrow>
+                    </div>
+                )}
+
+                <h2
+                    className={cx(
+                        'text-3xl font-bold leading-[1.1] tracking-[-0.03em] !text-white sm:text-4xl lg:text-[48px]',
+                        title && 'mt-5',
+                    )}
+                >
+                    {heading}
+                </h2>
+
+                {description && (
+                    <p className="mx-auto mt-5 max-w-[620px] text-base leading-8 !text-white/78 sm:text-[17px]">
+                        {description}
+                    </p>
+                )}
+
+                <div className="mt-9">
+                    <Actions primary={primary} secondary={secondary} onDark center />
+                </div>
+            </div>
+        </section>
+    );
+}
+
+
+/* =========================================================
+   SUPPORT
+   A help-desk card: icon, message and actions on one row, with
+   a quiet assurance strip underneath.
+   ========================================================= */
+
+const SUPPORT_POINTS = [
+    { label: 'Fast response', dot: 'bg-emerald-500' },
+    { label: 'Expert assistance', dot: 'bg-[#0A5F9E]' },
+    { label: 'Multi-channel support', dot: 'bg-[#D71920]' },
+];
+
+function SupportVariant({ title, heading, description, primary, secondary }: VariantProps) {
+    return (
+        <section className={SECTION_CLASS}>
+            <div
+                className={cx(
+                    CONTAINER_CLASS,
+                    'relative overflow-hidden rounded-2xl border border-[#D9E4EC] bg-white shadow-[0_18px_44px_rgba(11,45,77,0.08)]',
+                )}
+            >
+                <span aria-hidden="true" className="absolute inset-y-0 left-0 w-1 bg-[#0A5F9E]" />
+
+                <div className="grid items-center gap-6 p-6 sm:p-8 lg:grid-cols-[auto_1fr_auto] lg:gap-8 lg:p-10">
+                    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#EAF4FC] text-[#0A5F9E]">
+                        <HeadsetIcon />
+                    </span>
+
+                    <div>
+                        <p className="text-sm font-semibold text-[#0A5F9E]">{title || 'Support'}</p>
+
+                        <h2 className="mt-1.5 text-2xl font-bold leading-tight tracking-[-0.025em] text-[#0B2D4D] sm:text-[30px]">
+                            {heading}
+                        </h2>
+
+                        {description && (
+                            <p className="mt-3 max-w-[640px] text-[15px] leading-7 text-[#4E6479] sm:text-base">
+                                {description}
+                            </p>
+                        )}
+                    </div>
+
+                    <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
+                        <CTAButton url={primary.url} text={primary.text} />
+
+                        {secondary && (
+                            <CTAButton url={secondary.url} text={secondary.text} secondary />
+                        )}
+                    </div>
+                </div>
+
+                <ul className="flex flex-wrap gap-x-8 gap-y-2 border-t border-[#E3EBF1] bg-[#F5F8FB] px-6 py-4 text-sm font-semibold text-[#2F465A] sm:px-8 lg:px-10">
+                    {SUPPORT_POINTS.map((point) => (
+                        <li key={point.label} className="flex items-center gap-2">
+                            <span aria-hidden="true" className={cx('h-2 w-2 rounded-full', point.dot)} />
+                            {point.label}
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        </section>
+    );
+}
+
+
+/* =========================================================
+   CONTACT
+   Copy and actions on the left, a photo panel on the right.
+   ========================================================= */
+
+function ContactVariant({
+    title,
+    heading,
+    description,
+    imageUrl,
+    primary,
+    secondary,
+}: VariantProps) {
+    return (
+        <section className={SECTION_CLASS}>
+            <div
+                className={cx(
+                    CONTAINER_CLASS,
+                    'grid overflow-hidden rounded-3xl border border-[#D9E4EC] bg-white shadow-[0_24px_60px_rgba(11,45,77,0.10)] lg:grid-cols-[1fr_0.85fr]',
+                )}
+            >
+                <div className="p-8 sm:p-10 lg:p-14">
+                    <Eyebrow>{title || 'Get in touch'}</Eyebrow>
+
+                    <h2 className="mt-5 text-3xl font-bold leading-[1.1] tracking-[-0.03em] text-[#0B2D4D] sm:text-4xl lg:text-[40px]">
+                        {heading}
+                    </h2>
+
+                    {description && (
+                        <p className="mt-5 max-w-[520px] text-base leading-8 text-[#4E6479]">
+                            {description}
+                        </p>
+                    )}
+
+                    <div className="mt-8">
+                        <Actions primary={primary} secondary={secondary} />
+                    </div>
+                </div>
+
+                <div className="relative isolate flex min-h-[260px] items-end overflow-hidden bg-[#0B2D4D] p-5 sm:p-6">
+                    <div aria-hidden="true" className="absolute inset-0 -z-10">
+                        {imageUrl ? (
+                            <img src={imageUrl} alt="" className="h-full w-full object-cover" />
+                        ) : (
+                            <div className={cx('h-full w-full', GRID_TEXTURE)} />
+                        )}
+
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#071D31]/85 via-[#071D31]/35 to-transparent" />
+                    </div>
+
+                    <div className="flex items-center gap-4 rounded-xl border border-white/20 bg-[#071D31]/70 p-4 backdrop-blur-md">
+                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/12 !text-white">
+                            <MailIcon />
+                        </span>
+
+                        <div>
+                            <p className="text-sm font-bold !text-white">Connect with our team</p>
+                            <p className="mt-0.5 text-xs leading-5 !text-white/70">
+                                Choose the channel that suits you.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+
+/* =========================================================
+   MAIN COMPONENT
    ========================================================= */
 
 export default function CTASection({
@@ -285,1517 +534,37 @@ export default function CTASection({
     content = {},
     imageUrl = null,
 }: CTASectionProps) {
-    const variant =
-        content.variant ?? 'simple';
+    const props: VariantProps = {
+        title,
+        heading: content.heading || title || 'Ready to transform your business?',
+        description: content.description || '',
+        imageUrl,
+        primary: {
+            text: content.button_text || 'Contact us',
+            url: content.button_url || '/contact',
+        },
+        secondary: content.secondary_button_text
+            ? {
+                  text: content.secondary_button_text,
+                  url: content.secondary_button_url || '#',
+              }
+            : null,
+    };
 
+    switch (content.variant ?? 'simple') {
+        case 'split':
+            return <SplitVariant {...props} />;
 
-    const heading =
-        content.heading ||
-        title ||
-        'Ready to transform your business?';
+        case 'support':
+            return <SupportVariant {...props} />;
 
+        case 'contact':
+            return <ContactVariant {...props} />;
 
-    const description =
-        content.description || '';
+        case 'simple':
+            return <SimpleVariant {...props} />;
 
-
-    const primaryButtonText =
-        content.button_text ||
-        'Contact Us';
-
-
-    const primaryButtonUrl =
-        content.button_url ||
-        '/contact';
-
-
-    const secondaryButtonText =
-        content.secondary_button_text ||
-        '';
-
-
-    const secondaryButtonUrl =
-        content.secondary_button_url ||
-        '#';
-
-
-    const hasSecondaryButton =
-        Boolean(
-            secondaryButtonText,
-        );
-
-
-    /* =====================================================
-       SIMPLE VARIANT
-       PREMIUM CONVERSION BANNER
-       ===================================================== */
-
-    if (
-        variant === 'simple'
-    ) {
-        return (
-            <section
-                className="
-                    relative
-                    overflow-hidden
-                    bg-[#F7FAFD]
-                    px-5
-                    py-20
-
-                    sm:px-6
-
-                    lg:px-8
-                    lg:py-28
-                "
-            >
-                <div
-                    className="
-                        relative
-                        z-10
-                        mx-auto
-                        max-w-[1400px]
-                    "
-                >
-                    <div
-                        className="
-                            relative
-                            overflow-hidden
-                            rounded-[36px]
-                            border
-                            border-[#174E77]
-                            bg-[linear-gradient(135deg,#071D31_0%,#0B2D4D_45%,#0A5F9E_100%)]
-                            px-6
-                            py-12
-                            text-center
-                            shadow-[0_30px_85px_rgba(11,45,77,0.24)]
-
-                            sm:px-10
-
-                            lg:px-14
-                            lg:py-16
-                        "
-                    >
-                        {/* Decorative background */}
-
-                        <div
-                            className="
-                                pointer-events-none
-                                absolute
-                                inset-0
-                            "
-                        >
-                            <div
-                                className="
-                                    absolute
-                                    -left-24
-                                    -top-24
-                                    h-72
-                                    w-72
-                                    rounded-full
-                                    bg-[#52A8DF]/18
-                                    blur-[120px]
-                                "
-                            />
-
-                            <div
-                                className="
-                                    absolute
-                                    -bottom-24
-                                    -right-20
-                                    h-72
-                                    w-72
-                                    rounded-full
-                                    bg-[#D71920]/14
-                                    blur-[120px]
-                                "
-                            />
-
-                            <div
-                                className="
-                                    absolute
-                                    inset-0
-                                    opacity-[0.05]
-                                    [background-image:linear-gradient(white_1px,transparent_1px),linear-gradient(90deg,white_1px,transparent_1px)]
-                                    [background-size:42px_42px]
-                                "
-                            />
-                        </div>
-
-
-                        <div
-                            className="
-                                relative
-                                mx-auto
-                                max-w-4xl
-                            "
-                        >
-                            {title && (
-                                <div
-                                    className="
-                                        flex
-                                        justify-center
-                                    "
-                                >
-                                    <div
-                                        className="
-                                            inline-flex
-                                            items-center
-                                            gap-3
-                                            rounded-full
-                                            border
-                                            border-white/10
-                                            bg-white/[0.06]
-                                            px-4
-                                            py-2
-                                            backdrop-blur-md
-                                        "
-                                    >
-                                        <span
-                                            className="
-                                                h-2
-                                                w-2
-                                                rounded-full
-                                                bg-[#FF8B90]
-                                            "
-                                        />
-
-                                        <p
-                                            className="
-                                                text-[10px]
-                                                font-bold
-                                                uppercase
-                                                tracking-[0.16em]
-                                                text-[#B9E3FA]
-
-                                                sm:text-[11px]
-                                            "
-                                        >
-                                            {title}
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
-
-
-                            <h2
-                                className="
-                                    mx-auto
-                                    mt-6
-                                    max-w-4xl
-                                    text-3xl
-                                    font-extrabold
-                                    leading-[1.08]
-                                    tracking-[-0.04em]
-                                    text-white
-
-                                    sm:text-4xl
-
-                                    lg:text-[50px]
-                                "
-                            >
-                                {heading}
-                            </h2>
-
-
-                            {description && (
-                                <p
-                                    className="
-                                        mx-auto
-                                        mt-6
-                                        max-w-2xl
-                                        text-base
-                                        leading-8
-                                        text-white/72
-
-                                        sm:text-[17px]
-                                    "
-                                >
-                                    {description}
-                                </p>
-                            )}
-
-
-                            <div
-                                className="
-                                    mt-9
-                                    flex
-                                    flex-wrap
-                                    items-center
-                                    justify-center
-                                    gap-3
-                                "
-                            >
-                                <CTAButton
-                                    url={
-                                        primaryButtonUrl
-                                    }
-                                    text={
-                                        primaryButtonText
-                                    }
-                                    darkBackground
-                                />
-
-                                {hasSecondaryButton && (
-                                    <CTAButton
-                                        url={
-                                            secondaryButtonUrl
-                                        }
-                                        text={
-                                            secondaryButtonText
-                                        }
-                                        secondary
-                                        darkBackground
-                                    />
-                                )}
-                            </div>
-
-
-                            <div
-                                className="
-                                    mx-auto
-                                    mt-9
-                                    flex
-                                    max-w-2xl
-                                    flex-wrap
-                                    items-center
-                                    justify-center
-                                    gap-x-6
-                                    gap-y-2
-                                    border-t
-                                    border-white/10
-                                    pt-6
-                                    text-[10px]
-                                    font-semibold
-                                    uppercase
-                                    tracking-[0.12em]
-                                    text-white/45
-                                "
-                            >
-                                <span>
-                                    Enterprise Ready
-                                </span>
-
-                                <span>
-                                    Secure by Design
-                                </span>
-
-                                <span>
-                                    Expert Support
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        );
+        default:
+            return <BackgroundVariant {...props} />;
     }
-
-
-    /* =====================================================
-       SPLIT VARIANT
-       EDITORIAL CTA + ACTION PANEL
-       ===================================================== */
-
-    if (
-        variant === 'split'
-    ) {
-        return (
-            <section
-                className="
-                    relative
-                    overflow-hidden
-                    bg-[#F7FAFD]
-                    px-5
-                    py-20
-
-                    sm:px-6
-
-                    lg:px-8
-                    lg:py-28
-                "
-            >
-                <div
-                    className="
-                        relative
-                        z-10
-                        mx-auto
-                        max-w-[1400px]
-                    "
-                >
-                    <div
-                        className="
-                            grid
-                            overflow-hidden
-                            rounded-[32px]
-                            border
-                            border-[#DCE7EF]
-                            bg-white
-                            shadow-[0_20px_60px_rgba(11,45,77,0.09)]
-
-                            lg:grid-cols-[1.15fr_0.85fr]
-                        "
-                    >
-                        {/* Content side */}
-
-                        <div
-                            className="
-                                relative
-                                overflow-hidden
-                                px-6
-                                py-10
-
-                                sm:px-8
-
-                                lg:px-11
-                                lg:py-14
-                            "
-                        >
-                            <div
-                                className="
-                                    absolute
-                                    -left-16
-                                    -top-16
-                                    h-44
-                                    w-44
-                                    rounded-full
-                                    bg-[#0A5F9E]/6
-                                    blur-3xl
-                                "
-                            />
-
-                            <div className="relative">
-                                {title && (
-                                    <div
-                                        className="
-                                            inline-flex
-                                            items-center
-                                            gap-3
-                                        "
-                                    >
-                                        <span
-                                            className="
-                                                h-[2px]
-                                                w-7
-                                                bg-[#D71920]
-                                            "
-                                        />
-
-                                        <p
-                                            className="
-                                                text-[11px]
-                                                font-bold
-                                                uppercase
-                                                tracking-[0.18em]
-                                                text-[#0A5F9E]
-
-                                                sm:text-xs
-                                            "
-                                        >
-                                            {title}
-                                        </p>
-                                    </div>
-                                )}
-
-
-                                <h2
-                                    className="
-                                        mt-5
-                                        max-w-2xl
-                                        text-3xl
-                                        font-extrabold
-                                        leading-[1.08]
-                                        tracking-[-0.04em]
-                                        text-[#0B2D4D]
-
-                                        sm:text-4xl
-
-                                        lg:text-[46px]
-                                    "
-                                >
-                                    {heading}
-                                </h2>
-
-
-                                <div
-                                    className="
-                                        mt-5
-                                        flex
-                                        items-center
-                                        gap-2
-                                    "
-                                >
-                                    <span
-                                        className="
-                                            h-[3px]
-                                            w-12
-                                            rounded-full
-                                            bg-[#D71920]
-                                        "
-                                    />
-
-                                    <span
-                                        className="
-                                            h-[3px]
-                                            w-5
-                                            rounded-full
-                                            bg-[#0A5F9E]
-                                        "
-                                    />
-                                </div>
-
-
-                                {description && (
-                                    <p
-                                        className="
-                                            mt-6
-                                            max-w-2xl
-                                            text-sm
-                                            leading-7
-                                            text-[#5C6F82]
-
-                                            sm:text-base
-                                        "
-                                    >
-                                        {description}
-                                    </p>
-                                )}
-                            </div>
-                        </div>
-
-
-                        {/* Action side */}
-
-                        <div
-                            className="
-                                relative
-                                flex
-                                items-center
-                                justify-center
-                                overflow-hidden
-                                border-t
-                                border-[#DCE7EF]
-                                bg-[linear-gradient(145deg,#EEF6FB_0%,#F9FCFE_100%)]
-                                px-6
-                                py-9
-
-                                lg:border-l
-                                lg:border-t-0
-                                lg:px-9
-                            "
-                        >
-                            <div
-                                className="
-                                    absolute
-                                    -right-14
-                                    -top-14
-                                    h-40
-                                    w-40
-                                    rounded-full
-                                    bg-[#0A5F9E]/7
-                                    blur-3xl
-                                "
-                            />
-
-                            <div
-                                className="
-                                    relative
-                                    w-full
-                                    max-w-sm
-                                "
-                            >
-                                <div
-                                    className="
-                                        mb-5
-                                        rounded-[20px]
-                                        border
-                                        border-[#DCE7EF]
-                                        bg-white/85
-                                        px-5
-                                        py-4
-                                        shadow-[0_10px_30px_rgba(11,45,77,0.05)]
-                                        backdrop-blur
-                                    "
-                                >
-                                    <p
-                                        className="
-                                            text-[10px]
-                                            font-bold
-                                            uppercase
-                                            tracking-[0.14em]
-                                            text-[#0A5F9E]
-                                        "
-                                    >
-                                        Start a Conversation
-                                    </p>
-
-                                    <p
-                                        className="
-                                            mt-2
-                                            text-sm
-                                            leading-6
-                                            text-[#607487]
-                                        "
-                                    >
-                                        Connect with our team and explore the next step for your business.
-                                    </p>
-                                </div>
-
-
-                                <div
-                                    className="
-                                        flex
-                                        flex-col
-                                        gap-3
-                                    "
-                                >
-                                    <CTAButton
-                                        url={
-                                            primaryButtonUrl
-                                        }
-                                        text={
-                                            primaryButtonText
-                                        }
-                                    />
-
-                                    {hasSecondaryButton && (
-                                        <CTAButton
-                                            url={
-                                                secondaryButtonUrl
-                                            }
-                                            text={
-                                                secondaryButtonText
-                                            }
-                                            secondary
-                                        />
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        );
-    }
-
-
-    /* =====================================================
-       SUPPORT VARIANT
-       SERVICE ASSURANCE CTA
-       ===================================================== */
-
-    if (
-        variant === 'support'
-    ) {
-        return (
-            <section
-                className="
-                    relative
-                    overflow-hidden
-                    bg-[#F7FAFD]
-                    px-5
-                    py-20
-
-                    sm:px-6
-
-                    lg:px-8
-                    lg:py-28
-                "
-            >
-                <div
-                    className="
-                        relative
-                        z-10
-                        mx-auto
-                        max-w-[1400px]
-                    "
-                >
-                    <div
-                        className="
-                            relative
-                            overflow-hidden
-                            rounded-[32px]
-                            border
-                            border-[#D8E7F1]
-                            bg-[linear-gradient(135deg,#EEF7FD_0%,#FFFFFF_55%,#FFF4F5_100%)]
-                            px-6
-                            py-10
-                            shadow-[0_20px_60px_rgba(11,45,77,0.085)]
-
-                            sm:px-8
-
-                            lg:px-10
-                            lg:py-12
-                        "
-                    >
-                        <div
-                            className="
-                                pointer-events-none
-                                absolute
-                                inset-0
-                            "
-                        >
-                            <div
-                                className="
-                                    absolute
-                                    -left-20
-                                    -top-20
-                                    h-48
-                                    w-48
-                                    rounded-full
-                                    bg-[#0A5F9E]/7
-                                    blur-3xl
-                                "
-                            />
-
-                            <div
-                                className="
-                                    absolute
-                                    -bottom-24
-                                    right-12
-                                    h-48
-                                    w-48
-                                    rounded-full
-                                    bg-[#D71920]/5
-                                    blur-3xl
-                                "
-                            />
-                        </div>
-
-
-                        <div
-                            className="
-                                relative
-                                grid
-                                items-center
-                                gap-8
-
-                                lg:grid-cols-[1fr_auto]
-                            "
-                        >
-                            <div>
-                                <div
-                                    className="
-                                        inline-flex
-                                        items-center
-                                        gap-2
-                                        rounded-full
-                                        border
-                                        border-sky-100
-                                        bg-white
-                                        px-3
-                                        py-1.5
-                                        shadow-sm
-                                    "
-                                >
-                                    <span
-                                        className="
-                                            flex
-                                            h-7
-                                            w-7
-                                            items-center
-                                            justify-center
-                                            rounded-full
-                                            bg-[#0A5F9E]/10
-                                            text-[#0A5F9E]
-                                        "
-                                    >
-                                        <svg
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth="1.8"
-                                            className="h-4 w-4"
-                                            aria-hidden="true"
-                                        >
-                                            <path
-                                                d="M12 3a7 7 0 0 0-7 7v4a3 3 0 0 0 3 3h1v-6H6v-1a6 6 0 1 1 12 0v1h-3v6h1a3 3 0 0 0 3-3v-4a7 7 0 0 0-7-7Z"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                            />
-
-                                            <path
-                                                d="M16 17c0 2-1.8 3-4 3"
-                                                strokeLinecap="round"
-                                            />
-                                        </svg>
-                                    </span>
-
-                                    <span
-                                        className="
-                                            text-xs
-                                            font-bold
-                                            uppercase
-                                            tracking-[0.16em]
-                                            text-[#0A5F9E]
-                                        "
-                                    >
-                                        {title || 'Support'}
-                                    </span>
-                                </div>
-
-
-                                <h2
-                                    className="
-                                        mt-5
-                                        max-w-3xl
-                                        text-3xl
-                                        font-extrabold
-                                        leading-[1.08]
-                                        tracking-[-0.04em]
-                                        text-[#0B2D4D]
-
-                                        sm:text-4xl
-
-                                        lg:text-[46px]
-                                    "
-                                >
-                                    {heading}
-                                </h2>
-
-
-                                {description && (
-                                    <p
-                                        className="
-                                            mt-5
-                                            max-w-3xl
-                                            text-sm
-                                            leading-7
-                                            text-[#5C6F82]
-
-                                            sm:text-base
-                                        "
-                                    >
-                                        {description}
-                                    </p>
-                                )}
-
-
-                                <div
-                                    className="
-                                        mt-7
-                                        flex
-                                        flex-wrap
-                                        gap-x-6
-                                        gap-y-3
-                                        text-sm
-                                        font-semibold
-                                        text-[#42576B]
-                                    "
-                                >
-                                    <span
-                                        className="
-                                            inline-flex
-                                            items-center
-                                            gap-2
-                                        "
-                                    >
-                                        <span
-                                            className="
-                                                h-2
-                                                w-2
-                                                rounded-full
-                                                bg-emerald-500
-                                            "
-                                        />
-
-                                        Fast response
-                                    </span>
-
-                                    <span
-                                        className="
-                                            inline-flex
-                                            items-center
-                                            gap-2
-                                        "
-                                    >
-                                        <span
-                                            className="
-                                                h-2
-                                                w-2
-                                                rounded-full
-                                                bg-[#0A5F9E]
-                                            "
-                                        />
-
-                                        Expert assistance
-                                    </span>
-
-                                    <span
-                                        className="
-                                            inline-flex
-                                            items-center
-                                            gap-2
-                                        "
-                                    >
-                                        <span
-                                            className="
-                                                h-2
-                                                w-2
-                                                rounded-full
-                                                bg-red-500
-                                            "
-                                        />
-
-                                        Multi-channel support
-                                    </span>
-                                </div>
-                            </div>
-
-
-                            <div
-                                className="
-                                    flex
-                                    flex-col
-                                    gap-3
-
-                                    sm:flex-row
-
-                                    lg:flex-col
-                                "
-                            >
-                                <CTAButton
-                                    url={
-                                        primaryButtonUrl
-                                    }
-                                    text={
-                                        primaryButtonText
-                                    }
-                                />
-
-                                {hasSecondaryButton && (
-                                    <CTAButton
-                                        url={
-                                            secondaryButtonUrl
-                                        }
-                                        text={
-                                            secondaryButtonText
-                                        }
-                                        secondary
-                                    />
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        );
-    }
-
-
-    /* =====================================================
-       CONTACT VARIANT
-       CONTACT / CONSULTATION CTA
-       ===================================================== */
-
-    if (
-        variant === 'contact'
-    ) {
-        return (
-            <section
-                className="
-                    relative
-                    overflow-hidden
-                    bg-[#F7FAFD]
-                    px-5
-                    py-20
-
-                    sm:px-6
-
-                    lg:px-8
-                    lg:py-28
-                "
-            >
-                <div
-                    className="
-                        relative
-                        z-10
-                        mx-auto
-                        max-w-[1400px]
-                    "
-                >
-                    <div
-                        className="
-                            grid
-                            overflow-hidden
-                            rounded-[32px]
-                            border
-                            border-[#DCE7EF]
-                            bg-white
-                            shadow-[0_22px_65px_rgba(15,23,42,0.10)]
-
-                            lg:grid-cols-[1fr_0.9fr]
-                        "
-                    >
-                        {/* Contact copy */}
-
-                        <div
-                            className="
-                                relative
-                                overflow-hidden
-                                px-6
-                                py-10
-
-                                sm:px-8
-
-                                lg:px-10
-                                lg:py-14
-                            "
-                        >
-                            <div
-                                className="
-                                    absolute
-                                    -left-20
-                                    -top-20
-                                    h-48
-                                    w-48
-                                    rounded-full
-                                    bg-[#0A5F9E]/5
-                                    blur-3xl
-                                "
-                            />
-
-                            <div className="relative">
-                                <div
-                                    className="
-                                        inline-flex
-                                        items-center
-                                        gap-3
-                                    "
-                                >
-                                    <span
-                                        className="
-                                            h-[2px]
-                                            w-7
-                                            bg-[#D71920]
-                                        "
-                                    />
-
-                                    <p
-                                        className="
-                                            text-[11px]
-                                            font-bold
-                                            uppercase
-                                            tracking-[0.18em]
-                                            text-[#0A5F9E]
-
-                                            sm:text-xs
-                                        "
-                                    >
-                                        {title || 'Get in touch'}
-                                    </p>
-                                </div>
-
-
-                                <h2
-                                    className="
-                                        mt-5
-                                        max-w-2xl
-                                        text-3xl
-                                        font-extrabold
-                                        leading-[1.08]
-                                        tracking-[-0.04em]
-                                        text-[#0B2D4D]
-
-                                        sm:text-4xl
-
-                                        lg:text-[46px]
-                                    "
-                                >
-                                    {heading}
-                                </h2>
-
-
-                                <div
-                                    className="
-                                        mt-5
-                                        flex
-                                        items-center
-                                        gap-2
-                                    "
-                                >
-                                    <span
-                                        className="
-                                            h-[3px]
-                                            w-12
-                                            rounded-full
-                                            bg-[#D71920]
-                                        "
-                                    />
-
-                                    <span
-                                        className="
-                                            h-[3px]
-                                            w-5
-                                            rounded-full
-                                            bg-[#0A5F9E]
-                                        "
-                                    />
-                                </div>
-
-
-                                {description && (
-                                    <p
-                                        className="
-                                            mt-6
-                                            max-w-2xl
-                                            text-sm
-                                            leading-7
-                                            text-[#5C6F82]
-
-                                            sm:text-base
-                                        "
-                                    >
-                                        {description}
-                                    </p>
-                                )}
-
-
-                                <div
-                                    className="
-                                        mt-8
-                                        flex
-                                        flex-wrap
-                                        gap-3
-                                    "
-                                >
-                                    <CTAButton
-                                        url={
-                                            primaryButtonUrl
-                                        }
-                                        text={
-                                            primaryButtonText
-                                        }
-                                    />
-
-                                    {hasSecondaryButton && (
-                                        <CTAButton
-                                            url={
-                                                secondaryButtonUrl
-                                            }
-                                            text={
-                                                secondaryButtonText
-                                            }
-                                            secondary
-                                        />
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-
-
-                        {/* Contact visual */}
-
-                        <div
-                            className="
-                                relative
-                                min-h-[300px]
-                                overflow-hidden
-                                border-t
-                                border-[#DCE7EF]
-                                bg-[#0B2D4D]
-
-                                lg:border-l
-                                lg:border-t-0
-                            "
-                        >
-                            {imageUrl ? (
-                                <>
-                                    <img
-                                        src={
-                                            imageUrl
-                                        }
-                                        alt={
-                                            heading
-                                        }
-                                        className="
-                                            absolute
-                                            inset-0
-                                            h-full
-                                            w-full
-                                            object-cover
-                                            transition
-                                            duration-700
-                                        "
-                                    />
-
-                                    <div
-                                        className="
-                                            absolute
-                                            inset-0
-                                            bg-[linear-gradient(145deg,rgba(7,29,49,0.78),rgba(10,95,158,0.58))]
-                                        "
-                                    />
-                                </>
-                            ) : (
-                                <div
-                                    className="
-                                        absolute
-                                        inset-0
-                                        bg-[linear-gradient(145deg,#071D31_0%,#0B2D4D_45%,#0A5F9E_100%)]
-                                    "
-                                />
-                            )}
-
-
-                            <div
-                                className="
-                                    absolute
-                                    inset-0
-                                    opacity-[0.05]
-                                    [background-image:linear-gradient(white_1px,transparent_1px),linear-gradient(90deg,white_1px,transparent_1px)]
-                                    [background-size:42px_42px]
-                                "
-                            />
-
-
-                            <div
-                                className="
-                                    relative
-                                    flex
-                                    h-full
-                                    min-h-[300px]
-                                    items-center
-                                    justify-center
-                                    px-8
-                                    py-10
-                                    text-center
-                                "
-                            >
-                                <div
-                                    className="
-                                        max-w-sm
-                                    "
-                                >
-                                    <div
-                                        className="
-                                            mx-auto
-                                            flex
-                                            h-14
-                                            w-14
-                                            items-center
-                                            justify-center
-                                            rounded-2xl
-                                            border
-                                            border-white/10
-                                            bg-white/10
-                                            text-white
-                                            backdrop-blur-md
-                                        "
-                                    >
-                                        <svg
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth="1.8"
-                                            className="h-6 w-6"
-                                            aria-hidden="true"
-                                        >
-                                            <path
-                                                d="M4 5h16v14H4z"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                            />
-
-                                            <path
-                                                d="m4 7 8 6 8-6"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                            />
-                                        </svg>
-                                    </div>
-
-
-                                    <p
-                                        className="
-                                            mt-5
-                                            text-base
-                                            font-bold
-                                            text-white
-                                        "
-                                    >
-                                        Connect with our team
-                                    </p>
-
-
-                                    <p
-                                        className="
-                                            mt-2
-                                            text-sm
-                                            leading-6
-                                            text-white/70
-                                        "
-                                    >
-                                        Use the action buttons to contact us through your preferred channel.
-                                    </p>
-
-
-                                    <div
-                                        className="
-                                            mx-auto
-                                            mt-6
-                                            h-[2px]
-                                            w-12
-                                            rounded-full
-                                            bg-[#FF8B90]
-                                        "
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        );
-    }
-
-
-    /* =====================================================
-       BACKGROUND VARIANT
-       IMAGE-LED CONVERSION HERO
-       ===================================================== */
-
-    return (
-        <section
-            className="
-                relative
-                overflow-hidden
-                bg-[#F7FAFD]
-                px-5
-                py-20
-
-                sm:px-6
-
-                lg:px-8
-                lg:py-28
-            "
-        >
-            <div
-                className="
-                    relative
-                    z-10
-                    mx-auto
-                    max-w-[1400px]
-                "
-            >
-                <div
-                    className="
-                        relative
-                        overflow-hidden
-                        rounded-[36px]
-                        border
-                        border-[#174E77]
-                        bg-[#0B2D4D]
-                        shadow-[0_30px_85px_rgba(11,45,77,0.24)]
-                    "
-                    style={
-                        imageUrl
-                            ? {
-                                  backgroundImage: `linear-gradient(rgba(7,29,49,0.78), rgba(7,29,49,0.82)), url(${imageUrl})`,
-                                  backgroundSize:
-                                      'cover',
-                                  backgroundPosition:
-                                      'center',
-                              }
-                            : undefined
-                    }
-                >
-                    {!imageUrl && (
-                        <div
-                            className="
-                                pointer-events-none
-                                absolute
-                                inset-0
-                            "
-                        >
-                            <div
-                                className="
-                                    absolute
-                                    left-0
-                                    top-0
-                                    h-full
-                                    w-full
-                                    bg-[linear-gradient(145deg,#071D31_0%,#0B2D4D_45%,#0A5F9E_100%)]
-                                "
-                            />
-
-                            <div
-                                className="
-                                    absolute
-                                    -right-20
-                                    -top-20
-                                    h-64
-                                    w-64
-                                    rounded-full
-                                    bg-white/10
-                                    blur-3xl
-                                "
-                            />
-
-                            <div
-                                className="
-                                    absolute
-                                    -bottom-24
-                                    left-10
-                                    h-56
-                                    w-56
-                                    rounded-full
-                                    bg-[#D71920]/12
-                                    blur-3xl
-                                "
-                            />
-                        </div>
-                    )}
-
-
-                    <div
-                        className="
-                            absolute
-                            inset-0
-                            opacity-[0.045]
-                            [background-image:linear-gradient(white_1px,transparent_1px),linear-gradient(90deg,white_1px,transparent_1px)]
-                            [background-size:44px_44px]
-                        "
-                    />
-
-
-                    <div
-                        className="
-                            relative
-                            px-6
-                            py-14
-                            text-center
-
-                            sm:px-10
-
-                            lg:px-14
-                            lg:py-20
-                        "
-                    >
-                        <div
-                            className="
-                                mx-auto
-                                max-w-4xl
-                            "
-                        >
-                            {title && (
-                                <div
-                                    className="
-                                        flex
-                                        justify-center
-                                    "
-                                >
-                                    <div
-                                        className="
-                                            inline-flex
-                                            items-center
-                                            gap-3
-                                            rounded-full
-                                            border
-                                            border-white/10
-                                            bg-white/[0.06]
-                                            px-4
-                                            py-2
-                                            backdrop-blur-md
-                                        "
-                                    >
-                                        <span
-                                            className="
-                                                h-2
-                                                w-2
-                                                rounded-full
-                                                bg-[#FF8B90]
-                                            "
-                                        />
-
-                                        <p
-                                            className="
-                                                text-[10px]
-                                                font-bold
-                                                uppercase
-                                                tracking-[0.16em]
-                                                text-[#B9E3FA]
-                                            "
-                                        >
-                                            {title}
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
-
-
-                            <h2
-                                className="
-                                    mt-6
-                                    text-3xl
-                                    font-extrabold
-                                    leading-[1.08]
-                                    tracking-[-0.04em]
-                                    text-white
-
-                                    sm:text-4xl
-
-                                    lg:text-[50px]
-                                "
-                            >
-                                {heading}
-                            </h2>
-
-
-                            {description && (
-                                <p
-                                    className="
-                                        mx-auto
-                                        mt-6
-                                        max-w-2xl
-                                        text-sm
-                                        leading-7
-                                        text-white/75
-
-                                        sm:text-base
-                                    "
-                                >
-                                    {description}
-                                </p>
-                            )}
-
-
-                            <div
-                                className="
-                                    mt-9
-                                    flex
-                                    flex-wrap
-                                    items-center
-                                    justify-center
-                                    gap-3
-                                "
-                            >
-                                <CTAButton
-                                    url={
-                                        primaryButtonUrl
-                                    }
-                                    text={
-                                        primaryButtonText
-                                    }
-                                    darkBackground
-                                />
-
-                                {hasSecondaryButton && (
-                                    <CTAButton
-                                        url={
-                                            secondaryButtonUrl
-                                        }
-                                        text={
-                                            secondaryButtonText
-                                        }
-                                        secondary
-                                        darkBackground
-                                    />
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    );
 }

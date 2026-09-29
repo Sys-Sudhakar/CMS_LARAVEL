@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\CMS;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 use App\Models\Media;
 use App\Models\Page;
 use App\Models\PageSection;
@@ -29,11 +30,7 @@ class PageSectionController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $team =
-            $this->currentTeam(
-                $request
-            );
-
+        $team = $this->currentTeam($request);
 
         /*
         |--------------------------------------------------------------------------
@@ -46,21 +43,16 @@ class PageSectionController extends Controller
             $team
         );
 
-
         /*
         |--------------------------------------------------------------------------
         | Sections
         |--------------------------------------------------------------------------
         */
 
-        $sections =
-            $page
-                ->sections()
-                ->orderBy(
-                    'sort_order'
-                )
-                ->get();
-
+        $sections = $page
+            ->sections()
+            ->orderBy('sort_order')
+            ->get();
 
         /*
         |--------------------------------------------------------------------------
@@ -74,35 +66,22 @@ class PageSectionController extends Controller
         |
         */
 
-        $clipboard =
-            session(
-                'cms_section_clipboard'
-            );
+        $clipboard = session(
+            'cms_section_clipboard'
+        );
 
-
-        $copiedSection =
-            null;
-
+        $copiedSection = null;
 
         if (
             $clipboard &&
-            ! empty(
-                $clipboard['section_id']
-            )
+            !empty($clipboard['section_id'])
         ) {
+            $clipboardSection = PageSection::query()
+                ->find(
+                    $clipboard['section_id']
+                );
 
-            $clipboardSection =
-                PageSection::query()
-                    ->find(
-                        $clipboard[
-                            'section_id'
-                        ]
-                    );
-
-
-            if (
-                $clipboardSection
-            ) {
+            if ($clipboardSection) {
 
                 /*
                 |--------------------------------------------------------------------------
@@ -110,13 +89,10 @@ class PageSectionController extends Controller
                 |--------------------------------------------------------------------------
                 */
 
-                $clipboardPage =
-                    Page::query()
-                        ->find(
-                            $clipboardSection
-                                ->page_id
-                        );
-
+                $clipboardPage = Page::query()
+                    ->find(
+                        $clipboardSection->page_id
+                    );
 
                 /*
                 |--------------------------------------------------------------------------
@@ -126,54 +102,40 @@ class PageSectionController extends Controller
 
                 if (
                     $clipboardPage &&
-                    $this
-                        ->pageBelongsToTeam(
-                            $clipboardPage,
-                            $team
-                        )
+                    $this->pageBelongsToTeam(
+                        $clipboardPage,
+                        $team
+                    )
                 ) {
-
                     $copiedSection = [
                         'id' =>
-                            $clipboardSection
-                                ->id,
+                            $clipboardSection->id,
 
                         'title' =>
-                            $clipboardSection
-                                ->title,
+                            $clipboardSection->title,
 
                         'type' =>
-                            $clipboardSection
-                                ->type,
+                            $clipboardSection->type,
 
                         'page_id' =>
-                            $clipboardSection
-                                ->page_id,
+                            $clipboardSection->page_id,
 
                         'copied_at' =>
-                            $clipboard[
-                                'copied_at'
-                            ]
+                            $clipboard['copied_at']
                             ?? null,
                     ];
-
                 } else {
 
                     /*
                     |--------------------------------------------------------------------------
                     | Clipboard From Another Team
                     |--------------------------------------------------------------------------
-                    |
-                    | Clear it so content from Team A cannot be pasted into Team B.
-                    |
                     */
 
                     session()->forget(
                         'cms_section_clipboard'
                     );
-
                 }
-
             } else {
 
                 /*
@@ -185,10 +147,8 @@ class PageSectionController extends Controller
                 session()->forget(
                     'cms_section_clipboard'
                 );
-
             }
         }
-
 
         return Inertia::render(
             'pages/sections/index',
@@ -219,11 +179,7 @@ class PageSectionController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $team =
-            $this->currentTeam(
-                $request
-            );
-
+        $team = $this->currentTeam($request);
 
         /*
         |--------------------------------------------------------------------------
@@ -236,68 +192,53 @@ class PageSectionController extends Controller
             $team
         );
 
-
         /*
         |--------------------------------------------------------------------------
         | Media
         |--------------------------------------------------------------------------
-        |
-        | IMPORTANT:
-        |
-        | Media itself has not yet been made team-aware.
-        |
-        | For now we keep the existing media query so we do not break your
-        | section editor.
-        |
-        | In the next step we will isolate Media completely.
-        |
         */
 
-        $media =
-            Media::query()
+        $media = Media::query()
 
-                ->whereHas(
-                    'website',
-                    function ($query) use (
-                        $team
-                    ) {
-                        $query->where(
-                            'team_id',
-                            $team->id
-                        );
-                    }
-                )
+            ->whereHas(
+                'website',
+                function ($query) use ($team) {
+                    $query->where(
+                        'team_id',
+                        $team->id
+                    );
+                }
+            )
 
-                ->where(
-                    'mime_type',
-                    'like',
-                    'image/%'
-                )
+            ->where(
+                'mime_type',
+                'like',
+                'image/%'
+            )
 
-                ->latest()
+            ->latest()
 
-                ->get([
-                    'id',
-                    'website_id',
-                    'name',
-                    'file_name',
-                    'file_path',
-                    'mime_type',
-                    'alt_text',
-                ]);
+            ->get([
+                'id',
+                'website_id',
+                'name',
+                'file_name',
+                'file_path',
+                'mime_type',
+                'alt_text',
+            ]);
 
+        return Inertia::render(
+            'pages/sections/create',
+            [
+                'page' =>
+                    $page,
 
-                return Inertia::render(
-                    'pages/sections/create',
-                    [
-                        'page' =>
-                            $page,
-
-                        'media' =>
-                            $media,
-                    ]
-                );
-            }
+                'media' =>
+                    $media,
+            ]
+        );
+    }
 
 
     /**
@@ -313,11 +254,7 @@ class PageSectionController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $team =
-            $this->currentTeam(
-                $request
-            );
-
+        $team = $this->currentTeam($request);
 
         /*
         |--------------------------------------------------------------------------
@@ -330,56 +267,53 @@ class PageSectionController extends Controller
             $team
         );
 
-
         /*
         |--------------------------------------------------------------------------
         | Validate Section
         |--------------------------------------------------------------------------
         */
 
-        $validated =
-            $request->validate([
-                'type' => [
-                    'required',
-                    'string',
-                    'in:hero,content,cards,grid,stats,about,vision_mission,certifications,global_presence,cta,faq,contact_form',
-                ],
+        $validated = $request->validate([
+            'type' => [
+                'required',
+                'string',
+                'in:hero,content,cards,grid,stats,about,vision_mission,certifications,global_presence,cta,faq,contact_form',
+            ],
 
-                'title' => [
-                    'nullable',
-                    'string',
-                    'max:255',
-                ],
+            'title' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
 
-                'content' => [
-                    'nullable',
-                    'array',
-                ],
+            'content' => [
+                'nullable',
+                'array',
+            ],
 
-                'image' => [
-                    'nullable',
-                    'string',
-                    'max:2048',
-                ],
+            'image' => [
+                'nullable',
+                'string',
+                'max:2048',
+            ],
 
-                'video_url' => [
-                    'nullable',
-                    'url',
-                    'max:2048',
-                ],
+            'video_url' => [
+                'nullable',
+                'url',
+                'max:2048',
+            ],
 
-                'sort_order' => [
-                    'required',
-                    'integer',
-                    'min:0',
-                ],
+            'sort_order' => [
+                'required',
+                'integer',
+                'min:0',
+            ],
 
-                'status' => [
-                    'required',
-                    'in:active,inactive',
-                ],
-            ]);
-
+            'status' => [
+                'required',
+                'in:active,inactive',
+            ],
+        ]);
 
         /*
         |--------------------------------------------------------------------------
@@ -392,7 +326,6 @@ class PageSectionController extends Controller
             ->create(
                 $validated
             );
-
 
         return redirect()
             ->route(
@@ -420,11 +353,7 @@ class PageSectionController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $team =
-            $this->currentTeam(
-                $request
-            );
-
+        $team = $this->currentTeam($request);
 
         /*
         |--------------------------------------------------------------------------
@@ -436,7 +365,6 @@ class PageSectionController extends Controller
             $page,
             $team
         );
-
 
         /*
         |--------------------------------------------------------------------------
@@ -450,46 +378,41 @@ class PageSectionController extends Controller
             404
         );
 
-
         /*
         |--------------------------------------------------------------------------
         | Media
         |--------------------------------------------------------------------------
         */
 
-        $media =
-            Media::query()
+        $media = Media::query()
 
-                ->whereHas(
-                    'website',
-                    function ($query) use (
-                        $team
-                    ) {
-                        $query->where(
-                            'team_id',
-                            $team->id
-                        );
-                    }
-                )
+            ->whereHas(
+                'website',
+                function ($query) use ($team) {
+                    $query->where(
+                        'team_id',
+                        $team->id
+                    );
+                }
+            )
 
-                ->where(
-                    'mime_type',
-                    'like',
-                    'image/%'
-                )
+            ->where(
+                'mime_type',
+                'like',
+                'image/%'
+            )
 
-                ->latest()
+            ->latest()
 
-                ->get([
-                    'id',
-                    'website_id',
-                    'name',
-                    'file_name',
-                    'file_path',
-                    'mime_type',
-                    'alt_text',
-                ]);
-
+            ->get([
+                'id',
+                'website_id',
+                'name',
+                'file_name',
+                'file_path',
+                'mime_type',
+                'alt_text',
+            ]);
 
         return Inertia::render(
             'pages/sections/edit',
@@ -521,11 +444,7 @@ class PageSectionController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $team =
-            $this->currentTeam(
-                $request
-            );
-
+        $team = $this->currentTeam($request);
 
         /*
         |--------------------------------------------------------------------------
@@ -537,7 +456,6 @@ class PageSectionController extends Controller
             $page,
             $team
         );
-
 
         /*
         |--------------------------------------------------------------------------
@@ -551,56 +469,53 @@ class PageSectionController extends Controller
             404
         );
 
-
         /*
         |--------------------------------------------------------------------------
         | Validate
         |--------------------------------------------------------------------------
         */
 
-        $validated =
-            $request->validate([
-                'type' => [
-                    'required',
-                    'string',
-                    'in:hero,content,cards,grid,stats,about,vision_mission,certifications,global_presence,cta,faq,contact_form',
-                ],
+        $validated = $request->validate([
+            'type' => [
+                'required',
+                'string',
+                'in:hero,content,cards,grid,stats,about,vision_mission,certifications,global_presence,cta,faq,contact_form',
+            ],
 
-                'title' => [
-                    'nullable',
-                    'string',
-                    'max:255',
-                ],
+            'title' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
 
-                'content' => [
-                    'nullable',
-                    'array',
-                ],
+            'content' => [
+                'nullable',
+                'array',
+            ],
 
-                'image' => [
-                    'nullable',
-                    'string',
-                    'max:2048',
-                ],
+            'image' => [
+                'nullable',
+                'string',
+                'max:2048',
+            ],
 
-                'video_url' => [
-                    'nullable',
-                    'url',
-                    'max:2048',
-                ],
+            'video_url' => [
+                'nullable',
+                'url',
+                'max:2048',
+            ],
 
-                'sort_order' => [
-                    'required',
-                    'integer',
-                    'min:0',
-                ],
+            'sort_order' => [
+                'required',
+                'integer',
+                'min:0',
+            ],
 
-                'status' => [
-                    'required',
-                    'in:active,inactive',
-                ],
-            ]);
-
+            'status' => [
+                'required',
+                'in:active,inactive',
+            ],
+        ]);
 
         /*
         |--------------------------------------------------------------------------
@@ -612,7 +527,6 @@ class PageSectionController extends Controller
             $validated
         );
 
-
         return redirect()
             ->route(
                 'admin.pages.sections.index',
@@ -622,6 +536,172 @@ class PageSectionController extends Controller
                 'success',
                 'Page section updated successfully.'
             );
+    }
+
+
+    /**
+     * Reorder page sections using drag and drop.
+     *
+     * The frontend sends the complete section ID list
+     * in the order selected by the user.
+     *
+     * Example:
+     *
+     * section_ids: [5, 2, 8, 1]
+     *
+     * This becomes:
+     *
+     * section 5 -> sort_order 0
+     * section 2 -> sort_order 1
+     * section 8 -> sort_order 2
+     * section 1 -> sort_order 3
+     */
+    public function reorder(
+        Request $request,
+        Page $page
+    ): RedirectResponse {
+        /*
+        |--------------------------------------------------------------------------
+        | Current Team
+        |--------------------------------------------------------------------------
+        */
+
+        $team = $this->currentTeam($request);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Protect Page
+        |--------------------------------------------------------------------------
+        */
+
+        $this->ensurePageBelongsToTeam(
+            $page,
+            $team
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Validate Request
+        |--------------------------------------------------------------------------
+        */
+
+        $validated = $request->validate([
+            'section_ids' => [
+                'required',
+                'array',
+                'min:1',
+            ],
+
+            'section_ids.*' => [
+                'required',
+                'integer',
+                'distinct',
+            ],
+        ]);
+
+        $sectionIds = array_map(
+            'intval',
+            $validated['section_ids']
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Get Existing Sections
+        |--------------------------------------------------------------------------
+        |
+        | IMPORTANT:
+        |
+        | Only sections belonging to the CURRENT PAGE are allowed.
+        | This prevents someone from submitting another page's section ID.
+        |
+        */
+
+        $sections = PageSection::query()
+            ->where('page_id', $page->id)
+            ->whereIn('id', $sectionIds)
+            ->get([
+                'id',
+                'page_id',
+                'sort_order',
+            ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Verify All Sections Were Supplied
+        |--------------------------------------------------------------------------
+        */
+
+        $existingSectionIds = $sections
+            ->pluck('id')
+            ->map(
+                fn ($id) => (int) $id
+            )
+            ->sort()
+            ->values()
+            ->all();
+
+        $submittedSectionIds = collect($sectionIds)
+            ->sort()
+            ->values()
+            ->all();
+
+        if (
+            $existingSectionIds !==
+            $submittedSectionIds
+        ) {
+            return back()->with(
+                'error',
+                'Invalid section order. Please refresh the page and try again.'
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Update Sort Order
+        |--------------------------------------------------------------------------
+        |
+        | Use a transaction so either all section positions are updated
+        | or none of them are.
+        |
+        */
+
+        DB::transaction(
+            function () use (
+                $sectionIds,
+                $page
+            ) {
+                foreach (
+                    $sectionIds
+                    as $sortOrder =>
+                        $sectionId
+                ) {
+                    PageSection::query()
+                        ->where(
+                            'page_id',
+                            $page->id
+                        )
+                        ->where(
+                            'id',
+                            $sectionId
+                        )
+                        ->update([
+                            'sort_order' =>
+                                $sortOrder,
+                        ]);
+                }
+            }
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Response
+        |--------------------------------------------------------------------------
+        */
+
+        return back()->with(
+            'success',
+            'Section order updated successfully.'
+        );
     }
 
 
@@ -640,11 +720,7 @@ class PageSectionController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $team =
-            $this->currentTeam(
-                $request
-            );
-
+        $team = $this->currentTeam($request);
 
         /*
         |--------------------------------------------------------------------------
@@ -656,7 +732,6 @@ class PageSectionController extends Controller
             $page,
             $team
         );
-
 
         /*
         |--------------------------------------------------------------------------
@@ -670,22 +745,18 @@ class PageSectionController extends Controller
             404
         );
 
-
         /*
         |--------------------------------------------------------------------------
         | Authenticated User
         |--------------------------------------------------------------------------
         */
 
-        $user =
-            $request->user();
-
+        $user = $request->user();
 
         abort_unless(
             $user,
             401
         );
-
 
         /*
         |--------------------------------------------------------------------------
@@ -693,16 +764,14 @@ class PageSectionController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $batch =
-            $deletionService
-                ->deletePageSection(
-                    section:
-                        $section,
+        $batch = $deletionService
+            ->deletePageSection(
+                section:
+                    $section,
 
-                    user:
-                        $user
-                );
-
+                user:
+                    $user
+            );
 
         return redirect()
             ->route(
@@ -738,11 +807,7 @@ class PageSectionController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $team =
-            $this->currentTeam(
-                $request
-            );
-
+        $team = $this->currentTeam($request);
 
         /*
         |--------------------------------------------------------------------------
@@ -754,7 +819,6 @@ class PageSectionController extends Controller
             $page,
             $team
         );
-
 
         /*
         |--------------------------------------------------------------------------
@@ -768,21 +832,10 @@ class PageSectionController extends Controller
             404
         );
 
-
         /*
         |--------------------------------------------------------------------------
         | Store Copied Section In Session
         |--------------------------------------------------------------------------
-        |
-        | We keep:
-        |
-        | - section ID
-        | - source page ID
-        | - source team ID
-        | - copy timestamp
-        |
-        | Adding team_id gives us an extra layer of clipboard protection.
-        |
         */
 
         session([
@@ -801,7 +854,6 @@ class PageSectionController extends Controller
                         ->toDateTimeString(),
             ],
         ]);
-
 
         return back()->with(
             'success',
@@ -824,11 +876,7 @@ class PageSectionController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $team =
-            $this->currentTeam(
-                $request
-            );
-
+        $team = $this->currentTeam($request);
 
         /*
         |--------------------------------------------------------------------------
@@ -841,50 +889,38 @@ class PageSectionController extends Controller
             $team
         );
 
-
         /*
         |--------------------------------------------------------------------------
         | Get Clipboard
         |--------------------------------------------------------------------------
         */
 
-        $clipboard =
-            session(
-                'cms_section_clipboard'
-            );
-
+        $clipboard = session(
+            'cms_section_clipboard'
+        );
 
         if (
-            ! $clipboard ||
+            !$clipboard ||
             empty(
                 $clipboard[
                     'section_id'
                 ]
             )
         ) {
-
             return back()->with(
                 'error',
                 'No copied section is available in the clipboard.'
             );
-
         }
-
 
         /*
         |--------------------------------------------------------------------------
         | Extra Team Check
         |--------------------------------------------------------------------------
-        |
-        | New clipboard records contain team_id.
-        |
-        | Old clipboard records may not, so we also verify the actual source
-        | page below.
-        |
         */
 
         if (
-            ! empty(
+            !empty(
                 $clipboard[
                     'team_id'
                 ]
@@ -894,19 +930,15 @@ class PageSectionController extends Controller
             ] !==
             (int) $team->id
         ) {
-
             session()->forget(
                 'cms_section_clipboard'
             );
-
 
             return back()->with(
                 'error',
                 'The copied section belongs to another team and cannot be pasted here.'
             );
-
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -914,37 +946,25 @@ class PageSectionController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $sourceSection =
-            PageSection::query()
-                ->find(
-                    $clipboard[
-                        'section_id'
-                    ]
-                );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Source Section May Have Been Deleted
-        |--------------------------------------------------------------------------
-        */
+        $sourceSection = PageSection::query()
+            ->find(
+                $clipboard[
+                    'section_id'
+                ]
+            );
 
         if (
-            ! $sourceSection
+            !$sourceSection
         ) {
-
             session()->forget(
                 'cms_section_clipboard'
             );
-
 
             return back()->with(
                 'error',
                 'The copied section no longer exists.'
             );
-
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -952,30 +972,23 @@ class PageSectionController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $sourcePage =
-            Page::query()
-                ->find(
-                    $sourceSection
-                        ->page_id
-                );
-
+        $sourcePage = Page::query()
+            ->find(
+                $sourceSection->page_id
+            );
 
         if (
-            ! $sourcePage
+            !$sourcePage
         ) {
-
             session()->forget(
                 'cms_section_clipboard'
             );
-
 
             return back()->with(
                 'error',
                 'The source page no longer exists.'
             );
-
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -984,24 +997,20 @@ class PageSectionController extends Controller
         */
 
         if (
-            ! $this->pageBelongsToTeam(
+            !$this->pageBelongsToTeam(
                 $sourcePage,
                 $team
             )
         ) {
-
             session()->forget(
                 'cms_section_clipboard'
             );
-
 
             return back()->with(
                 'error',
                 'The copied section belongs to another team and cannot be pasted here.'
             );
-
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -1009,55 +1018,34 @@ class PageSectionController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $highestSortOrder =
-            PageSection::query()
-
-                ->where(
-                    'page_id',
-                    $page->id
-                )
-
-                ->max(
-                    'sort_order'
-                );
-
+        $highestSortOrder = PageSection::query()
+            ->where(
+                'page_id',
+                $page->id
+            )
+            ->max(
+                'sort_order'
+            );
 
         $nextSortOrder =
-            $highestSortOrder ===
-            null
-
+            $highestSortOrder === null
                 ? 0
-
-                : $highestSortOrder +
-                    1;
-
+                : $highestSortOrder + 1;
 
         /*
         |--------------------------------------------------------------------------
         | Clone Section
         |--------------------------------------------------------------------------
-        |
-        | replicate() copies section data such as:
-        |
-        | - type
-        | - title
-        | - content JSON
-        | - image
-        | - video_url
-        | - status
-        |
         */
 
-        $newSection =
-            $sourceSection
-                ->replicate([
-                    'id',
-                    'page_id',
-                    'sort_order',
-                    'created_at',
-                    'updated_at',
-                ]);
-
+        $newSection = $sourceSection
+            ->replicate([
+                'id',
+                'page_id',
+                'sort_order',
+                'created_at',
+                'updated_at',
+            ]);
 
         /*
         |--------------------------------------------------------------------------
@@ -1068,10 +1056,8 @@ class PageSectionController extends Controller
         $newSection->page_id =
             $page->id;
 
-
         $newSection->sort_order =
             $nextSortOrder;
-
 
         /*
         |--------------------------------------------------------------------------
@@ -1080,7 +1066,6 @@ class PageSectionController extends Controller
         */
 
         $newSection->save();
-
 
         return back()->with(
             'success',
@@ -1104,11 +1089,7 @@ class PageSectionController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $team =
-            $this->currentTeam(
-                $request
-            );
-
+        $team = $this->currentTeam($request);
 
         /*
         |--------------------------------------------------------------------------
@@ -1120,7 +1101,6 @@ class PageSectionController extends Controller
             $page,
             $team
         );
-
 
         /*
         |--------------------------------------------------------------------------
@@ -1134,35 +1114,25 @@ class PageSectionController extends Controller
             404
         );
 
-
         /*
         |--------------------------------------------------------------------------
         | Find Next Available Sort Order
         |--------------------------------------------------------------------------
         */
 
-        $highestSortOrder =
-            PageSection::query()
-
-                ->where(
-                    'page_id',
-                    $page->id
-                )
-
-                ->max(
-                    'sort_order'
-                );
-
+        $highestSortOrder = PageSection::query()
+            ->where(
+                'page_id',
+                $page->id
+            )
+            ->max(
+                'sort_order'
+            );
 
         $nextSortOrder =
-            $highestSortOrder ===
-            null
-
+            $highestSortOrder === null
                 ? 0
-
-                : $highestSortOrder +
-                    1;
-
+                : $highestSortOrder + 1;
 
         /*
         |--------------------------------------------------------------------------
@@ -1170,24 +1140,20 @@ class PageSectionController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $duplicate =
-            $section
-                ->replicate([
-                    'id',
-                    'page_id',
-                    'sort_order',
-                    'created_at',
-                    'updated_at',
-                ]);
-
+        $duplicate = $section
+            ->replicate([
+                'id',
+                'page_id',
+                'sort_order',
+                'created_at',
+                'updated_at',
+            ]);
 
         $duplicate->page_id =
             $page->id;
 
-
         $duplicate->sort_order =
             $nextSortOrder;
-
 
         /*
         |--------------------------------------------------------------------------
@@ -1201,13 +1167,10 @@ class PageSectionController extends Controller
                 $duplicate->title
             ) !== ''
         ) {
-
             $duplicate->title =
                 $duplicate->title .
                 ' - Copy';
-
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -1216,7 +1179,6 @@ class PageSectionController extends Controller
         */
 
         $duplicate->save();
-
 
         return back()->with(
             'success',
@@ -1229,13 +1191,11 @@ class PageSectionController extends Controller
        CLEAR CMS SECTION CLIPBOARD
        ========================================================= */
 
-    public function clearClipboard():
-        RedirectResponse
+    public function clearClipboard(): RedirectResponse
     {
         session()->forget(
             'cms_section_clipboard'
         );
-
 
         return back()->with(
             'success',
@@ -1259,15 +1219,12 @@ class PageSectionController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $user =
-            $request->user();
-
+        $user = $request->user();
 
         abort_unless(
             $user,
             401
         );
-
 
         /*
         |--------------------------------------------------------------------------
@@ -1275,18 +1232,15 @@ class PageSectionController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $team =
-            $user
-                ->currentTeam()
-                ->first();
-
+        $team = $user
+            ->currentTeam()
+            ->first();
 
         abort_unless(
             $team,
             403,
             'No active team selected.'
         );
-
 
         /*
         |--------------------------------------------------------------------------
@@ -1301,7 +1255,6 @@ class PageSectionController extends Controller
             403,
             'You do not belong to the active team.'
         );
-
 
         return $team;
     }

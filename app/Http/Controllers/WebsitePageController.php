@@ -81,6 +81,18 @@ class WebsitePageController extends Controller
         'schema_type',
     ];
 
+
+    public function careers(
+        TranslationService $translationService,
+        SchemaService $schemaService
+    ) {
+        return $this->show(
+            'careers',
+            $translationService,
+            $schemaService
+        );
+    }
+
     /**
      * Display a published CMS page using its slug.
      */
